@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- SEO -->
+  <title>ME — Your AI-Powered Personal Memory</title>
+  <meta name="description" content="ME is your AI-powered digital sanctuary. Capture everything. Organize nothing. Remember everything." />
+  <meta name="theme-color" content="#F8F6F1" />
+
+  <!-- Fonts & Styles -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="/static/css/style.css" />
+
+  <!-- Favicon (inline SVG as data URI for zero-dep) -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23111111'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' fill='%23F8F6F1' font-family='system-ui' font-weight='700' font-size='18'%3EME%3C/text%3E%3C/svg%3E" />
+</head>
+<body>
+
+
+
+<!-- ============================================================
+     SCREEN 1: Authentication
+     ============================================================ -->
+<div id="auth-screen" class="auth-screen">
+  <div class="auth-card">
+
+    <!-- Brand -->
+    <div class="auth-brand">
+      <div class="auth-brand-mark">
+        <span>ME</span>
+      </div>
+      <h1 class="auth-title" id="auth-title">Welcome back</h1>
+      <p class="auth-subtitle" id="auth-subtitle">Your digital sanctuary awaits</p>
+    </div>
+
+    <!-- Error -->
+    <div class="auth-error" id="auth-error" role="alert"></div>
+
+    <!-- Form -->
+    <form class="auth-form" id="auth-form" novalidate>
+
+      <!-- Name fields (register only) -->
+      <div id="name-group" class="hidden">
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label" for="first-name-input">First Name</label>
+          <input
+            class="form-input"
+            id="first-name-input"
+            name="first_name"
+            type="text"
+            placeholder="First name"
+            autocomplete="given-name"
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="last-name-input">Last Name</label>
+          <input
+            class="form-input"
+            id="last-name-input"
+            name="last_name"
+            type="text"
+            placeholder="Last name"
+            autocomplete="family-name"
+          />
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group">
+        <label class="form-label" for="email-input">Email</label>
+        <input
+          class="form-input"
+          id="email-input"
+          name="email"
+          type="email"
+          placeholder="you@example.com"
+          autocomplete="email"
+          required
+        />
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label class="form-label" for="password-input">Password</label>
+        <input
+          class="form-input"
+          id="password-input"
+          name="password"
+          type="password"
+          placeholder="••••••••"
+          autocomplete="current-password"
+          required
+        />
+      </div>
+
+      <button class="btn-primary" id="auth-btn" type="submit">Sign in</button>
+    </form>
+
+    <!-- Switch mode -->
+    <p class="auth-switch" id="auth-switch-text">
+      Don't have an account? <a id="auth-toggle-btn">Sign up</a>
+    </p>
+
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 2: Main App
+     ============================================================ -->
+<div id="app-screen" class="app-screen hidden">
+
+  <!-- Navigation -->
+  <nav class="app-nav" role="navigation" aria-label="Main navigation">
+    <div class="app-nav-inner">
+
+      <!-- Brand -->
+      <div class="nav-brand">
+        <div class="nav-logo" aria-hidden="true">
+          <span>ME</span>
+        </div>
+        <span class="nav-wordmark">ME</span>
+        <span class="nav-tagline">· digital sanctuary</span>
+      </div>
+
+      <!-- Actions -->
+      <div class="nav-actions">
+
+
+
+        <!-- Refresh -->
+        <button class="nav-btn" id="refresh-btn" title="Refresh memories" aria-label="Refresh memories">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M1 8a7 7 0 1 0 7-7"/>
+            <polyline points="1 3 1 8 6 8"/>
+          </svg>
+          <span>Refresh</span>
+        </button>
+
+        <!-- Logout -->
+        <button class="nav-btn danger" id="logout-btn" title="Sign out" aria-label="Sign out">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6 2H2v12h4"/>
+            <polyline points="10 11 14 8 10 5"/>
+            <line x1="14" y1="8" x2="6" y2="8"/>
+          </svg>
+          <span>Sign out</span>
+        </button>
+
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="app-main" id="app-main" role="main">
+    <div class="container">
+
+      <!-- ── Capture Zone ── -->
+      <section aria-label="Capture a thought">
+        <div class="capture-zone" id="capture-zone">
+          <textarea
+            id="capture-input"
+            class="capture-textarea"
+            placeholder="What's on your mind? Capture everything — ideas, reflections, tasks, quotes…"
+            aria-label="Capture your thought"
+            rows="5"
+            maxlength="5000"
+          ></textarea>
+          <div class="capture-footer">
+            <span class="capture-char-count" id="char-count" aria-live="polite">0 / 5,000</span>
+            <button class="btn-capture" id="capture-btn" disabled aria-label="Save this memory">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="8" y1="2" x2="8" y2="14"/>
+                <line x1="2" y1="8" x2="14" y2="8"/>
+              </svg>
+              Capture
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── Ask ME Zone (RAG Assistant) ── -->
+      <section aria-label="Ask ME">
+        <div class="ask-me-zone" id="ask-me-zone">
+          <div class="ask-header">
+            <h2>Ask ME</h2>
+            <p>Ask a question, and I'll find the answer in your memories.</p>
+          </div>
+          
+          <div class="ask-input-group">
+            <input type="text" id="ask-input" class="ask-input" placeholder="e.g. Who did I meet at the startup event?" aria-label="Ask a question">
+            <button class="btn-primary ask-btn" id="ask-btn">Ask</button>
+          </div>
+          
+          <!-- Answer Display -->
+          <div id="ask-response-container" class="ask-response-container hidden">
+            <div id="ask-loading" class="ask-loading hidden">
+              <div class="spinner"></div>
+              <span>Thinking...</span>
+            </div>
+            
+            <div id="ask-answer-content" class="ask-answer-content hidden">
+              <div class="ask-answer-text" id="ask-answer-text"></div>
+              
+              <div class="ask-sources-header" id="ask-sources-header">
+                <h3>Sources</h3>
+                <span id="ask-sources-count" class="badge"></span>
+              </div>
+              <div class="ask-sources-grid" id="ask-sources-grid"></div>
+              
+              <button class="nav-btn ask-clear-btn" id="ask-clear-btn">Clear Answer</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+
+      <!-- ── Search Results Zone ── -->
+      <section aria-label="Search results" id="search-results-section" class="hidden">
+        <div class="section-header">
+          <h2 class="section-title">Search Results</h2>
+          <button class="nav-btn" id="clear-search-btn" title="Clear search" aria-label="Clear search">
+            <span>Clear Search</span>
+          </button>
+        </div>
+        
+        <div class="memory-feed" id="search-results-feed" role="feed" aria-label="Search results"></div>
+      </section>
+
+      <!-- ── Recent Captures ── -->
+      <section aria-label="Recent memories" id="recent-captures-section">
+
+        <div class="section-header">
+          <h2 class="section-title">Recent Captures</h2>
+          <span class="section-count" id="feed-count" aria-live="polite">0</span>
+        </div>
+
+
+
+        <!-- Memory cards injected here -->
+        <div class="memory-feed hidden" id="memory-feed" role="feed" aria-label="Captured memories"></div>
+
+        <!-- Empty state -->
+        <div class="empty-state hidden" id="empty-state">
+          <div class="empty-state-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="9" y1="13" x2="15" y2="13"/>
+              <line x1="9" y1="17" x2="12" y2="17"/>
+            </svg>
+          </div>
+          <div class="empty-state-title">Your canvas is clear</div>
+          <div class="empty-state-desc">
+            Start capturing your thoughts, ideas, and reflections above.<br/>
+            AI will organize them for you.
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+
+
+</div>
+
+<!-- Script -->
+<script type="module" src="/static/js/app.js"></script>
+
+</body>
+</html>
