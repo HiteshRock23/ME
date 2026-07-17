@@ -187,7 +187,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # =============================================================================
 # SUPERMEMORY CONFIGURATION (Memory Engine)
 # =============================================================================
-SUPERMEMORY_URL = config("SUPERMEMORY_URL", default="http://localhost:6767")
+SUPERMEMORY_URL = config("SUPERMEMORY_URL", default="http://195.35.6.26:6767")
 SUPERMEMORY_API_KEY = config("SUPERMEMORY_API_KEY", default="")
 SUPERMEMORY_TIMEOUT = config("SUPERMEMORY_TIMEOUT", default=10, cast=int)
 
@@ -198,4 +198,56 @@ SUPERMEMORY_TIMEOUT = config("SUPERMEMORY_TIMEOUT", default=10, cast=int)
 AI_API = config('AI_API', default='')
 AI_MODEL = config('AI_MODEL', default='meta/llama-3.1-8b-instruct')
 LLM_PROVIDER = config('LLM_PROVIDER', default='mock')
+
+# =============================================================================
+# LOGGING
+# =============================================================================
+# Structured, production-safe logging configuration.
+#
+# Security rules enforced here:
+#   - HTTP request/response detail blocks are emitted at DEBUG level only.
+#     Because _log_request/_log_response check settings.DEBUG before calling
+#     logger.debug(), they are fully silent when DEBUG=False — regardless of
+#     the level set here.
+#   - Headers, API keys, and authentication tokens are NEVER logged anywhere.
+# =============================================================================
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "standard": {
+            # e.g. 2026-07-17 17:38:07 INFO     apps.memories.services.supermemory_service: ...
+            "format": "%(asctime)s %(levelname)-8s %(name)s: %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "standard",
+        },
+    },
+    "loggers": {
+        # Supermemory integration — DEBUG enables request/response blocks in dev.
+        # In production (DEBUG=False) those blocks never fire; only ERROR logs surface.
+        "apps.memories.services.supermemory_service": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+        # Capture pipeline, ask service, search service, etc.
+        "apps.memories": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": False,
+        },
+        # Suppress Django's own verbose internal logs below WARNING.
+        "django": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+    },
+}
 

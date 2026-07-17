@@ -8,6 +8,8 @@ project lightweight and dependency-free.
 
 import json
 import logging
+import time
+import traceback
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -30,8 +32,8 @@ class SupermemoryService:
     """
 
     def __init__(self) -> None:
-        """Initialize configuration from Django settings."""
-        self.base_url: str = getattr(settings, "SUPERMEMORY_URL", "http://localhost:6767").rstrip("/")
+        """Initialize configuration from Django settings (populated from .env via python-decouple)."""
+        self.base_url: str = getattr(settings, "SUPERMEMORY_URL", "http://195.35.6.26:6767").rstrip("/")
         self.api_key: str = getattr(settings, "SUPERMEMORY_API_KEY", "")
         self.timeout: int = getattr(settings, "SUPERMEMORY_TIMEOUT", 10)
         self.headers: Dict[str, str] = {}
@@ -57,6 +59,46 @@ class SupermemoryService:
         self.headers = {}
         logger.debug("SupermemoryService disconnected")
 
+    # ------------------------------------------------------------------
+    # Private logging helpers
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _log_request(method: str, url: str, body: Optional[bytes], timeout: int) -> None:
+        """
+        Emit a formatted HTTP request log — only in DEBUG mode.
+        Never logs headers, API keys, or any authentication material.
+        """
+        from django.conf import settings as _settings
+        if not _settings.DEBUG:
+            return
+        body_str = body.decode("utf-8") if body else "(empty)"
+        logger.debug(
+            "\n%s\nHTTP REQUEST\n"
+            "METHOD      : %s\n"
+            "URL         : %s\n"
+            "BODY        : %s\n"
+            "TIMEOUT     : %ss\n%s",
+            "-" * 60, method, url, body_str, timeout, "-" * 60,
+        )
+
+    @staticmethod
+    def _log_response(status: int, reason: str, duration_ms: int) -> None:
+        """
+        Emit a formatted HTTP response log — only in DEBUG mode.
+        """
+        from django.conf import settings as _settings
+        if not _settings.DEBUG:
+            return
+        logger.debug(
+            "\nHTTP RESPONSE\n"
+            "STATUS      : %s %s\n"
+            "DURATION    : %sms\n%s",
+            status, reason, duration_ms, "-" * 60,
+        )
+
+    # ------------------------------------------------------------------
+
     def _make_request(
         self,
         path: str,
@@ -81,7 +123,7 @@ class SupermemoryService:
         """
         # Build absolute URL
         url = f"{self.base_url}{path}"
-        
+
         # Ensure headers are initialized (implicitly call connect if not done)
         if not self.headers:
             self.connect()
@@ -103,10 +145,15 @@ class SupermemoryService:
             method=method,
         )
 
+        # Log the outgoing request (DEBUG only — no headers/credentials logged)
+        self._log_request(method, url, req_body, self.timeout)
+
         try:
-            logger.debug("Sending %s request to %s", method, url)
+            start_time = time.monotonic()
             with urllib.request.urlopen(request, timeout=self.timeout) as response:
                 resp_data = response.read().decode("utf-8")
+                duration_ms = int((time.monotonic() - start_time) * 1000)
+                self._log_response(response.status, response.reason or "OK", duration_ms)
                 if not resp_data:
                     return {}
                 return json.loads(resp_data)
@@ -114,41 +161,43 @@ class SupermemoryService:
         except urllib.error.HTTPError as exc:
             # Server responded with an error code (4xx or 5xx)
             err_content = exc.read().decode("utf-8")
-            logger.error(
-                "Supermemory API error: %d %s - Content: %s",
-                exc.code,
-                exc.reason,
-                err_content,
-            )
-            # Try parsing JSON error details if possible
             details = err_content
             try:
                 parsed_err = json.loads(err_content)
                 details = parsed_err.get("error", err_content)
             except json.JSONDecodeError:
                 pass
-
+            logger.error(
+                "SupermemoryAPIError: %s %s → HTTP %d %s | %s",
+                method, url, exc.code, exc.reason, details,
+            )
             raise SupermemoryAPIError(
                 f"Supermemory server returned HTTP {exc.code}: {details}"
             ) from exc
 
         except urllib.error.URLError as exc:
-            # Network layer issue, name resolution, or server offline
-            logger.error("Supermemory connection failed: %s", exc.reason)
+            logger.error(
+                "SupermemoryConnectionError: %s %s → %s",
+                method, url, exc.reason,
+            )
             raise SupermemoryConnectionError(
                 f"Failed to connect to Supermemory Local at {self.base_url}: {exc.reason}"
             ) from exc
 
         except TimeoutError as exc:
-            # Timed out during connection/read
-            logger.error("Supermemory request timed out (limit=%d seconds)", self.timeout)
+            logger.error(
+                "SupermemoryConnectionError: %s %s → timed out after %ss",
+                method, url, self.timeout,
+            )
             raise SupermemoryConnectionError(
                 f"Request to Supermemory Local timed out after {self.timeout} seconds."
             ) from exc
 
         except Exception as exc:
-            # Generic catch-all for parsing or execution anomalies
-            logger.error("Unexpected error in Supermemory integration: %s", exc)
+            logger.error(
+                "SupermemoryError: %s %s → %s: %s\n%s",
+                method, url, type(exc).__name__, exc, traceback.format_exc(),
+            )
             raise SupermemoryError(f"Unexpected Supermemory integration failure: {exc}") from exc
 
     def health_check(self) -> bool:
