@@ -204,14 +204,14 @@ class SupermemoryService:
         """
         Check if the Supermemory Local instance is running and reachable.
 
-        Queries the '/v3/settings' endpoint. If it responds with HTTP 200,
+        Queries the '/v4/profile' endpoint. If it responds with HTTP 200,
         the service is considered healthy.
 
         Returns:
             True if healthy and reachable, False otherwise.
         """
         try:
-            self._make_request("/v3/settings", method="GET")
+            self._make_request("/v4/profile", method="POST", data={"containerTag": "me_app", "include": []})
             return True
         except (SupermemoryConnectionError, SupermemoryAPIError) as exc:
             logger.warning("Supermemory health check failed: %s", exc)
@@ -228,7 +228,7 @@ class SupermemoryService:
         """
         Fetch setting and configuration information from the Supermemory Local instance.
 
-        Queries the '/v3/settings' endpoint.
+        Queries the '/v4/profile' endpoint.
 
         Returns:
             A dictionary containing server settings.
@@ -237,11 +237,11 @@ class SupermemoryService:
             SupermemoryConnectionError: If the server is offline or times out.
             SupermemoryAPIError: If the server returns a non-2xx status code.
         """
-        return self._make_request("/v3/settings", method="GET")
+        return self._make_request("/v4/profile", method="POST", data={"containerTag": "me_app"})
 
-    def store_memory(self, content: str, memory_id: int, user_id: int = None) -> str:
+    def store_memory(self, content: str, memory_id: int, user_id: int = None, link_title: str = "") -> str:
         """
-        Store a raw memory in Supermemory Local.
+        Store a raw memory in Supermemory Local v4.
 
         Args:
             content: The raw text content of the memory.
@@ -249,30 +249,42 @@ class SupermemoryService:
             user_id: The local PostgreSQL User ID (optional, for metadata filtering).
 
         Returns:
-            The Supermemory document ID as a string.
+            The Supermemory document/memory ID as a string.
 
         Raises:
             SupermemoryConnectionError: If the server is offline.
             SupermemoryAPIError: If the API rejects the request.
         """
+        payload_content = f"{link_title}\n{content}" if link_title else content
+        
+        metadata = {"memory_id": memory_id}
+        if user_id is not None:
+            metadata["user_id"] = user_id
+
         payload = {
-            "content": content,
-            "customId": f"me_memory_{memory_id}"
+            "containerTag": "me_app",
+            "memories": [
+                {
+                    "content": payload_content,
+                    "metadata": metadata
+                }
+            ]
         }
         
-        if user_id is not None:
-            payload["metadata"] = {"user_id": user_id}
+        response = self._make_request("/v4/memories", method="POST", data=payload)
         
-        response = self._make_request("/v3/documents", method="POST", data=payload)
-        
-        if "id" not in response:
-            raise SupermemoryAPIError(f"Unexpected response format from Supermemory: {response}")
-            
-        return str(response["id"])
+        # Supermemory v4 returns `{"memories": [{"id": "..."}]}`
+        try:
+            return str(response["memories"][0]["id"])
+        except (KeyError, IndexError):
+            # Fallback if the response schema is slightly different
+            if "documentId" in response and response["documentId"]:
+                return str(response["documentId"])
+            raise SupermemoryAPIError(f"Unexpected response format from Supermemory v4: {response}")
 
     def delete_memory(self, document_id: str) -> None:
         """
-        Delete a memory from Supermemory Local.
+        Delete a memory from Supermemory Local v4.
 
         Args:
             document_id: The Supermemory document ID.
@@ -284,8 +296,12 @@ class SupermemoryService:
         if not document_id:
             return
             
-        # DELETE endpoints usually return 204 No Content, our _make_request parses empty bodies as {}
-        self._make_request(f"/v3/documents/{urllib.parse.quote(document_id)}", method="DELETE")
+        payload = {
+            "containerTag": "me_app",
+            "id": document_id
+        }
+        
+        self._make_request("/v4/memories", method="DELETE", data=payload)
 
     def search(self, query: str) -> list[dict]:
         """
@@ -302,7 +318,10 @@ class SupermemoryService:
             SupermemoryConnectionError: If the server is offline.
             SupermemoryAPIError: If the API rejects the request.
         """
-        payload = {"q": query}
-        response = self._make_request("/v3/search", method="POST", data=payload)
+        payload = {
+            "containerTag": "me_app",
+            "q": query
+        }
+        response = self._make_request("/v4/search", method="POST", data=payload)
         
         return response.get("results", [])

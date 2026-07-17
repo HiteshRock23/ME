@@ -109,7 +109,7 @@ export const ui = {
         container.innerHTML = '<div class="timeline-loading">Loading memories...</div>';
     },
 
-    renderTimeline(memories, onDeleteClick) {
+    renderTimeline(memories, onDeleteClick, onEditTitleClick) {
         const container = document.getElementById('memory-feed');
         const emptyState = document.getElementById('empty-state');
         const feedCount = document.getElementById('feed-count');
@@ -128,7 +128,7 @@ export const ui = {
         if (feedCount) feedCount.textContent = memories.length.toString();
 
         memories.forEach(memory => {
-            const card = this.createMemoryCard(memory, onDeleteClick);
+            const card = this.createMemoryCard(memory, onDeleteClick, onEditTitleClick);
             container.appendChild(card);
         });
     },
@@ -148,7 +148,7 @@ export const ui = {
         feed.innerHTML = '<div class="timeline-loading">Searching memories...</div>';
     },
 
-    renderSearchResults(results, onDeleteClick) {
+    renderSearchResults(results, onDeleteClick, onEditTitleClick) {
         const section = document.getElementById('search-results-section');
         const feed = document.getElementById('search-results-feed');
         const recent = document.getElementById('recent-captures-section');
@@ -168,7 +168,7 @@ export const ui = {
         }
 
         results.forEach(memory => {
-            const card = this.createMemoryCard(memory, onDeleteClick);
+            const card = this.createMemoryCard(memory, onDeleteClick, onEditTitleClick);
             feed.appendChild(card);
         });
     },
@@ -183,7 +183,7 @@ export const ui = {
         document.getElementById('recent-captures-section').classList.remove('hidden');
     },
 
-    createMemoryCard(memory, onDeleteClick) {
+    createMemoryCard(memory, onDeleteClick, onEditTitleClick) {
         const article = document.createElement('article');
         article.className = 'memory-card';
         article.id = `memory-${memory.id}`;
@@ -207,7 +207,7 @@ export const ui = {
             // Always renders with icon, title, domain badge, and clickable URL.
             // Status (pending/failed/ready) still applies to the status badge only.
             // -------------------------------------------------------------------
-            const title = memory.ai_title || 'Saved Link';
+            const title = memory.link_title || memory.ai_title || 'Saved Link';
             const domain = memory.domain || '';
             const url = memory.url || memory.raw_content;
 
@@ -280,9 +280,12 @@ export const ui = {
             ${bodyHtml}
             <div class="memory-card-footer">
                 <time class="memory-card-time" datetime="${memory.created_at}">${dateString} at ${timeString}</time>
-                <button class="nav-btn danger delete-btn" aria-label="Delete memory">
-                    Delete
-                </button>
+                <div class="memory-card-actions">
+                    ${isLink ? '<button class="nav-btn edit-title-btn" aria-label="Edit title">Edit Title</button>' : ''}
+                    <button class="nav-btn danger delete-btn" aria-label="Delete memory">
+                        Delete
+                    </button>
+                </div>
             </div>
         `;
 
@@ -301,13 +304,31 @@ export const ui = {
             }
         });
 
+        const editTitleBtn = article.querySelector('.edit-title-btn');
+        if (editTitleBtn && onEditTitleClick) {
+            editTitleBtn.addEventListener('click', () => {
+                const newTitle = prompt('Enter a new title for this link:', memory.link_title || memory.ai_title || '');
+                if (newTitle !== null) {
+                    const originalText = editTitleBtn.innerHTML;
+                    editTitleBtn.innerHTML = 'Saving...';
+                    editTitleBtn.disabled = true;
+
+                    onEditTitleClick(memory.id, newTitle).catch(err => {
+                        editTitleBtn.innerHTML = originalText;
+                        editTitleBtn.disabled = false;
+                        this.showError(err.message);
+                    });
+                }
+            });
+        }
+
         return article;
     },
 
-    updateMemoryCard(memory, onDeleteClick) {
+    updateMemoryCard(memory, onDeleteClick, onEditTitleClick) {
         const oldCard = document.getElementById(`memory-${memory.id}`);
         if (oldCard) {
-            const newCard = this.createMemoryCard(memory, onDeleteClick);
+            const newCard = this.createMemoryCard(memory, onDeleteClick, onEditTitleClick);
             oldCard.replaceWith(newCard);
         }
     },

@@ -53,19 +53,23 @@ class MemoryListView(generics.ListAPIView):
         return Memory.objects.filter(user=self.request.user)
 
 
-class MemoryDetailView(generics.RetrieveDestroyAPIView):
+class MemoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     GET    /api/memories/<id>/  — retrieve a single memory
+    PATCH  /api/memories/<id>/  — update link_title (only for link memories)
     DELETE /api/memories/<id>/  — delete a memory
-
-    No PUT/PATCH — editing is postponed to V2 due to cascading
-    AI re-processing complexity.
 
     Scoped to the authenticated user — returns 404 for other users' memories.
     """
 
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = MemoryReadSerializer
+    http_method_names = ['get', 'patch', 'delete', 'head', 'options']
+
+    def get_serializer_class(self):
+        if self.request.method == 'PATCH':
+            from apps.memories.serializers import MemoryUpdateSerializer
+            return MemoryUpdateSerializer
+        return MemoryReadSerializer
 
     def get_queryset(self):
         return Memory.objects.filter(user=self.request.user)

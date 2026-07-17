@@ -763,9 +763,8 @@ body {
   line-height: 1.6;
 }
 
-/* =============================================================================
-   Ask ME Bar (Floating, fixed bottom)
-   ============================================================================= */
+
+
 .ask-me-bar {
   position: fixed;
   bottom: 0;
@@ -1287,4 +1286,35 @@ body {
   color: var(--accent-warm-hover);
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+/* =============================================================================
+   Memory Card — Text Content Classes (TEXT card body)
+   ============================================================================= */
+
+/* Shared base for raw content display */
+.memory-card-content {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin-bottom: var(--space-md);
+}
+
+/* Raw preview variant: muted, italic, clamped to 3 lines */
+.memory-card-content.raw-content-preview {
+  color: var(--text-tertiary);
+  font-style: italic;
+  margin-top: var(--space-sm);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  line-clamp: 3;
+  overflow: hidden;
+}
+
+/* Card body wrapper — consistent vertical rhythm */
+.memory-card-body {
+  margin-bottom: var(--space-sm);
 }

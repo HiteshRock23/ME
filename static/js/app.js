@@ -7,21 +7,28 @@ import { ui } from './ui.js';
  * Coordinates auth, api, and ui to run the application.
  */
 
+async function handleDeleteClick(id) {
+    await api.deleteMemory(id);
+    ui.removeMemoryCard(id);
+}
+
+async function handleEditTitleClick(id, newTitle) {
+    const updatedMemory = await api.updateMemoryTitle(id, newTitle);
+    ui.updateMemoryCard(updatedMemory, handleDeleteClick, handleEditTitleClick);
+}
+
 async function loadMemories() {
     ui.setTimelineLoading();
     try {
         const memories = await api.getMemories();
-        ui.renderTimeline(memories, async (id) => {
-            await api.deleteMemory(id);
-            ui.removeMemoryCard(id);
-        });
+        ui.renderTimeline(memories, handleDeleteClick, handleEditTitleClick);
         startPollingIfPending();
     } catch (e) {
         ui.showError("Failed to load memories: " + e.message);
         if (e.message.includes("Session expired") || e.message.includes("Unauthorized")) {
             ui.showScreen('auth-screen');
         } else {
-            ui.renderTimeline([], () => {});
+            ui.renderTimeline([], handleDeleteClick, handleEditTitleClick);
         }
     }
 }
@@ -44,10 +51,7 @@ function startPollingIfPending() {
                     if (card) {
                         const oldStatus = card.dataset.aiStatus;
                         if (oldStatus !== mem.ai_status) {
-                            ui.updateMemoryCard(mem, async (id) => {
-                                await api.deleteMemory(id);
-                                ui.removeMemoryCard(id);
-                            });
+                            ui.updateMemoryCard(mem, handleDeleteClick, handleEditTitleClick);
                         }
                         if (mem.ai_status === 'pending' || mem.ai_status === 'processing') {
                             stillPending = true;
@@ -136,12 +140,24 @@ function initAuthListeners() {
 function initAppListeners() {
     const captureInput = document.getElementById('capture-input');
     const captureBtn = document.getElementById('capture-btn');
+    const linkTitleInput = document.getElementById('link-title-input');
     const refreshBtn = document.getElementById('refresh-btn');
     const logoutBtn = document.getElementById('logout-btn');
 
     if (captureInput) {
         captureInput.addEventListener('input', () => {
             ui.updateCharCount();
+            
+            if (linkTitleInput) {
+                const val = captureInput.value.trim();
+                const isUrl = val.length > 0 && !val.includes(' ') && !val.includes('\n') && 
+                              (val.startsWith('http://') || val.startsWith('https://') || val.startsWith('www.'));
+                if (isUrl) {
+                    linkTitleInput.classList.remove('hidden');
+                } else {
+                    linkTitleInput.classList.add('hidden');
+                }
+            }
         });
     }
 
@@ -149,12 +165,19 @@ function initAppListeners() {
         captureBtn.addEventListener('click', async () => {
             const content = captureInput.value.trim();
             if (!content) return;
+            
+            const linkTitle = (linkTitleInput && !linkTitleInput.classList.contains('hidden')) 
+                ? linkTitleInput.value.trim() : "";
 
             ui.setCaptureState(true);
 
             try {
-                await api.captureMemory(content);
+                await api.captureMemory(content, linkTitle);
                 ui.clearCaptureInput();
+                if (linkTitleInput) {
+                    linkTitleInput.value = '';
+                    linkTitleInput.classList.add('hidden');
+                }
                 // Reload timeline to show the new memory (which will be in pending state)
                 await loadMemories();
             } catch (err) {
@@ -186,18 +209,18 @@ function initAppListeners() {
                 try {
                     const response = await api.searchMemories(query);
                     ui.renderSearchResults(response.results, async (id) => {
-                        await api.deleteMemory(id);
+                        await handleDeleteClick(id);
                         // For simplicity, just clear and reload search if we delete a search result
                         const curQuery = searchInput.value.trim();
                         if (curQuery) {
                             const newResp = await api.searchMemories(curQuery);
-                            ui.renderSearchResults(newResp.results, async (id) => {
-                                await api.deleteMemory(id);
+                            ui.renderSearchResults(newResp.results, async (delId) => {
+                                await handleDeleteClick(delId);
                                 ui.clearSearch();
                                 loadMemories();
-                            });
+                            }, handleEditTitleClick);
                         }
-                    });
+                    }, handleEditTitleClick);
                 } catch (err) {
                     ui.showError("Search failed: " + err.message);
                     ui.clearSearch();

@@ -46,19 +46,34 @@ def perform_search(user, query: str) -> List[Dict[str, Any]]:
         return []
 
     # 2. Extract database primary keys and map scores
-    # Supermemory documentId format: "me_memory_<pk>"
     pk_to_score = {}
     ranked_pks = []
     
     for item in sm_results:
-        doc_id = item.get("documentId", "")
-        if doc_id.startswith("me_memory_"):
+        # v4 uses 'similarity' instead of 'score'
+        score = item.get("similarity", item.get("score", 0.0))
+        
+        # In v4, we store 'memory_id' in metadata.
+        # Fallback to parsing the string ID for backwards compatibility with v3 data.
+        metadata = item.get("metadata") or {}
+        pk = metadata.get("memory_id")
+        
+        if pk is None:
+            # Fallback for old documents that had customId = "me_memory_<pk>"
+            # In v4, this might be returned as 'id' instead of 'documentId'.
+            doc_id = item.get("id", item.get("documentId", ""))
+            if isinstance(doc_id, str) and doc_id.startswith("me_memory_"):
+                try:
+                    pk = int(doc_id.split("_")[-1])
+                except (ValueError, TypeError):
+                    continue
+                    
+        if pk is not None:
             try:
-                pk = int(doc_id.split("_")[-1])
-                score = item.get("score", 0.0)
+                pk = int(pk)
                 pk_to_score[pk] = score
                 ranked_pks.append(pk)
-            except ValueError:
+            except (ValueError, TypeError):
                 continue
 
     if not ranked_pks:

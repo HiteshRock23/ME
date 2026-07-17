@@ -53,10 +53,10 @@ async function apiFetch(url, options = {}) {
 }
 
 export const api = {
-    async captureMemory(content) {
+    async captureMemory(content, linkTitle = "") {
         return await apiFetch(`${API_BASE}/capture/`, {
             method: 'POST',
-            body: JSON.stringify({ raw_content: content })
+            body: JSON.stringify({ raw_content: content, link_title: linkTitle })
         });
     },
 
@@ -67,6 +67,13 @@ export const api = {
     async deleteMemory(id) {
         return await apiFetch(`${API_BASE}/${id}/`, {
             method: 'DELETE'
+        });
+    },
+
+    async updateMemoryTitle(id, linkTitle) {
+        return await apiFetch(`${API_BASE}/${id}/`, {
+            method: 'PATCH',
+            body: JSON.stringify({ link_title: linkTitle })
         });
     },
 

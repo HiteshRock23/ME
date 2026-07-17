@@ -29,7 +29,7 @@ from apps.memories.services.supermemory_service import SupermemoryService
 logger = logging.getLogger(__name__)
 
 
-def capture_memory(user, raw_content: str) -> Memory:
+def capture_memory(user, raw_content: str, link_title: str = "") -> Memory:
     """
     Capture a new memory for the given user.
 
@@ -71,6 +71,8 @@ def capture_memory(user, raw_content: str) -> Memory:
         raw_content=raw_content,
         url=classification.url,
         domain=classification.domain or "",
+        link_url=classification.url if classification.memory_type == "link" else None,
+        link_title=link_title if classification.memory_type == "link" else "",
         # Pre-populate the title from metadata for link memories.
         # AI enrichment will refine text memories; links get their
         # display title here so the card shows something useful immediately.
@@ -90,6 +92,7 @@ def capture_memory(user, raw_content: str) -> Memory:
             content=memory.raw_content,
             memory_id=memory.pk,
             user_id=memory.user_id,
+            link_title=link_title,
         )
 
         memory.supermemory_document_id = doc_id

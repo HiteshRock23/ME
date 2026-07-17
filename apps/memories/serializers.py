@@ -12,13 +12,18 @@ class CaptureSerializer(serializers.Serializer):
     """
 
     raw_content = serializers.CharField()
+    link_title = serializers.CharField(max_length=255, required=False, allow_blank=True)
 
     def create(self, validated_data: dict) -> Memory:
         """Delegate to the capture service."""
-        from apps.memories.services import capture_memory
+        from apps.memories.services.capture_service import capture_memory
 
         user = self.context["request"].user
-        return capture_memory(user=user, raw_content=validated_data["raw_content"])
+        return capture_memory(
+            user=user, 
+            raw_content=validated_data["raw_content"],
+            link_title=validated_data.get("link_title", "")
+        )
 
 
 class MemoryReadSerializer(serializers.ModelSerializer):
@@ -37,6 +42,8 @@ class MemoryReadSerializer(serializers.ModelSerializer):
             "raw_content",
             "url",
             "domain",
+            "link_url",
+            "link_title",
             "ai_title",
             "ai_summary",
             "ai_status",
@@ -44,3 +51,12 @@ class MemoryReadSerializer(serializers.ModelSerializer):
             "updated_at",
         ]
         read_only_fields = fields
+
+class MemoryUpdateSerializer(serializers.ModelSerializer):
+    """
+    Serializer for updating specific fields of a memory.
+    Currently only supports updating link_title for LINK memories.
+    """
+    class Meta:
+        model = Memory
+        fields = ["link_title"]

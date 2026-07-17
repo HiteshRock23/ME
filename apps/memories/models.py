@@ -67,6 +67,19 @@ class Memory(models.Model):
         help_text="The extracted domain for LINK memories (e.g. github.com).",
     )
 
+    link_url = models.URLField(
+        blank=True,
+        null=True,
+        help_text="URL field for LINK memories (V2 requirement).",
+    )
+
+    link_title = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        help_text="User-provided custom title for LINK memories.",
+    )
+
     ai_title = models.CharField(
         max_length=255,
         blank=True,
