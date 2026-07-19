@@ -1318,3 +1318,109 @@ body {
 .memory-card-body {
   margin-bottom: var(--space-sm);
 }
+
+/* =============================================================================
+   PWA Components
+   ============================================================================= */
+
+.pwa-banner {
+  background-color: var(--text-primary);
+  color: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.pwa-banner-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.pwa-banner-content {
+  color: #DCDCDC;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.pwa-banner-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 0 0;
+}
+
+.pwa-banner-content li {
+  position: relative;
+  padding-left: 16px;
+  margin-bottom: 4px;
+}
+
+.pwa-banner-content li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: var(--bg-primary);
+}
+
+.pwa-banner-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.btn-pwa-primary {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 8px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.btn-pwa-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-pwa-secondary {
+  background-color: transparent;
+  color: #DCDCDC;
+  border: 1px solid #555;
+  border-radius: var(--radius-md);
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-pwa-secondary:hover {
+  background-color: rgba(255,255,255,0.1);
+  color: white;
+}
+
+/* Update Banner specifics */
+#pwa-update-banner {
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+}
+
+/* Standalone adjustments */
+@media all and (display-mode: standalone) {
+  .app-nav {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+

@@ -1,6 +1,7 @@
 import { auth } from './auth.js';
 import { api } from './api.js';
 import { ui } from './ui.js';
+import { initPWA, promptInstall, dismissBanner, refreshApp } from './pwa.js';
 
 /**
  * App Initialization
@@ -277,9 +278,22 @@ function initAppListeners() {
             ui.showScreen('auth-screen');
         });
     }
+
+    const pwaNavBtn = document.getElementById('pwa-nav-btn');
+    if (pwaNavBtn) pwaNavBtn.addEventListener('click', promptInstall);
+
+    const pwaBannerBtn = document.getElementById('pwa-banner-install-btn');
+    if (pwaBannerBtn) pwaBannerBtn.addEventListener('click', promptInstall);
+
+    const pwaBannerDismissBtn = document.getElementById('pwa-banner-dismiss-btn');
+    if (pwaBannerDismissBtn) pwaBannerDismissBtn.addEventListener('click', dismissBanner);
+
+    const pwaUpdateRefreshBtn = document.getElementById('pwa-update-refresh-btn');
+    if (pwaUpdateRefreshBtn) pwaUpdateRefreshBtn.addEventListener('click', refreshApp);
 }
 
 function init() {
+    initPWA();
     initAuthListeners();
     initAppListeners();
 

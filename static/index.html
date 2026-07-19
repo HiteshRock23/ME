@@ -9,6 +9,12 @@
   <meta name="description" content="ME is your AI-powered digital sanctuary. Capture everything. Organize nothing. Remember everything." />
   <meta name="theme-color" content="#F8F6F1" />
 
+  <!-- PWA / Apple Meta Tags -->
+  <link rel="manifest" href="/static/manifest.json" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-touch-icon" href="/static/icons/icon-192.png" />
+
   <!-- Fonts & Styles -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -128,7 +134,15 @@
       <!-- Actions -->
       <div class="nav-actions">
 
-
+        <!-- Install PWA -->
+        <button class="nav-btn hidden pwa-nav-btn" id="pwa-nav-btn" title="Install App" aria-label="Install App">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width: 16px; height: 16px;">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          <span>Install</span>
+        </button>
 
         <!-- Refresh -->
         <button class="nav-btn" id="refresh-btn" title="Refresh memories" aria-label="Refresh memories">
@@ -156,6 +170,35 @@
   <!-- Main Content -->
   <main class="app-main" id="app-main" role="main">
     <div class="container">
+
+      <!-- PWA Update Banner -->
+      <div id="pwa-update-banner" class="pwa-banner hidden">
+        <div class="pwa-banner-header">
+          <span>✨ New version available</span>
+        </div>
+        <div class="pwa-banner-actions">
+          <button class="btn-pwa-primary" id="pwa-update-refresh-btn">Refresh</button>
+        </div>
+      </div>
+
+      <!-- PWA Install Banner -->
+      <div id="pwa-install-banner" class="pwa-banner hidden">
+        <div class="pwa-banner-header">
+          <span>✨ Install ME</span>
+        </div>
+        <div class="pwa-banner-content">
+          Use ME like a native app.
+          <ul>
+            <li>Faster launch</li>
+            <li>One-tap access</li>
+            <li>Full-screen experience</li>
+          </ul>
+        </div>
+        <div class="pwa-banner-actions">
+          <button class="btn-pwa-primary" id="pwa-banner-install-btn">Install App</button>
+          <button class="btn-pwa-secondary" id="pwa-banner-dismiss-btn">Maybe Later</button>
+        </div>
+      </div>
 
       <!-- ── Capture Zone ── -->
       <section aria-label="Capture a thought">
