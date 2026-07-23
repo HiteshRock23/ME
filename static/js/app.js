@@ -2,6 +2,10 @@ import { auth } from './auth.js';
 import { api } from './api.js';
 import { ui } from './ui.js';
 import { initPWA, promptInstall, dismissBanner, refreshApp } from './pwa.js';
+import { initGoogleAuth } from './google.js';
+import { router } from './router.js';
+import { analytics } from './analytics.js';
+import { memoryController } from './memory-controller.js';
 
 /**
  * App Initialization
@@ -25,10 +29,11 @@ async function loadMemories() {
         ui.renderTimeline(memories, handleDeleteClick, handleEditTitleClick);
         startPollingIfPending();
     } catch (e) {
-        ui.showError("Failed to load memories: " + e.message);
         if (e.message.includes("Session expired") || e.message.includes("Unauthorized")) {
-            ui.showScreen('auth-screen');
+            auth.clearTokens();
+            router.navigate('/auth');
         } else {
+            ui.showError("Failed to load memories: " + e.message);
             ui.renderTimeline([], handleDeleteClick, handleEditTitleClick);
         }
     }
@@ -51,7 +56,11 @@ function startPollingIfPending() {
                     const card = document.getElementById(`memory-${mem.id}`);
                     if (card) {
                         const oldStatus = card.dataset.aiStatus;
-                        if (oldStatus !== mem.ai_status) {
+                        const titleEl = card.querySelector('.memory-card-title');
+                        const isTempTitle = titleEl && (titleEl.textContent === 'New Memory' || titleEl.textContent === 'Link Saved');
+                        const hasNewTitle = mem.ai_title && isTempTitle;
+
+                        if (oldStatus !== mem.ai_status || hasNewTitle) {
                             ui.updateMemoryCard(mem, handleDeleteClick, handleEditTitleClick);
                         }
                         if (mem.ai_status === 'pending' || mem.ai_status === 'processing') {
@@ -126,8 +135,7 @@ function initAuthListeners() {
             }
             
             // Success
-            ui.showScreen('app-screen');
-            loadMemories();
+            router.navigate('/dashboard');
             document.getElementById('capture-input').focus();
         } catch (err) {
             ui.showError(err.message);
@@ -253,6 +261,7 @@ function initAppListeners() {
                 ui.renderAskAnswer(response);
             } catch (err) {
                 ui.setAskLoading(false);
+                ui.clearAskAnswer();   // Hide the white container on error
                 ui.showError(err.message);
             }
         };
@@ -275,7 +284,7 @@ function initAppListeners() {
     if (logoutBtn) {
         logoutBtn.addEventListener('click', async () => {
             await auth.logout();
-            ui.showScreen('auth-screen');
+            router.navigate('/');
         });
     }
 
@@ -290,20 +299,115 @@ function initAppListeners() {
 
     const pwaUpdateRefreshBtn = document.getElementById('pwa-update-refresh-btn');
     if (pwaUpdateRefreshBtn) pwaUpdateRefreshBtn.addEventListener('click', refreshApp);
+
+    // Drawer close handlers
+    const drawerCloseBtn = document.getElementById('drawer-close-btn');
+    const drawerBackdrop = document.getElementById('memory-drawer-backdrop');
+
+    // Viewer close: all paths go through router → MemoryController.close() → ui.closeMemoryViewer()
+    const handleCloseViewer = () => {
+        if (window.location.pathname.startsWith('/memory/')) {
+            router.navigate('/dashboard');
+        } else {
+            // If somehow on dashboard already, just close visually
+            ui.closeMemoryViewer();
+        }
+    };
+
+    if (drawerCloseBtn) drawerCloseBtn.addEventListener('click', handleCloseViewer);
+    if (drawerBackdrop) drawerBackdrop.addEventListener('click', handleCloseViewer);
+
+    // Click delegation: Ask ME referenced memories → Router
+    const askSourcesGrid = document.getElementById('ask-sources-grid');
+    if (askSourcesGrid) {
+        askSourcesGrid.addEventListener('click', (e) => {
+            const card = e.target.closest('.memory-reference-card');
+            if (card && card.dataset.memoryId) {
+                router.navigate(`/memory/${card.dataset.memoryId}`);
+            }
+        });
+    }
+
+    // Click delegation: Related memories inside the viewer → Router
+    const drawerRelatedGrid = document.getElementById('drawer-related-grid');
+    if (drawerRelatedGrid) {
+        drawerRelatedGrid.addEventListener('click', (e) => {
+            const card = e.target.closest('.memory-reference-card');
+            if (card && card.dataset.memoryId) {
+                router.navigate(`/memory/${card.dataset.memoryId}`);
+            }
+        });
+    }
+
+    // Keyboard: Escape closes viewer via Router
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && window.location.pathname.startsWith('/memory/')) {
+            router.navigate('/dashboard');
+        }
+    });
 }
+
 
 function init() {
     initPWA();
+    initGoogleAuth();
     initAuthListeners();
     initAppListeners();
 
-    if (auth.isAuthenticated()) {
-        ui.showScreen('app-screen');
+    analytics.initScrollTracking();
+
+    // Dashboard enter: load the timeline.
+    // Fired by the Router on /dashboard and on /memory/:id (deep links only, when feed is empty).
+    // Debounce guard prevents double-fetch on rapid navigation.
+    let _dashboardLoadPending = false;
+    window.addEventListener('me:dashboard-enter', async () => {
+        if (_dashboardLoadPending) return;
+        _dashboardLoadPending = true;
+        try {
+            await loadMemories();
+        } finally {
+            _dashboardLoadPending = false;
+        }
+    });
+
+    // Memory mutated (edit title or delete): refresh the timeline.
+    window.addEventListener('me:memory-mutated', (e) => {
         loadMemories();
-    } else {
-        ui.showScreen('auth-screen');
-    }
+    });
+
+    // Memory card events — dispatched by ui.js, handled here where router+memoryController are available
+    window.addEventListener('me:open-memory', (e) => {
+        router.navigate(`/memory/${e.detail.id}`);
+    });
+    window.addEventListener('me:prefetch-memory', (e) => {
+        memoryController.prefetch(e.detail.id);
+    });
+    window.addEventListener('me:invalidate-memory', (e) => {
+        memoryController.invalidate(e.detail.id);
+    });
+    window.addEventListener('me:navigate', (e) => {
+        router.navigate(e.detail.path);
+    });
+
+    router.init();
 }
 
 // Start application
-document.addEventListener('DOMContentLoaded', init);
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
+
+// Hotkey listener for Cmd/Ctrl + K
+document.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        const captureInput = document.getElementById('capture-input');
+        if (captureInput) {
+            captureInput.focus();
+            if (window.analytics) window.analytics.track('Hotkey Used', { key: 'Cmd+K' });
+        }
+    }
+});
+

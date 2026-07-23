@@ -10,19 +10,27 @@ const AUTH_KEYS = {
 
 export const auth = {
     setTokens(access, refresh) {
-        if (access) sessionStorage.setItem(AUTH_KEYS.ACCESS, access);
-        if (refresh) sessionStorage.setItem(AUTH_KEYS.REFRESH, refresh);
+        if (access) {
+            localStorage.setItem(AUTH_KEYS.ACCESS, access);
+            sessionStorage.setItem(AUTH_KEYS.ACCESS, access);
+        }
+        if (refresh) {
+            localStorage.setItem(AUTH_KEYS.REFRESH, refresh);
+            sessionStorage.setItem(AUTH_KEYS.REFRESH, refresh);
+        }
     },
 
     getAccessToken() {
-        return sessionStorage.getItem(AUTH_KEYS.ACCESS);
+        return localStorage.getItem(AUTH_KEYS.ACCESS) || sessionStorage.getItem(AUTH_KEYS.ACCESS);
     },
 
     getRefreshToken() {
-        return sessionStorage.getItem(AUTH_KEYS.REFRESH);
+        return localStorage.getItem(AUTH_KEYS.REFRESH) || sessionStorage.getItem(AUTH_KEYS.REFRESH);
     },
 
     clearTokens() {
+        localStorage.removeItem(AUTH_KEYS.ACCESS);
+        localStorage.removeItem(AUTH_KEYS.REFRESH);
         sessionStorage.removeItem(AUTH_KEYS.ACCESS);
         sessionStorage.removeItem(AUTH_KEYS.REFRESH);
     },

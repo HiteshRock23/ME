@@ -23,7 +23,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data: dict) -> User:
         """Delegate user creation to the service layer."""
-        from apps.users.services import create_user
+        from apps.users.services.user_service import create_user
 
         return create_user(**validated_data)
 
@@ -35,3 +35,8 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ["id", "email", "first_name", "last_name", "date_joined"]
         read_only_fields = fields
+
+class GoogleLoginSerializer(serializers.Serializer):
+    """Serializer for Google authentication."""
+    credential = serializers.CharField(required=True)
+

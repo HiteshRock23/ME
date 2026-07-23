@@ -2,6 +2,7 @@ from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.conf import settings
 
 from apps.users.serializers import RegisterSerializer, UserSerializer
 
@@ -83,3 +84,64 @@ class MeView(generics.RetrieveAPIView):
 
     def get_object(self):
         return self.request.user
+
+from apps.users.serializers import GoogleLoginSerializer
+from apps.users.services.google_auth import GoogleAuthService
+from apps.users.services.jwt_service import get_tokens_for_user
+
+class GoogleLoginView(APIView):
+    """
+    POST /api/auth/google/
+
+    Authenticate a user via Google Identity Services.
+    Requires: { "credential": "<Google ID Token>" }
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        print("[BACKEND TRACE] GoogleLoginView.post reached. Request data keys:", list(request.data.keys()))
+        serializer = GoogleLoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        credential = serializer.validated_data["credential"]
+        print("[BACKEND TRACE] Received credential token (first 20 chars):", credential[:20] if credential else "None")
+        
+        try:
+            auth_service = GoogleAuthService()
+            idinfo = auth_service.verify_token(credential)
+            print("[BACKEND TRACE] Token verified successfully for email:", idinfo.get("email"))
+            user = auth_service.get_or_create_user(idinfo)
+            print("[BACKEND TRACE] User authenticated/created:", user.id, user.email)
+            
+            tokens = get_tokens_for_user(user)
+            print("[BACKEND TRACE] Generated JWT tokens successfully for user:", user.email)
+            
+            return Response(
+                {
+                    "user": UserSerializer(user).data,
+                    "access": tokens["access"],
+                    "refresh": tokens["refresh"],
+                },
+                status=status.HTTP_200_OK,
+            )
+        except ValueError as e:
+            print("[BACKEND TRACE] ValueError in GoogleLoginView:", str(e))
+            return Response({"detail": str(e)}, status=status.HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print("[BACKEND TRACE] Exception in GoogleLoginView:", str(e))
+            return Response({"detail": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class GoogleConfigView(APIView):
+    """
+    GET /api/auth/google/config/
+    Returns the Google Client ID for the frontend.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        client_id = getattr(settings, "GOOGLE_CLIENT_ID", None)
+        if not client_id:
+            return Response({"detail": "Google Client ID not configured."}, status=status.HTTP_501_NOT_IMPLEMENTED)
+        return Response({"client_id": client_id})
+

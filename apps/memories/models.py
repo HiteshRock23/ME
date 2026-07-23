@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.core.validators import MaxLengthValidator
 
 
 class Memory(models.Model):
@@ -51,7 +52,8 @@ class Memory(models.Model):
     )
 
     raw_content = models.TextField(
-        help_text="The user's unprocessed input. This is the source of truth.",
+        validators=[MaxLengthValidator(5000)],
+        help_text="The user's unprocessed input. Max 5000 characters.",
     )
 
     # Populated only for LINK memories.
