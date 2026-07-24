@@ -64,6 +64,14 @@ export const api = {
         return await apiFetch(`${API_BASE}/`);
     },
 
+    async getMemory(id) {
+        return await apiFetch(`${API_BASE}/${id}/`);
+    },
+
+    async getRelatedMemories(id) {
+        return await apiFetch(`${API_BASE}/${id}/related/`);
+    },
+
     async deleteMemory(id) {
         return await apiFetch(`${API_BASE}/${id}/`, {
             method: 'DELETE'
@@ -74,6 +82,13 @@ export const api = {
         return await apiFetch(`${API_BASE}/${id}/`, {
             method: 'PATCH',
             body: JSON.stringify({ link_title: linkTitle })
+        });
+    },
+
+    async updateMemoryContent(id, rawContent) {
+        return await apiFetch(`${API_BASE}/${id}/`, {
+            method: 'PATCH',
+            body: JSON.stringify({ raw_content: rawContent })
         });
     },
 

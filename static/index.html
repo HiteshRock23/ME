@@ -1,284 +1,412 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <title>ME - Never Forget Anything Again</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="description" content="ME remembers everything you save and lets you retrieve it instantly using natural language." />
+  
+  <meta name="theme-color" content="#FAF8F5" />
+  <link rel="manifest" href="/static/manifest.json" />
 
-  <!-- SEO -->
-  <title>ME — Your AI-Powered Personal Memory</title>
-  <meta name="description" content="ME is your AI-powered digital sanctuary. Capture everything. Organize nothing. Remember everything." />
-  <meta name="theme-color" content="#F8F6F1" />
-
-  <!-- Fonts & Styles -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="/static/css/style.css" />
 
-  <!-- Favicon (inline SVG as data URI for zero-dep) -->
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23111111'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='central' text-anchor='middle' fill='%23F8F6F1' font-family='system-ui' font-weight='700' font-size='18'%3EME%3C/text%3E%3C/svg%3E" />
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
-
-
 <!-- ============================================================
-     SCREEN 1: Authentication
+     SCREEN 0: Landing Page (Premium Production)
      ============================================================ -->
-<div id="auth-screen" class="auth-screen">
-  <div class="auth-card">
-
-    <!-- Brand -->
-    <div class="auth-brand">
-      <div class="auth-brand-mark">
-        <span>ME</span>
-      </div>
-      <h1 class="auth-title" id="auth-title">Welcome back</h1>
-      <p class="auth-subtitle" id="auth-subtitle">Your digital sanctuary awaits</p>
-    </div>
-
-    <!-- Error -->
-    <div class="auth-error" id="auth-error" role="alert"></div>
-
-    <!-- Form -->
-    <form class="auth-form" id="auth-form" novalidate>
-
-      <!-- Name fields (register only) -->
-      <div id="name-group" class="hidden">
-        <div class="form-group" style="margin-bottom: 12px;">
-          <label class="form-label" for="first-name-input">First Name</label>
-          <input
-            class="form-input"
-            id="first-name-input"
-            name="first_name"
-            type="text"
-            placeholder="First name"
-            autocomplete="given-name"
-          />
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="last-name-input">Last Name</label>
-          <input
-            class="form-input"
-            id="last-name-input"
-            name="last_name"
-            type="text"
-            placeholder="Last name"
-            autocomplete="family-name"
-          />
-        </div>
-      </div>
-
-      <!-- Email -->
-      <div class="form-group">
-        <label class="form-label" for="email-input">Email</label>
-        <input
-          class="form-input"
-          id="email-input"
-          name="email"
-          type="email"
-          placeholder="you@example.com"
-          autocomplete="email"
-          required
-        />
-      </div>
-
-      <!-- Password -->
-      <div class="form-group">
-        <label class="form-label" for="password-input">Password</label>
-        <input
-          class="form-input"
-          id="password-input"
-          name="password"
-          type="password"
-          placeholder="••••••••"
-          autocomplete="current-password"
-          required
-        />
-      </div>
-
-      <button class="btn-primary" id="auth-btn" type="submit">Sign in</button>
-    </form>
-
-    <!-- Switch mode -->
-    <p class="auth-switch" id="auth-switch-text">
-      Don't have an account? <a id="auth-toggle-btn">Sign up</a>
-    </p>
-
-  </div>
-</div>
-
-<!-- ============================================================
-     SCREEN 2: Main App
-     ============================================================ -->
-<div id="app-screen" class="app-screen hidden">
-
-  <!-- Navigation -->
-  <nav class="app-nav" role="navigation" aria-label="Main navigation">
-    <div class="app-nav-inner">
-
-      <!-- Brand -->
+<div id="landing-screen" class="landing-screen">
+  
+  <nav class="nav">
+    <div class="nav-inner">
       <div class="nav-brand">
-        <div class="nav-logo" aria-hidden="true">
-          <span>ME</span>
-        </div>
+        <div class="nav-logo" aria-hidden="true"><span>ME</span></div>
         <span class="nav-wordmark">ME</span>
-        <span class="nav-tagline">· digital sanctuary</span>
       </div>
-
-      <!-- Actions -->
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#security">Security</a>
+        <a href="#pricing">Pricing</a>
+      </div>
       <div class="nav-actions">
-
-
-
-        <!-- Refresh -->
-        <button class="nav-btn" id="refresh-btn" title="Refresh memories" aria-label="Refresh memories">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M1 8a7 7 0 1 0 7-7"/>
-            <polyline points="1 3 1 8 6 8"/>
-          </svg>
-          <span>Refresh</span>
-        </button>
-
-        <!-- Logout -->
-        <button class="nav-btn danger" id="logout-btn" title="Sign out" aria-label="Sign out">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M6 2H2v12h4"/>
-            <polyline points="10 11 14 8 10 5"/>
-            <line x1="14" y1="8" x2="6" y2="8"/>
-          </svg>
-          <span>Sign out</span>
-        </button>
-
+        <a href="/auth" data-route class="btn btn-primary" id="landing-cta-btn">Continue with Google</a>
       </div>
     </div>
   </nav>
 
-  <!-- Main Content -->
-  <main class="app-main" id="app-main" role="main">
-    <div class="container">
-
-      <!-- ── Capture Zone ── -->
-      <section aria-label="Capture a thought">
-        <div class="capture-zone" id="capture-zone">
-          <textarea
-            id="capture-input"
-            class="capture-textarea"
-            placeholder="What's on your mind? Capture everything — ideas, reflections, tasks, quotes…"
-            aria-label="Capture your thought"
-            rows="5"
-            maxlength="5000"
-          ></textarea>
-          <input
-            type="text"
-            id="link-title-input"
-            class="form-input hidden"
-            placeholder="Name (optional)"
-            aria-label="Link Title"
-            style="margin-bottom: 12px; margin-top: -12px;"
-          />
-          <div class="capture-footer">
-            <span class="capture-char-count" id="char-count" aria-live="polite">0 / 5,000</span>
-            <button class="btn-capture" id="capture-btn" disabled aria-label="Save this memory">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <line x1="8" y1="2" x2="8" y2="14"/>
-                <line x1="2" y1="8" x2="14" y2="8"/>
-              </svg>
-              Capture
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- ── Ask ME Zone (RAG Assistant) ── -->
-      <section aria-label="Ask ME">
-        <div class="ask-me-zone" id="ask-me-zone">
-          <div class="ask-header">
-            <h2>Ask ME</h2>
-            <p>Ask a question, and I'll find the answer in your memories.</p>
-          </div>
-          
-          <div class="ask-input-group">
-            <input type="text" id="ask-input" class="ask-input" placeholder="e.g. Who did I meet at the startup event?" aria-label="Ask a question">
-            <button class="btn-primary ask-btn" id="ask-btn">Ask</button>
-          </div>
-          
-          <!-- Answer Display -->
-          <div id="ask-response-container" class="ask-response-container hidden">
-            <div id="ask-loading" class="ask-loading hidden">
-              <div class="spinner"></div>
-              <span>Thinking...</span>
-            </div>
-            
-            <div id="ask-answer-content" class="ask-answer-content hidden">
-              <div class="ask-answer-text" id="ask-answer-text"></div>
-              
-              <div class="ask-sources-header" id="ask-sources-header">
-                <h3>Sources</h3>
-                <span id="ask-sources-count" class="badge"></span>
-              </div>
-              <div class="ask-sources-grid" id="ask-sources-grid"></div>
-              
-              <button class="nav-btn ask-clear-btn" id="ask-clear-btn">Clear Answer</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-
-
-      <!-- ── Search Results Zone ── -->
-      <section aria-label="Search results" id="search-results-section" class="hidden">
-        <div class="section-header">
-          <h2 class="section-title">Search Results</h2>
-          <button class="nav-btn" id="clear-search-btn" title="Clear search" aria-label="Clear search">
-            <span>Clear Search</span>
-          </button>
-        </div>
-        
-        <div class="memory-feed" id="search-results-feed" role="feed" aria-label="Search results"></div>
-      </section>
-
-      <!-- ── Recent Captures ── -->
-      <section aria-label="Recent memories" id="recent-captures-section">
-
-        <div class="section-header">
-          <h2 class="section-title">Recent Captures</h2>
-          <span class="section-count" id="feed-count" aria-live="polite">0</span>
-        </div>
-
-
-
-        <!-- Memory cards injected here -->
-        <div class="memory-feed hidden" id="memory-feed" role="feed" aria-label="Captured memories"></div>
-
-        <!-- Empty state -->
-        <div class="empty-state hidden" id="empty-state">
-          <div class="empty-state-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-              <polyline points="14 2 14 8 20 8"/>
-              <line x1="9" y1="13" x2="15" y2="13"/>
-              <line x1="9" y1="17" x2="12" y2="17"/>
-            </svg>
-          </div>
-          <div class="empty-state-title">Your canvas is clear</div>
-          <div class="empty-state-desc">
-            Start capturing your thoughts, ideas, and reflections above.<br/>
-            AI will organize them for you.
-          </div>
-        </div>
-
-      </section>
-
+  <!-- Hero Section -->
+  <header class="section container hero">
+    <h1 class="display-1">Never Forget<br>Anything Again.</h1>
+    <p class="hero-subtitle body-large">ME remembers everything you save and lets you retrieve it instantly using natural language. No folders, no tags, just memory.</p>
+    <div class="hero-actions">
+      <a href="/auth" data-route class="btn btn-primary btn-large">Continue with Google</a>
+      <button class="btn btn-outline btn-large">Watch Demo</button>
     </div>
-  </main>
+  </header>
 
+  <!-- Interactive Product Demo (Mockup) -->
+  <section class="section container text-center" style="padding-top: 0;">
+    <div class="demo-container">
+      <div class="demo-message">
+        <div class="demo-avatar user">U</div>
+        <div class="demo-bubble">Who is my brother?</div>
+      </div>
+      <div class="demo-message">
+        <div class="demo-avatar ai">ME</div>
+        <div class="demo-bubble">
+          Your brother's name is Prajwal.
+          <div class="demo-source">
+            <div class="demo-source-title">Memory Source</div>
+            <div class="demo-source-text">"My brother name is Prajwal" (Saved 2 days ago)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
+  <!-- Problem / Social Proof -->
+  <section class="statement-section">
+    <div class="container">
+      <h2 class="display-2" style="max-width: 800px; margin: 0 auto;">Your brain wasn't designed to remember everything.</h2>
+      <p class="body-large" style="margin-top: 16px;">Leave the storage to ME, keep your mind free for thinking.</p>
+    </div>
+  </section>
 
+  <!-- How It Works (Effortless Intelligence) -->
+  <section id="how-it-works" class="section container">
+    <div class="text-center">
+      <h2 class="display-3">Effortless Intelligence</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">1</div>
+        <h3 class="heading-1">Capture Anything</h3>
+        <p class="body-base">Drop links, type thoughts, or paste entire documents. ME takes it all.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">2</div>
+        <h3 class="heading-1">AI Processing</h3>
+        <p class="body-base">Our models analyze, extract entities, and understand context instantly.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">3</div>
+        <h3 class="heading-1">Instant Recall</h3>
+        <p class="body-base">Just ask naturally. ME connects the dots and gives you exact answers.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Security Section -->
+  <section id="security" class="security-section">
+    <div class="container">
+      <div class="text-center">
+        <h2 class="display-3">ME Security</h2>
+        <p class="body-large">Your memories belong to you. Private by default.</p>
+      </div>
+      <div class="security-grid">
+        <div class="security-card">
+          <h3 class="heading-2">Encrypted Storage</h3>
+          <p class="body-base">Everything is encrypted at rest and in transit.</p>
+        </div>
+        <div class="security-card">
+          <h3 class="heading-2">No Training on Data</h3>
+          <p class="body-base">We never use your personal memories to train public AI models.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Grid -->
+  <section id="features" class="section container">
+    <div class="text-center">
+      <h2 class="display-3">Guaranteed Features</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <h3 class="heading-2">Lightning Fast</h3>
+        <p class="body-base">Built for speed. Capture a thought in milliseconds.</p>
+      </div>
+      <div class="feature-card">
+        <h3 class="heading-2">Semantic Search</h3>
+        <p class="body-base">Find what you mean, not just the keywords you typed.</p>
+      </div>
+      <div class="feature-card">
+        <h3 class="heading-2">AI Summaries</h3>
+        <p class="body-base">Long articles summarized automatically for quick scanning.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison Table (Why ME) -->
+  <section class="section container">
+    <div class="text-center">
+      <h2 class="display-3">The Upgrade</h2>
+    </div>
+    <div class="comparison-container">
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Traditional Notes</th>
+            <th>ME</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Organization</td>
+            <td class="td-x">Manual folders & tags</td>
+            <td class="td-check">Automatic understanding</td>
+          </tr>
+          <tr>
+            <td>Search</td>
+            <td class="td-x">Exact keywords</td>
+            <td class="td-check">Semantic natural language</td>
+          </tr>
+          <tr>
+            <td>Recall</td>
+            <td class="td-x">Lost context</td>
+            <td class="td-check">Context preserved instantly</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section id="pricing" class="section container">
+    <div class="text-center">
+      <h2 class="display-3">Simple Pricing</h2>
+    </div>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <h3 class="heading-1">Free</h3>
+        <p class="body-base">Experience the future of memory.</p>
+        <div class="price">$0<span style="font-size: 1rem; color: var(--text-secondary);"> / forever</span></div>
+        <ul class="pricing-list">
+          <li>Unlimited text memories</li>
+          <li>Unlimited searches</li>
+          <li>AI summaries</li>
+          <li>Google Login</li>
+        </ul>
+        <a href="/auth" data-route class="btn btn-primary" style="width: 100%;">Get Started</a>
+      </div>
+      <div class="pricing-card pro">
+        <div class="pricing-badge">Coming Soon</div>
+        <h3 class="heading-1">PRO</h3>
+        <p class="body-base">For power users and professionals.</p>
+        <div class="price">$10<span style="font-size: 1rem; color: var(--text-secondary);"> / month</span></div>
+        <ul class="pricing-list">
+          <li>PDF & File support</li>
+          <li>Voice memories</li>
+          <li>Browser extensions</li>
+          <li>Priority AI models</li>
+        </ul>
+        <button class="btn btn-outline" disabled style="width: 100%;">Join Waitlist</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="section container text-center" style="margin-top: var(--spacing-4xl); margin-bottom: var(--spacing-4xl);">
+    <h2 class="display-2" style="margin-bottom: var(--spacing-lg);">Your memory deserves an upgrade.</h2>
+    <a href="/auth" data-route class="btn btn-primary btn-large">Continue with Google</a>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="nav-brand" style="justify-content: center; margin-bottom: var(--spacing-md);">
+        <div class="nav-logo" aria-hidden="true"><span>ME</span></div>
+        <span class="nav-wordmark">ME</span>
+      </div>
+      <p class="body-small">© 2026 ME Memory Systems. All rights reserved.</p>
+    </div>
+  </footer>
 </div>
 
-<!-- Script -->
-<script type="module" src="/static/js/app.js"></script>
+<!-- ============================================================
+     SCREEN 1: Authentication Modal (Frictionless)
+     ============================================================ -->
+<div id="auth-screen" class="auth-screen hidden">
+  <a href="/" data-route class="auth-back-btn" style="position: absolute; top: var(--spacing-2xl); left: var(--spacing-2xl); color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.9375rem; transition: color var(--transition-base);">&larr; Back to Home</a>
+  
+  <div class="auth-card" style="text-align: center;">
+    <div class="nav-logo" style="margin: 0 auto 24px; width: 64px; height: 64px; font-size: 28px;"><span>ME</span></div>
+    <h1 class="display-3" style="margin-bottom: var(--spacing-sm);">Welcome to ME</h1>
+    <p class="body-base" style="margin-bottom: var(--spacing-2xl); color: var(--text-secondary);">Continue with Google to start building your external memory.</p>
+    
+    <div class="auth-error" id="auth-error" role="alert"></div>
 
+    <div id="google-btn-container" class="google-btn-container" style="min-height: 44px; display: flex; justify-content: center; margin-bottom: var(--spacing-lg);"></div>
+    
+    <p class="body-small" style="color: var(--text-secondary);">Your memories are private, encrypted, and only accessible by you.</p>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 2: Main Application
+     ============================================================ -->
+<div id="app-screen" class="app-screen hidden">
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <div class="nav-brand">
+        <div class="nav-logo" aria-hidden="true"><span>ME</span></div>
+        <span class="nav-wordmark">ME</span>
+      </div>
+      <div class="nav-actions">
+        <button class="btn btn-outline" id="refresh-btn" title="Refresh">Refresh</button>
+        <button class="btn btn-outline" style="color: #E53E3E; border-color: #E53E3E;" id="logout-btn">Sign out</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container" id="app-main" role="main" style="padding-top: var(--spacing-xl);">
+    
+    <!-- Ask ME Zone -->
+    <section aria-label="Ask ME" class="ask-me-zone" id="ask-me-zone">
+      <h2 class="display-3" style="text-align: center; margin-bottom: var(--spacing-sm);">Ask ME</h2>
+      <p class="body-base text-center" style="margin-bottom: var(--spacing-xl);">Query your memories conversationally.</p>
+      
+      <div class="ask-input-group">
+        <input type="text" id="ask-input" class="ask-input" placeholder="Summarize yesterday's research...">
+        <button class="btn btn-primary" id="ask-btn">Ask</button>
+      </div>
+      
+      <div id="ask-response-container" class="demo-container hidden" style="margin-top: var(--spacing-md); text-align: left; width: 100%;">
+        <div id="ask-loading" class="hidden">
+          <div class="skeleton skeleton-title"></div>
+          <div class="skeleton skeleton-text"></div>
+          <div class="skeleton skeleton-text medium"></div>
+        </div>
+        
+        <div id="ask-answer-content" class="hidden">
+          <div id="ask-answer-text" class="body-large"></div>
+          
+          <div id="ask-sources-header" style="margin-top: var(--spacing-xl); border-top: var(--border-subtle); padding-top: var(--spacing-md);">
+            <h3 class="heading-2">Referenced Memories (<span id="ask-sources-count"></span>)</h3>
+          </div>
+          <div id="ask-sources-grid" style="display: grid; gap: var(--spacing-md); margin-top: var(--spacing-sm);"></div>
+          
+          <button class="btn btn-outline" id="ask-clear-btn" style="margin-top: var(--spacing-lg);">Clear Answer</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Fast Capture Zone -->
+    <section aria-label="Fast Capture">
+      <div class="capture-zone" id="capture-zone">
+        <textarea
+          id="capture-input"
+          class="capture-textarea"
+          placeholder="Paste a thought, drop a link, or capture an idea..."
+          aria-label="Capture your thought"
+        ></textarea>
+        <input
+          type="text"
+          id="link-title-input"
+          class="hidden"
+          placeholder="Link Title (optional)"
+          style="width: 100%; border: none; padding: var(--spacing-sm); outline: none; border-top: var(--border-subtle);"
+        />
+        <div class="capture-footer">
+          <span class="label" id="char-count" style="color: var(--text-secondary);">0 / 5,000</span>
+          <button class="btn btn-primary" id="capture-btn" disabled>Capture</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Search Results / Recent Memories Timeline -->
+    <section aria-label="Search results" id="search-results-section" class="hidden" style="margin-top: var(--spacing-2xl);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
+        <h2 class="heading-1">Search Results</h2>
+        <button class="btn btn-outline" id="clear-search-btn">Clear Search</button>
+      </div>
+      <div id="search-results-feed" role="feed"></div>
+    </section>
+
+    <section aria-label="Memory Timeline" id="recent-captures-section" style="margin-top: var(--spacing-4xl);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
+        <h2 class="heading-1">Recent Memories</h2>
+        <span class="label" id="feed-count" style="background: var(--bg-inverse); color: var(--text-inverse); padding: 4px 8px; border-radius: var(--radius-pill);">0</span>
+      </div>
+
+      <div id="memory-feed" role="feed"></div>
+
+      <div class="hidden" id="empty-state" style="text-align: center; padding: var(--spacing-4xl) 0;">
+        <div style="font-size: 3rem; margin-bottom: var(--spacing-md);">✨</div>
+        <h3 class="heading-1">Your memory is clear</h3>
+        <p class="body-base">Start by capturing your first thought above.</p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Modals -->
+<div id="paywall-modal" class="modal-overlay hidden">
+  <div class="modal-card">
+    <h2 class="display-3" style="margin-bottom: var(--spacing-md);">Unlock ME Pro</h2>
+    <ul class="pricing-list" style="text-align: left; margin-bottom: var(--spacing-xl);">
+      <li>Unlimited everything</li>
+      <li>PDF support</li>
+      <li>Voice capture</li>
+    </ul>
+    <button class="btn btn-primary btn-large" style="width: 100%; margin-bottom: var(--spacing-sm);">Upgrade to Pro</button>
+    <button class="btn btn-outline" onclick="document.getElementById('paywall-modal').classList.add('hidden')" style="width: 100%;">Continue with Free</button>
+  </div>
+</div>
+<!-- Memory Detail Slide-Over Drawer -->
+<div id="memory-drawer-backdrop" class="drawer-backdrop hidden"></div>
+<aside id="memory-detail-drawer" class="memory-drawer hidden" aria-label="Memory details" role="dialog" aria-modal="true">
+  <div class="drawer-header">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span id="drawer-type-badge" class="memory-card-type-badge">📝 Note</span>
+      <span id="drawer-date" style="font-size: 0.8125rem; color: var(--text-tertiary);"></span>
+    </div>
+    <button id="drawer-close-btn" class="drawer-close-btn" aria-label="Close detail view">&times;</button>
+  </div>
+  
+  <div class="drawer-body">
+    <h2 id="drawer-title" class="display-3" style="font-size: 1.5rem; line-height: 1.3; margin-bottom: var(--spacing-md);"></h2>
+    
+    <div id="drawer-summary-container" class="drawer-section hidden">
+      <h4 class="drawer-section-label" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); margin-bottom: 6px;">Summary</h4>
+      <p id="drawer-summary-text" class="body-base" style="background: rgba(0,0,0,0.03); padding: 12px; border-radius: 8px; font-style: italic; color: var(--text-secondary);"></p>
+    </div>
+
+    <div class="drawer-section" style="margin-top: var(--spacing-lg);">
+      <h4 class="drawer-section-label" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); margin-bottom: 6px;">Content</h4>
+      <div id="drawer-content-text" class="body-base" style="word-break: break-word;"></div>
+    </div>
+
+    <div id="drawer-link-container" class="drawer-section hidden" style="margin-top: var(--spacing-lg);">
+      <h4 class="drawer-section-label" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); margin-bottom: 6px;">Source Link</h4>
+      <a id="drawer-link-url" href="#" target="_blank" rel="noopener noreferrer" class="memory-card-link-url" style="word-break: break-all;"></a>
+    </div>
+
+    <div id="drawer-related-container" class="drawer-section hidden" style="margin-top: var(--spacing-xl); border-top: var(--border-subtle); padding-top: var(--spacing-md);">
+      <h4 class="drawer-section-label" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); margin-bottom: 8px;">Related Memories</h4>
+      <div id="drawer-related-grid" style="display: grid; gap: 8px;"></div>
+    </div>
+  </div>
+
+  <div class="drawer-footer" style="padding-top: var(--spacing-md); border-top: var(--border-subtle); margin-top: var(--spacing-xl); display: flex; flex-direction: column; gap: 8px;">
+    <div style="display: flex; gap: 8px;">
+      <button id="drawer-copy-btn" class="btn btn-outline" style="flex: 1;">Copy Content</button>
+      <button id="drawer-edit-btn" class="btn btn-outline" style="flex: 1;">Edit Title</button>
+    </div>
+    <button id="drawer-delete-btn" class="btn btn-outline" style="width: 100%; color: #E53E3E; border-color: #E53E3E;">Delete Memory</button>
+  </div>
+</aside>
+
+<!-- Scripts -->
+<script type="module" src="/static/js/google.js"></script>
+<script type="module" src="/static/js/app.js"></script>
 </body>
 </html>

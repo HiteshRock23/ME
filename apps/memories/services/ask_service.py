@@ -1,11 +1,12 @@
 import logging
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional
 
-from apps.memories.services.search_service import perform_search, SearchServiceError
+from apps.memories.services.retrieval_pipeline import RetrievalPipeline, RetrievalConfig, ReferencedMemory
 from apps.memories.services.context_builder import ContextBuilder
 from apps.memories.services.ai.factory import get_llm_provider
 from apps.memories.services.ai.base import LLMProviderError
 from apps.memories.services.ai.validator import ResponseValidator, ResponseValidatorError
+from apps.memories.services.exceptions import SupermemoryError
 
 logger = logging.getLogger(__name__)
 
@@ -31,88 +32,85 @@ Context:
 {formatted_memories}
 """
 
+
 class AskServiceError(Exception):
     pass
+
 
 class AskService:
     """
     Orchestrates the RAG pipeline for the Ask ME feature.
     """
-    
-    # Minimum semantic similarity score to include a memory in the context
-    RELEVANCE_THRESHOLD = 0.60
-    
+
     @classmethod
-    def ask_question(cls, user, question: str) -> Dict[str, Any]:
+    def ask_question(cls, user, question: str, config: Optional[RetrievalConfig] = None) -> Dict[str, Any]:
         """
-        Processes a user's question, retrieves relevant memories, and generates a grounded answer.
-        
+        Processes a user's question, retrieves relevant memories via RetrievalPipeline,
+        and generates a grounded answer.
+
         Returns:
-            Dict containing the answer and the sources used.
+            Dict containing the answer and referenced_memories list.
         """
         if not question or not question.strip():
             raise AskServiceError("Question cannot be empty.")
-            
-        logger.info("AskService: Received question from user %s", user.pk)
-        
-        # 1. Retrieve ranked memories
+
+        clean_question = question.strip()
+        logger.info("AskService: Received question from user %s: '%s'", user.pk, clean_question)
+
+        # 1. Retrieve ranked referenced memories via RetrievalPipeline
         try:
-            results = perform_search(user, question)
-        except SearchServiceError as e:
-            raise AskServiceError(str(e))
-            
-        # 2. Filter by relevance threshold
-        relevant_memories = [m for m in results if m.get("score", 0.0) >= cls.RELEVANCE_THRESHOLD]
-        
-        logger.info("AskService: Found %d memories above threshold %s", len(relevant_memories), cls.RELEVANCE_THRESHOLD)
-        
-        # 3. Handle empty state
-        if not relevant_memories:
+            referenced_memories: List[ReferencedMemory] = RetrievalPipeline.execute(user, clean_question, config=config)
+        except SupermemoryError:
+            raise
+        except Exception as exc:
+            logger.exception("AskService: Error executing retrieval pipeline for user %s: %s", user.pk, exc)
+            raise AskServiceError("Failed to retrieve memories.")
+
+        logger.info("AskService: %d high-confidence memories retrieved", len(referenced_memories))
+
+        # 2. Handle empty retrieval state
+        if not referenced_memories:
             return {
-                "question": question,
-                "answer": "I couldn't find enough relevant memories to answer this question.",
+                "question": clean_question,
+                "answer": f"I couldn't find any relevant memories related to '{clean_question}'.",
                 "retrieved_count": 0,
-                "sources": []
+                "referenced_memories": [],
+                "sources": []  # Backward compatibility alias
             }
-            
-        # 4. Build Context
-        context_string = ContextBuilder.build_context(relevant_memories, max_memories=5)
-        
-        # 5. Prepare Prompt
+
+        # 3. Build Context
+        context_string = ContextBuilder.build_context(referenced_memories, max_memories=5)
+
+        # 4. Prepare Prompt
         prompt = PROMPT_TEMPLATE.format(
-            question=question,
+            question=clean_question,
             formatted_memories=context_string
         )
-        
-        # 6. Generate Answer
+
+        # 5. Generate Answer
         provider = get_llm_provider()
         try:
             response_text = provider.generate_answer(prompt)
         except LLMProviderError as e:
             logger.error("AskService LLM Error: %s", str(e))
             raise AskServiceError("Failed to generate an answer due to an AI service error.")
-            
-        # 7. Validate JSON Response
+
+        # 6. Validate JSON Response
         try:
             data = ResponseValidator.validate_answer(response_text)
         except ResponseValidatorError as e:
             logger.error("AskService Validation Error: %s", str(e))
             raise AskServiceError("Received an invalid response format from the AI.")
-            
+
         answer = data["answer"]
-            
-        # 8. Source Attribution & Formatting
-        sources = []
-        for mem in relevant_memories[:5]:
-            sources.append({
-                "memory_id": mem["id"],
-                "title": mem.get("ai_title") or "Untitled",
-                "summary": mem.get("ai_summary") or mem["raw_content"][:100] + "..."
-            })
-            
+
+        # 7. Serialize DTOs for public API response (internal scores excluded)
+        serialized_references = [mem.to_dict() for mem in referenced_memories]
+
         return {
-            "question": question,
+            "question": clean_question,
             "answer": answer.strip(),
-            "retrieved_count": len(sources),
-            "sources": sources
+            "retrieved_count": len(serialized_references),
+            "referenced_memories": serialized_references,
+            "sources": serialized_references  # Alias for backward compatibility
         }

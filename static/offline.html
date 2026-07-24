@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ME — Offline</title>
+  <meta name="theme-color" content="#F8F6F1">
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: #F8F6F1;
+      color: #111111;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      padding: 24px;
+    }
+    .icon {
+      width: 64px;
+      height: 64px;
+      background-color: #111111;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .icon svg {
+      width: 32px;
+      height: 32px;
+      fill: none;
+      stroke: #F8F6F1;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    h1 {
+      font-size: 24px;
+      margin: 0 0 12px 0;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    p {
+      font-size: 16px;
+      color: #666666;
+      margin: 0 0 24px 0;
+      line-height: 1.5;
+      max-width: 300px;
+    }
+    .btn {
+      background-color: #111111;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .btn:hover {
+      background-color: #333333;
+    }
+  </style>
+</head>
+<body>
+  <div class="icon">
+    <svg viewBox="0 0 24 24">
+      <path d="M1 1l22 22M16.72 11.06A10.94 10.94 0 0 1 19 12.55M5 9.86a10.94 10.94 0 0 1 6.84-2.8M1 12l2.25-2.25M23 12l-2.25-2.25M23 12a15.93 15.93 0 0 0-8.93-4.63M12 21a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/>
+    </svg>
+  </div>
+  <h1>You're offline.</h1>
+  <p>Previously loaded memories remain available. Reconnect to continue syncing.</p>
+  <button class="btn" onclick="window.location.reload()">Try Again</button>
+</body>
+</html>

@@ -12,6 +12,7 @@ Deterministic work (domain lookup, URL validation) belongs in
 ContentClassifier and MetadataService.
 """
 
+import re
 import logging
 from django.utils import timezone
 from apps.memories.models import Memory
@@ -24,16 +25,62 @@ logger = logging.getLogger(__name__)
 TEXT_PROMPT_TEMPLATE = """You are organizing a user's personal memory.
 
 Generate:
-1. A short descriptive title. Maximum 10 words.
-2. A concise factual summary. Maximum 2 sentences.
+1. A concise, human-readable title (3 to 8 words).
+2. A brief factual summary (maximum 2-3 sentences).
 
-Never invent facts. Never assume context. Never change the meaning.
-If the memory is too short to summarize, return the original memory as the summary.
-Return ONLY valid JSON.
+Rules for Title:
+- Must be 3 to 8 words long.
+- Use sentence case or title case.
+- Do NOT use quotation marks, quotes, emojis, or Markdown formatting.
+- Do NOT use generic titles such as "Memory", "Untitled", "New Memory", "Note", "Summary", "AI Title", or "AI Analysis".
+- If a suitable title cannot be generated, return empty string "".
+
+Rules for Summary:
+- Maximum 2-3 sentences.
+- If the original memory is already short or concise, return empty string "".
+
+Return ONLY valid JSON with keys "title" and "summary".
 
 Memory:
 {raw_memory}
 """
+
+GENERIC_TITLES = {
+    "memory", "untitled", "new memory", "note", "summary",
+    "ai analysis", "ai title", "text", "new note", "untitled note",
+    "untitled memory", "analyzing memory...", "analyzing memory",
+    "saved link", "link saved"
+}
+
+
+def sanitize_title(title: str) -> str:
+    """
+    Sanitize and normalize generated title.
+    Trims whitespace, strips quotes, removes trailing punctuation,
+    collapses multiple spaces, and rejects generic titles.
+    """
+    if not title:
+        return ""
+
+    # Strip whitespace & quotes
+    clean = title.strip().strip('"\'`“”‘’')
+
+    # Remove trailing punctuation like . , : ;
+    clean = re.sub(r'[\.,:;]+$', '', clean).strip()
+
+    # Collapse multiple spaces
+    clean = re.sub(r'\s+', ' ', clean)
+
+    # Check if generic title
+    if clean.lower() in GENERIC_TITLES:
+        return ""
+
+    # Enforce word length limit (max 10 words cutoff)
+    words = clean.split()
+    if len(words) > 10:
+        clean = " ".join(words[:10])
+
+    return clean
 
 
 class MemoryEnrichmentService:
@@ -89,8 +136,6 @@ class MemoryEnrichmentService:
         """
         logger.info("Enriching LINK memory %s (no LLM required)", memory.pk)
 
-        # Summary for a link is the URL itself — simple and accurate.
-        # Future versions can replace this with a real page description.
         summary = memory.url or memory.raw_content
 
         memory.ai_summary = summary
@@ -108,8 +153,6 @@ class MemoryEnrichmentService:
     def _enrich_text(memory: Memory) -> bool:
         """
         Enrich a TEXT memory using the LLM.
-
-        This is the existing enrichment path, unchanged.
         """
         logger.info("Enriching TEXT memory %s via LLM", memory.pk)
 
@@ -126,8 +169,14 @@ class MemoryEnrichmentService:
 
             data = ResponseValidator.validate_enrichment(response_text)
 
-            memory.ai_title = data["title"].strip()
-            memory.ai_summary = data["summary"].strip()
+            raw_title = data.get("title", "")
+            raw_summary = data.get("summary", "")
+
+            sanitized_title = sanitize_title(raw_title)
+            clean_summary = raw_summary.strip()
+
+            memory.ai_title = sanitized_title
+            memory.ai_summary = clean_summary
             memory.ai_status = Memory.AIStatus.READY
             memory.ai_processed_at = timezone.now()
             memory.ai_last_error = ""
@@ -136,7 +185,7 @@ class MemoryEnrichmentService:
                 "ai_processed_at", "ai_last_error", "updated_at",
             ])
 
-            logger.info("TEXT memory %s enriched successfully", memory.pk)
+            logger.info("TEXT memory %s enriched successfully with title '%s'", memory.pk, sanitized_title)
             return True
 
         except (LLMProviderError, ResponseValidatorError, Exception) as exc:

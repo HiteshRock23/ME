@@ -56,7 +56,7 @@ class MemoryListView(generics.ListAPIView):
 class MemoryDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     GET    /api/memories/<id>/  — retrieve a single memory
-    PATCH  /api/memories/<id>/  — update link_title (only for link memories)
+    PATCH  /api/memories/<id>/  — update link_title and/or raw_content
     DELETE /api/memories/<id>/  — delete a memory
 
     Scoped to the authenticated user — returns 404 for other users' memories.
@@ -123,3 +123,33 @@ class AskView(generics.GenericAPIView):
             return Response({"error": "Retrieval engine is currently unavailable."}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         except Exception as e:
             return Response({"error": "An unexpected error occurred while generating the answer."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class RelatedMemoriesView(generics.GenericAPIView):
+    """
+    GET /api/memories/<id>/related/
+
+    Retrieve semantically related memories for a given memory.
+    Target memory ID is excluded from the returned list.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, pk: int, *args, **kwargs):
+        try:
+            target_memory = Memory.objects.get(pk=pk, user=request.user)
+        except Memory.DoesNotExist:
+            return Response({"error": "Memory not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        query = target_memory.ai_title or target_memory.ai_summary or target_memory.raw_content[:200]
+        if not query:
+            return Response({"results": []}, status=status.HTTP_200_OK)
+
+        from apps.memories.services.retrieval_pipeline import RetrievalPipeline, RetrievalConfig
+        
+        try:
+            config = RetrievalConfig(min_confidence_score=0.40, max_results=5)
+            dtos = RetrievalPipeline.execute(request.user, query, config=config)
+            filtered = [mem.to_dict() for mem in dtos if mem.id != target_memory.id][:3]
+            return Response({"results": filtered}, status=status.HTTP_200_OK)
+        except Exception:
+            return Response({"results": []}, status=status.HTTP_200_OK)

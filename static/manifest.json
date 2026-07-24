@@ -1,0 +1,60 @@
+{
+  "name": "ME — Your AI Memory",
+  "short_name": "ME",
+  "description": "Capture everything. Forget nothing.",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F8F6F1",
+  "theme_color": "#F8F6F1",
+  "icons": [
+    {
+      "src": "/static/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icons/maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/static/screenshots/desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/static/screenshots/mobile.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Quick Capture",
+      "url": "/#capture",
+      "description": "Capture a new memory"
+    },
+    {
+      "name": "Search Memories",
+      "url": "/#search",
+      "description": "Search your memories"
+    },
+    {
+      "name": "Ask ME",
+      "url": "/#ask",
+      "description": "Ask ME a question"
+    }
+  ]
+}

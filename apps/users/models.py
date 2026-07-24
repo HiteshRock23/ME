@@ -17,6 +17,11 @@ class User(AbstractUser):
     first_name = models.CharField("first name", max_length=150)
     last_name = models.CharField("last name", max_length=150)
 
+    # Google Authentication
+    google_sub = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    google_picture = models.URLField(max_length=1024, blank=True, null=True)
+    google_last_login = models.DateTimeField(blank=True, null=True)
+
     USERNAME_FIELD = "email"
 
     # REQUIRED_FIELDS is used by createsuperuser command.
