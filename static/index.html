@@ -45,7 +45,7 @@
     <h1 class="display-1">Never Forget<br>Anything Again.</h1>
     <p class="hero-subtitle body-large">ME remembers everything you save and lets you retrieve it instantly using natural language. No folders, no tags, just memory.</p>
     <div class="hero-actions">
-      <a href="/auth" data-route class="btn btn-primary btn-large">Continue with Google</a>
+      <button class="btn btn-primary btn-large early-access-trigger" data-location="Hero">Join Early Access</button>
       <button class="btn btn-outline btn-large">Watch Demo</button>
     </div>
   </header>
@@ -197,17 +197,17 @@
         <a href="/auth" data-route class="btn btn-primary" style="width: 100%;">Get Started</a>
       </div>
       <div class="pricing-card pro">
-        <div class="pricing-badge">Coming Soon</div>
-        <h3 class="heading-1">PRO</h3>
+        <div class="pricing-badge">Early Access</div>
+        <h3 class="heading-1">Recall plus</h3>
         <p class="body-base">For power users and professionals.</p>
-        <div class="price">$10<span style="font-size: 1rem; color: var(--text-secondary);"> / month</span></div>
+        <div class="price">$5<span style="font-size: 1rem; color: var(--text-secondary);"> / month</span></div>
         <ul class="pricing-list">
           <li>PDF & File support</li>
           <li>Voice memories</li>
           <li>Browser extensions</li>
           <li>Priority AI models</li>
         </ul>
-        <button class="btn btn-outline" disabled style="width: 100%;">Join Waitlist</button>
+        <button class="btn btn-primary early-access-trigger" data-location="Pricing" style="width: 100%;">Join Early Access</button>
       </div>
     </div>
   </section>
@@ -215,7 +215,20 @@
   <!-- Final CTA -->
   <section class="section container text-center" style="margin-top: var(--spacing-4xl); margin-bottom: var(--spacing-4xl);">
     <h2 class="display-2" style="margin-bottom: var(--spacing-lg);">Your memory deserves an upgrade.</h2>
-    <a href="/auth" data-route class="btn btn-primary btn-large">Continue with Google</a>
+    <button class="btn btn-primary btn-large early-access-trigger" data-location="Final">Join Early Access</button>
+  </section>
+
+  <!-- Feedback Section -->
+  <section class="section feedback-section">
+    <div class="container">
+      <div class="feedback-card">
+        <h2 class="display-3">Building ME Together</h2>
+        <p class="body-large feedback-description">
+          Your feedback directly shapes what we build next. Tell us what's working, what's missing, and what would make ME indispensable for you.
+        </p>
+        <button class="btn btn-primary early-access-trigger" data-location="Feedback">Share Feedback</button>
+      </div>
+    </div>
   </section>
 
   <!-- Footer -->
@@ -406,6 +419,7 @@
 </aside>
 
 <!-- Scripts -->
+<script type="module" src="/static/js/config.js"></script>
 <script type="module" src="/static/js/google.js"></script>
 <script type="module" src="/static/js/app.js"></script>
 </body>

@@ -6,6 +6,7 @@ import { initGoogleAuth } from './google.js';
 import { router } from './router.js';
 import { analytics } from './analytics.js';
 import { memoryController } from './memory-controller.js';
+import { CONFIG } from './config.js';
 
 /**
  * App Initialization
@@ -345,6 +346,34 @@ function initAppListeners() {
             router.navigate('/dashboard');
         }
     });
+
+    // Early Access / Feedback click handler with event delegation
+    const landingScreen = document.getElementById('landing-screen');
+    if (landingScreen) {
+        landingScreen.addEventListener('click', (e) => {
+            const trigger = e.target.closest('.early-access-trigger');
+            if (trigger) {
+                e.preventDefault();
+                
+                const location = trigger.getAttribute('data-location') || 'Unknown';
+                
+                // Track: Early Access CTA Click
+                analytics.track('Early Access CTA Click', { Location: location });
+                
+                // Fetch the Google Form URL from configuration
+                const formUrl = CONFIG.EARLY_ACCESS_FORM_URL;
+                if (formUrl) {
+                    const newWindow = window.open(formUrl, '_blank');
+                    // Return focus after a short delay for accessibility
+                    if (newWindow) {
+                        trigger.focus();
+                    }
+                } else {
+                    console.error("Early Access Form URL is not configured in CONFIG.");
+                }
+            }
+        });
+    }
 }
 
 

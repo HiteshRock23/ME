@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const CACHE_STATIC = `me-static-${CACHE_VERSION}`;
 const CACHE_IMAGES = `me-images-${CACHE_VERSION}`;
 const CACHE_HTML = `me-html-${CACHE_VERSION}`;
@@ -8,6 +8,7 @@ const STATIC_ASSETS = [
   '/static/index.html',
   '/static/offline.html',
   '/static/css/style.css',
+  '/static/js/config.js',
   '/static/js/app.js',
   '/static/js/api.js',
   '/static/js/auth.js',

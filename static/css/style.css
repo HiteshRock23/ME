@@ -612,3 +612,36 @@ ul { list-style: none; }
     border-color: rgba(18, 18, 18, 0.3);
     box-shadow: var(--shadow-soft);
 }
+
+/* ==========================================================================
+   Feedback Section
+   ========================================================================== */
+.feedback-section {
+    padding: var(--spacing-4xl) 0;
+    text-align: center;
+}
+
+.feedback-card {
+    background: var(--bg-secondary);
+    border: var(--border-subtle);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-3xl) var(--spacing-xl);
+    box-shadow: var(--shadow-soft);
+    max-width: 800px;
+    margin: 0 auto;
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.feedback-card:hover {
+    box-shadow: var(--shadow-elevated);
+}
+
+.feedback-description {
+    margin-top: var(--spacing-md);
+    margin-bottom: var(--spacing-xl);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    color: var(--text-secondary);
+}
+
