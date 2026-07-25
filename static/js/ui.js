@@ -296,7 +296,9 @@ export const ui = {
             ${bodyHtml}
             <div class="memory-card-footer">
                 <time class="memory-card-time" datetime="${memory.created_at}">${dateString}</time>
-                <button class="btn btn-outline memory-card-open-btn" style="padding: 6px 14px; font-size: 0.8rem; border-radius: 6px; margin: 0; min-height: unset; line-height: 1.2;" aria-label="Open memory details">Open</button>
+                <span class="memory-card-chevron" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </span>
             </div>
         `;
 

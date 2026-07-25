@@ -273,8 +273,12 @@
         <span class="nav-wordmark">ME</span>
       </div>
       <div class="nav-actions">
-        <button class="btn btn-outline" id="refresh-btn" title="Refresh">Refresh</button>
-        <button class="btn btn-outline" style="color: #E53E3E; border-color: #E53E3E;" id="logout-btn">Sign out</button>
+        <button class="nav-btn-icon" id="refresh-btn" title="Refresh" aria-label="Refresh timeline">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        </button>
+        <button class="nav-btn-icon danger" id="logout-btn" title="Sign out" aria-label="Sign out">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
       </div>
     </div>
   </nav>
@@ -283,8 +287,8 @@
     
     <!-- Ask ME Zone -->
     <section aria-label="Ask ME" class="ask-me-zone" id="ask-me-zone">
-      <h2 class="display-3" style="text-align: center; margin-bottom: var(--spacing-sm);">Ask ME</h2>
-      <p class="body-base text-center" style="margin-bottom: var(--spacing-xl);">Query your memories conversationally.</p>
+      <h2 class="ask-me-title">Ask ME</h2>
+      <p class="ask-me-subtitle">Query your memories conversationally.</p>
       
       <div class="ask-input-group">
         <input type="text" id="ask-input" class="ask-input" placeholder="Summarize yesterday's research...">
@@ -335,18 +339,17 @@
     </section>
 
     <!-- Search Results / Recent Memories Timeline -->
-    <section aria-label="Search results" id="search-results-section" class="hidden" style="margin-top: var(--spacing-2xl);">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
-        <h2 class="heading-1">Search Results</h2>
-        <button class="btn btn-outline" id="clear-search-btn">Clear Search</button>
+    <section aria-label="Search results" id="search-results-section" class="hidden" style="margin-top: var(--spacing-xl);">
+      <div class="section-header" style="justify-content: space-between; width: 100%; margin-bottom: var(--spacing-sm);">
+        <h2 class="heading-1" style="margin-bottom: 0;">Search Results</h2>
+        <button class="btn btn-outline" id="clear-search-btn" style="height: 38px; padding: 0 var(--spacing-md); font-size: var(--font-size-caption);">Clear Search</button>
       </div>
       <div id="search-results-feed" role="feed"></div>
     </section>
 
-    <section aria-label="Memory Timeline" id="recent-captures-section" style="margin-top: var(--spacing-4xl);">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
-        <h2 class="heading-1">Recent Memories</h2>
-        <span class="label" id="feed-count" style="background: var(--bg-inverse); color: var(--text-inverse); padding: 4px 8px; border-radius: var(--radius-pill);">0</span>
+    <section aria-label="Memory Timeline" id="recent-captures-section" style="margin-top: var(--spacing-3xl);">
+      <div class="section-header">
+        <h2 class="heading-1">Recent Memories <span id="feed-count" class="count-badge">0</span></h2>
       </div>
 
       <div id="memory-feed" role="feed"></div>
