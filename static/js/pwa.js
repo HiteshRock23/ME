@@ -15,6 +15,25 @@ export function initPWA() {
 
 function registerServiceWorker() {
     if ('serviceWorker' in navigator) {
+        // Disable and unregister Service Worker on localhost/127.0.0.1 to prevent development caching issues
+        if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+                for (let registration of registrations) {
+                    registration.unregister();
+                }
+            });
+            // Clear caches as well to make sure we don't have stale assets
+            if (window.caches) {
+                caches.keys().then(names => {
+                    for (let name of names) {
+                        caches.delete(name);
+                    }
+                });
+            }
+            console.log('[PWA] ServiceWorker and Caches cleared on localhost for development.');
+            return;
+        }
+
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('/static/sw.js')
                 .then(registration => {

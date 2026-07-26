@@ -8,6 +8,39 @@ import { analytics } from './analytics.js';
 import { memoryController } from './memory-controller.js';
 import { CONFIG } from './config.js';
 
+// --- Dev Cache Clearing & Auto-Login Backdoor ---
+const searchParams = new URLSearchParams(window.location.search);
+if (searchParams.has('clear_cache')) {
+    if (navigator.serviceWorker) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+            for (let reg of registrations) {
+                reg.unregister();
+            }
+        });
+    }
+    if (window.caches) {
+        caches.keys().then(names => {
+            for (let name of names) {
+                caches.delete(name);
+            }
+        });
+    }
+    console.log("[DEV] Service worker and PWA Cache cleared.");
+}
+
+if (searchParams.has('dev_login')) {
+    localStorage.setItem('me_access', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzg1MDUzNzYyLCJpYXQiOjE3ODUwNTE5NjIsImp0aSI6ImY2MjliMzBmNmQ3MTRjMzhhNWM2MjZhOGI2OTM2NjY4IiwidXNlcl9pZCI6MX0.mGt196kz5UoSohANnR8h5bIkUblCtIUbHu4IGtlicXo');
+    localStorage.setItem('me_refresh', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NTY1Njc2MiwiaWF0IjoxNzg1MDUxOTYyLCJqdGkiOiJjNjIwNjhkOGUzOWI0ZjBiYWQzYzYyZjIxNjNhNTZmNCIsInVzZXJfaWQiOjF9.5GhTgdErsVkzttqk9RSEBkkuZExhLWvSWUX2W_vh4Vw');
+    sessionStorage.setItem('me_access', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzg1MDUzNzYyLCJpYXQiOjE3ODUwNTE5NjIsImp0aSI6ImY2MjliMzBmNmQ3MTRjMzhhNWM2MjZhOGI2OTM2NjY4IiwidXNlcl9pZCI6MX0.mGt196kz5UoSohANnR8h5bIkUblCtIUbHu4IGtlicXo');
+    sessionStorage.setItem('me_refresh', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4NTY1Njc2MiwiaWF0IjoxNzg1MDUxOTYyLCJqdGkiOiJjNjIwNjhkOGUzOWI0ZjBiYWQzYzYyZjIxNjNhNTZmNCIsInVzZXJfaWQiOjF9.5GhTgdErsVkzttqk9RSEBkkuZExhLWvSWUX2W_vh4Vw');
+    
+    // Clean up query string and reload dashboard with cache buster
+    const cleanUrl = new URL(window.location);
+    cleanUrl.searchParams.delete('dev_login');
+    cleanUrl.searchParams.delete('clear_cache');
+    window.location.href = cleanUrl.pathname + '?v=3';
+}
+
 /**
  * App Initialization
  * Coordinates auth, api, and ui to run the application.

@@ -33,12 +33,12 @@
     --spacing-3xl: 48px;
     --spacing-4xl: 64px;
 
-    /* Typography Hierarchy */
-    --font-size-page-title: 32px;
-    --font-size-section-title: 24px;
-    --font-size-card-title: 18px;
-    --font-size-body: 16px;
-    --font-size-caption: 14px;
+    /* Typography Hierarchy (Fluid Typography using clamp) */
+    --font-size-page-title: clamp(24px, 6vw, 32px);
+    --font-size-section-title: clamp(18px, 4.5vw, 24px);
+    --font-size-card-title: clamp(15px, 4vw, 18px);
+    --font-size-body: clamp(14px, 3.5vw, 16px);
+    --font-size-caption: clamp(12px, 3vw, 14px);
 
     /* Geometry & Height limits */
     --container-width: 1000px;
@@ -58,49 +58,14 @@
     --border-inverse: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* Screen Size Specific Fonts & Spacing Breakpoints */
+/* Screen Size Spacing Overrides */
 @media (max-width: 359px) {
     :root {
-        --font-size-page-title: 26px;
-        --font-size-section-title: 20px;
-        --font-size-card-title: 16px;
-        --font-size-body: 14px;
-        --font-size-caption: 12px;
         /* Tighten spacing scale slightly on micro screens */
         --spacing-sm: 8px;
         --spacing-md: 12px;
         --spacing-lg: 16px;
         --spacing-xl: 20px;
-    }
-}
-
-@media (min-width: 360px) and (max-width: 389px) {
-    :root {
-        --font-size-page-title: 28px;
-        --font-size-section-title: 21px;
-        --font-size-card-title: 16.5px;
-        --font-size-body: 14.5px;
-        --font-size-caption: 12.5px;
-    }
-}
-
-@media (min-width: 390px) and (max-width: 767px) {
-    :root {
-        --font-size-page-title: 30px;
-        --font-size-section-title: 22px;
-        --font-size-card-title: 17px;
-        --font-size-body: 15px;
-        --font-size-caption: 13px;
-    }
-}
-
-@media (min-width: 768px) and (max-width: 1023px) {
-    :root {
-        --font-size-page-title: 32px;
-        --font-size-section-title: 23px;
-        --font-size-card-title: 17.5px;
-        --font-size-body: 15.5px;
-        --font-size-caption: 13.5px;
     }
 }
 
