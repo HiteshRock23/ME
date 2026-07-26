@@ -356,7 +356,7 @@ export const ui = {
             content.classList.add('hidden');
         } else {
             btn.disabled = false;
-            btn.textContent = 'Ask';
+            btn.textContent = 'Ask ME →';
             input.disabled = false;
             loading.classList.add('hidden');
         }
