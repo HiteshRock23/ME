@@ -913,10 +913,29 @@ ul { list-style: none; }
     }
     .ask-me-zone {
         padding: 0;
-        margin-bottom: var(--spacing-lg);
+        margin-bottom: 0;
     }
-    .ask-me-title {
-        margin-bottom: var(--spacing-2xs);
+    .ask-me-title, .ask-me-subtitle {
+        display: none !important;
+    }
+    .ask-input-group {
+        position: fixed;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        max-width: 100%;
+        z-index: 100;
+        background: rgba(250, 248, 245, 0.85);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-top: var(--border-subtle);
+        padding: var(--spacing-sm) var(--spacing-md) calc(var(--spacing-sm) + env(safe-area-inset-bottom)) var(--spacing-md);
+        box-shadow: 0 -4px 24px -4px rgba(0, 0, 0, 0.05);
+        margin: 0 !important;
+    }
+    .app-main {
+        padding-bottom: calc(88px + env(safe-area-inset-bottom)) !important;
     }
 }
 
