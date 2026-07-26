@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <title>ME - Never Forget Anything Again</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="description" content="ME remembers everything you save and lets you retrieve it instantly using natural language." />
   
   <meta name="theme-color" content="#FAF8F5" />
@@ -11,7 +11,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="stylesheet" href="/static/css/style.css?v=3" />
 
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
@@ -283,7 +283,7 @@
     </div>
   </nav>
 
-  <main class="container" id="app-main" role="main" style="padding-top: var(--spacing-xl);">
+  <main class="container app-main" id="app-main" role="main">
     
     <!-- Ask ME Zone -->
     <section aria-label="Ask ME" class="ask-me-zone" id="ask-me-zone">
@@ -295,7 +295,7 @@
         <button class="btn btn-primary" id="ask-btn">Ask</button>
       </div>
       
-      <div id="ask-response-container" class="demo-container hidden" style="margin-top: var(--spacing-md); text-align: left; width: 100%;">
+      <div id="ask-response-container" class="demo-container ask-response-container hidden">
         <div id="ask-loading" class="hidden">
           <div class="skeleton skeleton-title"></div>
           <div class="skeleton skeleton-text"></div>
@@ -305,12 +305,12 @@
         <div id="ask-answer-content" class="hidden">
           <div id="ask-answer-text" class="body-large"></div>
           
-          <div id="ask-sources-header" style="margin-top: var(--spacing-xl); border-top: var(--border-subtle); padding-top: var(--spacing-md);">
+          <div id="ask-sources-header" class="ask-sources-header">
             <h3 class="heading-2">Referenced Memories (<span id="ask-sources-count"></span>)</h3>
           </div>
-          <div id="ask-sources-grid" style="display: grid; gap: var(--spacing-md); margin-top: var(--spacing-sm);"></div>
+          <div id="ask-sources-grid" class="ask-sources-grid"></div>
           
-          <button class="btn btn-outline" id="ask-clear-btn" style="margin-top: var(--spacing-lg);">Clear Answer</button>
+          <button class="btn btn-outline" id="ask-clear-btn">Clear Answer</button>
         </div>
       </div>
     </section>
@@ -327,35 +327,34 @@
         <input
           type="text"
           id="link-title-input"
-          class="hidden"
+          class="capture-link-title hidden"
           placeholder="Link Title (optional)"
-          style="width: 100%; border: none; padding: var(--spacing-sm); outline: none; border-top: var(--border-subtle);"
         />
         <div class="capture-footer">
-          <span class="label" id="char-count" style="color: var(--text-secondary);">0 / 5,000</span>
+          <span class="label" id="char-count">0 / 5,000</span>
           <button class="btn btn-primary" id="capture-btn" disabled>Capture</button>
         </div>
       </div>
     </section>
 
     <!-- Search Results / Recent Memories Timeline -->
-    <section aria-label="Search results" id="search-results-section" class="hidden" style="margin-top: var(--spacing-xl);">
-      <div class="section-header" style="justify-content: space-between; width: 100%; margin-bottom: var(--spacing-sm);">
-        <h2 class="heading-1" style="margin-bottom: 0;">Search Results</h2>
-        <button class="btn btn-outline" id="clear-search-btn" style="height: 38px; padding: 0 var(--spacing-md); font-size: var(--font-size-caption);">Clear Search</button>
+    <section aria-label="Search results" id="search-results-section" class="search-results-section hidden">
+      <div class="section-header search-results-header">
+        <h2 class="heading-1">Search Results</h2>
+        <button class="btn btn-outline" id="clear-search-btn">Clear Search</button>
       </div>
       <div id="search-results-feed" role="feed"></div>
     </section>
 
-    <section aria-label="Memory Timeline" id="recent-captures-section" style="margin-top: var(--spacing-3xl);">
+    <section aria-label="Memory Timeline" id="recent-captures-section" class="recent-captures-section">
       <div class="section-header">
         <h2 class="heading-1">Recent Memories <span id="feed-count" class="count-badge">0</span></h2>
       </div>
 
       <div id="memory-feed" role="feed"></div>
 
-      <div class="hidden" id="empty-state" style="text-align: center; padding: var(--spacing-4xl) 0;">
-        <div style="font-size: 3rem; margin-bottom: var(--spacing-md);">✨</div>
+      <div class="hidden" id="empty-state">
+        <div class="empty-state-emoji">✨</div>
         <h3 class="heading-1">Your memory is clear</h3>
         <p class="body-base">Start by capturing your first thought above.</p>
       </div>
@@ -367,63 +366,63 @@
 <!-- Modals -->
 <div id="paywall-modal" class="modal-overlay hidden">
   <div class="modal-card">
-    <h2 class="display-3" style="margin-bottom: var(--spacing-md);">Unlock ME Pro</h2>
-    <ul class="pricing-list" style="text-align: left; margin-bottom: var(--spacing-xl);">
+    <h2 class="display-3 paywall-title">Unlock ME Pro</h2>
+    <ul class="pricing-list paywall-list">
       <li>Unlimited everything</li>
       <li>PDF support</li>
       <li>Voice capture</li>
     </ul>
-    <button class="btn btn-primary btn-large" style="width: 100%; margin-bottom: var(--spacing-sm);">Upgrade to Pro</button>
-    <button class="btn btn-outline" onclick="document.getElementById('paywall-modal').classList.add('hidden')" style="width: 100%;">Continue with Free</button>
+    <button class="btn btn-primary btn-large paywall-upgrade-btn">Upgrade to Pro</button>
+    <button class="btn btn-outline paywall-continue-btn" onclick="document.getElementById('paywall-modal').classList.add('hidden')">Continue with Free</button>
   </div>
 </div>
 <!-- Memory Detail Slide-Over Drawer -->
 <div id="memory-drawer-backdrop" class="drawer-backdrop hidden"></div>
 <aside id="memory-detail-drawer" class="memory-drawer hidden" aria-label="Memory details" role="dialog" aria-modal="true">
   <div class="drawer-header">
-    <div style="display: flex; align-items: center; gap: 8px;">
+    <div class="drawer-meta-wrap">
       <span id="drawer-type-badge" class="memory-card-type-badge">📝 Note</span>
-      <span id="drawer-date" style="font-size: 0.8125rem; color: var(--text-tertiary);"></span>
+      <span id="drawer-date" class="drawer-date"></span>
     </div>
     <button id="drawer-close-btn" class="drawer-close-btn" aria-label="Close detail view">&times;</button>
   </div>
   
   <div class="drawer-body">
-    <h2 id="drawer-title" class="display-3" style="font-size: 1.5rem; line-height: 1.3; margin-bottom: var(--spacing-md);"></h2>
+    <h2 id="drawer-title" class="display-3 drawer-title"></h2>
     
     <div id="drawer-summary-container" class="drawer-section hidden">
-      <h4 class="drawer-section-label" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); margin-bottom: 6px;">Summary</h4>
-      <p id="drawer-summary-text" class="body-base" style="background: rgba(0,0,0,0.03); padding: 12px; border-radius: 8px; font-style: italic; color: var(--text-secondary);"></p>
+      <h4 class="drawer-section-label">Summary</h4>
+      <p id="drawer-summary-text" class="body-base drawer-summary-text"></p>
     </div>
 
-    <div class="drawer-section" style="margin-top: var(--spacing-lg);">
-      <h4 class="drawer-section-label" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); margin-bottom: 6px;">Content</h4>
-      <div id="drawer-content-text" class="body-base" style="word-break: break-word;"></div>
+    <div class="drawer-section drawer-section-content">
+      <h4 class="drawer-section-label">Content</h4>
+      <div id="drawer-content-text" class="body-base drawer-content-text"></div>
     </div>
 
-    <div id="drawer-link-container" class="drawer-section hidden" style="margin-top: var(--spacing-lg);">
-      <h4 class="drawer-section-label" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); margin-bottom: 6px;">Source Link</h4>
-      <a id="drawer-link-url" href="#" target="_blank" rel="noopener noreferrer" class="memory-card-link-url" style="word-break: break-all;"></a>
+    <div id="drawer-link-container" class="drawer-section drawer-section-link hidden">
+      <h4 class="drawer-section-label">Source Link</h4>
+      <a id="drawer-link-url" href="#" target="_blank" rel="noopener noreferrer" class="memory-card-link-url"></a>
     </div>
 
-    <div id="drawer-related-container" class="drawer-section hidden" style="margin-top: var(--spacing-xl); border-top: var(--border-subtle); padding-top: var(--spacing-md);">
-      <h4 class="drawer-section-label" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); margin-bottom: 8px;">Related Memories</h4>
-      <div id="drawer-related-grid" style="display: grid; gap: 8px;"></div>
+    <div id="drawer-related-container" class="drawer-section drawer-related-container hidden">
+      <h4 class="drawer-section-label">Related Memories</h4>
+      <div id="drawer-related-grid" class="drawer-related-grid"></div>
     </div>
   </div>
 
-  <div class="drawer-footer" style="padding-top: var(--spacing-md); border-top: var(--border-subtle); margin-top: var(--spacing-xl); display: flex; flex-direction: column; gap: 8px;">
-    <div style="display: flex; gap: 8px;">
-      <button id="drawer-copy-btn" class="btn btn-outline" style="flex: 1;">Copy Content</button>
-      <button id="drawer-edit-btn" class="btn btn-outline" style="flex: 1;">Edit Title</button>
+  <div class="drawer-footer">
+    <div class="drawer-footer-row">
+      <button id="drawer-copy-btn" class="btn btn-outline drawer-btn-half">Copy Content</button>
+      <button id="drawer-edit-btn" class="btn btn-outline drawer-btn-half">Edit Title</button>
     </div>
-    <button id="drawer-delete-btn" class="btn btn-outline" style="width: 100%; color: #E53E3E; border-color: #E53E3E;">Delete Memory</button>
+    <button id="drawer-delete-btn" class="btn btn-outline drawer-delete-btn">Delete Memory</button>
   </div>
 </aside>
 
 <!-- Scripts -->
-<script type="module" src="/static/js/config.js"></script>
-<script type="module" src="/static/js/google.js"></script>
-<script type="module" src="/static/js/app.js"></script>
+<script type="module" src="/static/js/config.js?v=3"></script>
+<script type="module" src="/static/js/google.js?v=3"></script>
+<script type="module" src="/static/js/app.js?v=3"></script>
 </body>
 </html>

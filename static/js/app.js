@@ -1,6 +1,6 @@
 import { auth } from './auth.js';
 import { api } from './api.js';
-import { ui } from './ui.js';
+import { ui } from './ui.js?v=3';
 import { initPWA, promptInstall, dismissBanner, refreshApp } from './pwa.js';
 import { initGoogleAuth } from './google.js';
 import { router } from './router.js';

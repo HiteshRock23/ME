@@ -121,6 +121,10 @@ export const ui = {
             input.value = input.value.slice(0, 5000);
         }
 
+        // Auto-grow capture input height dynamically
+        input.style.height = 'auto';
+        input.style.height = input.scrollHeight + 'px';
+
         const len = input.value.length;
         const trimmedLen = input.value.trim().length;
 
@@ -168,13 +172,13 @@ export const ui = {
         if (!memories || memories.length === 0) {
             if (emptyState) emptyState.classList.remove('hidden');
             if (container) container.classList.add('hidden');
-            if (feedCount) feedCount.textContent = '0';
+            if (feedCount) feedCount.textContent = '[0]';
             return;
         }
 
         if (emptyState) emptyState.classList.add('hidden');
         if (container) container.classList.remove('hidden');
-        if (feedCount) feedCount.textContent = memories.length.toString();
+        if (feedCount) feedCount.textContent = `[${memories.length.toString()}]`;
 
         memories.forEach(memory => {
             const card = this.createMemoryCard(memory, onDeleteClick, onEditTitleClick);
@@ -255,11 +259,8 @@ export const ui = {
             titleText = isLink ? 'Link Saved' : 'New Memory';
         }
 
-        const headerHtml = `
-            <div class="memory-card-header">
-                <div class="memory-card-type-badge">${typeBadge}</div>
-                <h3 class="memory-card-title">${this.escapeHTML(titleText)}</h3>
-            </div>`;
+        const dateObj = new Date(memory.created_at);
+        const dateString = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
 
         // Card Preview Priority: Enriched Summary -> Original Content / Link URL
         let summaryHtml = '';
@@ -276,29 +277,29 @@ export const ui = {
         if (isLink) {
             const url = memory.url || memory.raw_content;
             bodyHtml = `
-                <div class="memory-card-body">
-                    ${summaryHtml}
-                    <p class="memory-card-content" style="font-size: 0.85rem; color: var(--text-tertiary);">${this.escapeHTML(url)}</p>
-                </div>`;
+                ${summaryHtml}
+                <p class="memory-card-link-text">${this.escapeHTML(url)}</p>
+            `;
         } else {
             bodyHtml = `
-                <div class="memory-card-body">
-                    ${summaryHtml}
-                    <p class="memory-card-content">${this.escapeHTML(rawPreview)}</p>
-                </div>`;
+                ${summaryHtml}
+                <p class="memory-card-content">${this.escapeHTML(rawPreview)}</p>
+            `;
         }
 
-        const dateObj = new Date(memory.created_at);
-        const dateString = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
-
         article.innerHTML = `
-            ${headerHtml}
-            ${bodyHtml}
-            <div class="memory-card-footer">
-                <time class="memory-card-time" datetime="${memory.created_at}">${dateString}</time>
-                <span class="memory-card-chevron" aria-hidden="true">
+            <div class="memory-card-content-wrapper">
+                <div class="memory-card-main">
+                    <div class="memory-card-header">
+                        <span class="memory-card-type-badge">${typeBadge}</span>
+                        <time class="memory-card-time" datetime="${memory.created_at}">${dateString}</time>
+                    </div>
+                    <h3 class="memory-card-title">${this.escapeHTML(titleText)}</h3>
+                    ${bodyHtml}
+                </div>
+                <div class="memory-card-arrow" aria-hidden="true">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                </span>
+                </div>
             </div>
         `;
 
@@ -332,9 +333,9 @@ export const ui = {
             if (feed.children.length === 0) {
                 document.getElementById('empty-state').classList.remove('hidden');
                 feed.classList.add('hidden');
-                document.getElementById('feed-count').textContent = '0';
+                document.getElementById('feed-count').textContent = '[0]';
             } else {
-                document.getElementById('feed-count').textContent = feed.children.length.toString();
+                document.getElementById('feed-count').textContent = `[${feed.children.length.toString()}]`;
             }
         }
     },
@@ -372,18 +373,18 @@ export const ui = {
         const refs = data.referenced_memories || data.sources || [];
 
         if (refs.length > 0) {
-            count.textContent = refs.length;
+            count.textContent = `[${refs.length}]`;
             sourcesGrid.innerHTML = refs.map(ref => {
                 const badge = ref.memory_type === 'link' ? '🔗 Link' : '📝 Note';
                 const dateStr = ref.created_at ? new Date(ref.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '';
                 return `
                     <div class="source-card memory-reference-card" data-memory-id="${ref.id}">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <div class="drawer-meta-wrap">
                             <span class="memory-card-type-badge">${badge}</span>
-                            <span class="body-small" style="color: var(--text-tertiary); font-size: 0.75rem;">${dateStr}</span>
+                            <span class="drawer-date">${dateStr}</span>
                         </div>
-                        <div class="source-title" style="font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; color: var(--text-primary);">${this.escapeHTML(ref.title)}</div>
-                        <div class="source-summary" style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4;">${this.escapeHTML(ref.preview || ref.summary || '')}</div>
+                        <div class="source-title">${this.escapeHTML(ref.title)}</div>
+                        <div class="source-summary">${this.escapeHTML(ref.preview || ref.summary || '')}</div>
                     </div>
                 `;
             }).join('');
@@ -417,19 +418,16 @@ export const ui = {
         document.getElementById('drawer-date').textContent = '';
         document.getElementById('drawer-title').textContent = '';
         document.getElementById('drawer-content-text').innerHTML = `
-            <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
-                <div style="
-                    width:100%;min-height:180px;border-radius:8px;
-                    background:var(--bg-secondary,#faf8f5);border:1.5px solid var(--border-subtle,#e5e0d8);
-                    display:flex;flex-direction:column;gap:10px;padding:14px;">
-                    <div class="skeleton skeleton-text" style="width:90%;"></div>
-                    <div class="skeleton skeleton-text" style="width:75%;"></div>
-                    <div class="skeleton skeleton-text medium" style="width:85%;"></div>
-                    <div class="skeleton skeleton-text" style="width:60%;"></div>
+            <div class="drawer-loading-wrap">
+                <div class="drawer-loading-card">
+                    <div class="skeleton skeleton-text skeleton-90"></div>
+                    <div class="skeleton skeleton-text skeleton-75"></div>
+                    <div class="skeleton skeleton-text medium skeleton-85"></div>
+                    <div class="skeleton skeleton-text skeleton-60"></div>
                 </div>
-                <div style="display:flex;justify-content:space-between;align-items:center;">
-                    <div class="skeleton" style="width:60px;height:14px;border-radius:4px;"></div>
-                    <div class="skeleton" style="width:70px;height:30px;border-radius:6px;"></div>
+                <div class="drawer-loading-footer">
+                    <div class="skeleton skeleton-meta"></div>
+                    <div class="skeleton skeleton-btn"></div>
                 </div>
             </div>`;
         document.getElementById('drawer-summary-container').classList.add('hidden');
@@ -473,36 +471,19 @@ export const ui = {
         // Replace the static div with an auto-growing textarea + save controls
         const contentArea = document.getElementById('drawer-content-text');
         contentArea.innerHTML = `
-            <div id="note-editor-wrap" style="display:flex;flex-direction:column;gap:8px;">
+            <div id="note-editor-wrap" class="note-editor-wrap">
                 <textarea
                     id="note-editor-textarea"
-                    style="
-                        width: 100%;
-                        min-height: 180px;
-                        max-height: 60vh;
-                        resize: none;
-                        border: 1.5px solid var(--border-subtle, #e5e0d8);
-                        border-radius: 8px;
-                        padding: 12px 14px;
-                        font-family: inherit;
-                        font-size: 0.9375rem;
-                        line-height: 1.65;
-                        color: var(--text-primary);
-                        background: var(--bg-secondary, #faf8f5);
-                        outline: none;
-                        transition: border-color 0.2s, box-shadow 0.2s;
-                        overflow-y: auto;
-                        word-break: break-word;
-                    "
+                    class="note-editor-textarea"
                     placeholder="Write your memory here..."
                     maxlength="5000"
                     aria-label="Memory content editor"
                 >${this.escapeHTML(rawContent)}</textarea>
-                <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-                    <span id="note-editor-count" style="font-size:0.78rem;color:var(--text-tertiary);">${rawContent.length} / 5,000</span>
-                    <div style="display:flex;gap:6px;align-items:center;">
-                        <span id="note-editor-status" style="font-size:0.78rem;color:var(--text-tertiary);opacity:0;transition:opacity 0.3s;"></span>
-                        <button id="note-editor-save" class="btn btn-primary" style="padding: 6px 18px; font-size: 0.85rem;" disabled>Save</button>
+                <div class="note-editor-footer">
+                    <span id="note-editor-count" class="note-editor-count">${rawContent.length} / 5,000</span>
+                    <div class="note-editor-actions">
+                        <span id="note-editor-status" class="note-editor-status"></span>
+                        <button id="note-editor-save" class="btn btn-primary note-editor-save" disabled>Save</button>
                     </div>
                 </div>
             </div>`;
@@ -520,16 +501,6 @@ export const ui = {
             textarea.style.height = Math.min(textarea.scrollHeight, window.innerHeight * 0.6) + 'px';
         };
         autoGrow();
-
-        // Focus style
-        textarea.addEventListener('focus', () => {
-            textarea.style.borderColor = 'var(--text-primary)';
-            textarea.style.boxShadow = '0 0 0 3px rgba(0,0,0,0.06)';
-        });
-        textarea.addEventListener('blur', () => {
-            textarea.style.borderColor = 'var(--border-subtle, #e5e0d8)';
-            textarea.style.boxShadow = 'none';
-        });
 
         // Input: char count, auto-grow, enable Save if changed
         textarea.addEventListener('input', () => {
@@ -673,12 +644,12 @@ export const ui = {
         relatedGrid.innerHTML = related.map(rel => {
             const badge = rel.memory_type === 'link' ? '🔗 Link' : '📝 Note';
             return `
-                <div class="source-card memory-reference-card" data-memory-id="${rel.id}" style="padding: 10px 12px; margin-bottom: 0; cursor: pointer;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
-                        <span class="memory-card-type-badge" style="font-size: 0.7rem;">${badge}</span>
+                <div class="source-card memory-reference-card" data-memory-id="${rel.id}">
+                    <div class="drawer-meta-wrap">
+                        <span class="memory-card-type-badge">${badge}</span>
                     </div>
-                    <div class="source-title" style="font-weight: 600; font-size: 0.875rem; color: var(--text-primary);">${this.escapeHTML(rel.title || rel.ai_title || 'Memory')}</div>
-                    <div class="source-summary" style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.3;">${this.escapeHTML(rel.preview || '')}</div>
+                    <div class="source-title">${this.escapeHTML(rel.title || rel.ai_title || 'Memory')}</div>
+                    <div class="source-summary">${this.escapeHTML(rel.preview || '')}</div>
                 </div>`;
         }).join('');
         relatedContainer.classList.remove('hidden');

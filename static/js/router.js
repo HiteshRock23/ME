@@ -20,7 +20,7 @@
  */
 
 import { auth } from './auth.js';
-import { ui } from './ui.js';
+import { ui } from './ui.js?v=3';
 import { memoryController } from './memory-controller.js';
 import { analytics } from './analytics.js';
 

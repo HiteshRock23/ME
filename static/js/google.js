@@ -1,5 +1,5 @@
 import { auth } from "./auth.js";
-import { ui } from "./ui.js";
+import { ui } from "./ui.js?v=3";
 
 let googleClientId = null;
 let isInitialized = false;
