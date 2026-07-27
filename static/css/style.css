@@ -866,17 +866,29 @@ ul { list-style: none; }
 }
 
 /* Ask ME Section */
+.ask-me-zone {
+    text-align: center;
+}
+
+.ask-me-title {
+    margin-bottom: var(--spacing-xs);
+}
+
+.ask-me-subtitle {
+    margin-bottom: var(--spacing-xl); /* 24px space between subtitle and input field */
+}
+
 .ask-input-group {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-sm); /* 12px mobile spacing */
+    gap: var(--spacing-md); /* 16px mobile spacing for better breathing room */
     width: 100%;
 }
 
 .ask-input {
     width: 100%;
-    height: 50px;
-    padding: 0 var(--spacing-md);
+    height: 64px;
+    padding: 0 var(--spacing-xl);
     border-radius: var(--radius-pill);
     border: var(--border-subtle);
     font-size: var(--font-size-body);
@@ -888,7 +900,7 @@ ul { list-style: none; }
 
 #ask-btn {
     width: 100%;
-    height: 50px;
+    height: 64px;
     border-radius: var(--radius-pill);
     box-sizing: border-box;
     display: inline-flex;
@@ -1290,5 +1302,141 @@ ul { list-style: none; }
         flex: none !important;
     }
 }
+
+/* Premium Note Editor Styles */
+.note-editor-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    width: 100%;
+    margin-top: var(--spacing-md);
+}
+
+.note-editor-container {
+    width: 100%;
+    background: var(--bg-secondary);
+    border: 1px solid rgba(18, 18, 18, 0.08);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md) var(--spacing-lg);
+    transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.note-editor-container:focus-within {
+    border-color: var(--text-primary);
+    box-shadow: 0 0 0 3px rgba(18, 18, 18, 0.04);
+}
+
+.note-editor-textarea {
+    width: 100%;
+    min-height: 180px;
+    border: none;
+    outline: none;
+    resize: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text-primary);
+    padding: 0;
+    margin: 0;
+    overflow-y: hidden;
+}
+
+.note-editor-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: var(--font-size-caption);
+    color: var(--text-secondary);
+    padding: 0 var(--spacing-2xs);
+    margin-top: calc(-1 * var(--spacing-2xs));
+}
+
+.note-editor-count {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.note-editor-status {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    transition: opacity var(--transition-base);
+}
+
+/* Save Changes Button Styling */
+.btn.note-editor-save {
+    width: 100%;
+    height: 50px;
+    border-radius: var(--radius-md);
+    font-size: 0.95rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    background: var(--text-primary);
+    color: var(--text-inverse);
+    border: none;
+    box-shadow: var(--shadow-soft);
+}
+
+.btn.note-editor-save:hover:not(:disabled) {
+    opacity: 0.9;
+    box-shadow: var(--shadow-elevated);
+}
+
+.btn.note-editor-save:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.btn.note-editor-save:disabled {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Loading State Spinner */
+.btn.note-editor-save.loading {
+    pointer-events: none;
+    position: relative;
+    color: transparent !important;
+}
+
+.btn.note-editor-save.loading::after {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    border: 2.5px solid var(--text-inverse);
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: note-editor-rotate 0.6s linear infinite;
+    left: 50%;
+    top: 50%;
+    margin-left: -9px;
+    margin-top: -9px;
+}
+
+@keyframes note-editor-rotate {
+    to { transform: rotate(360deg); }
+}
+
+/* Divider & Related Memories adjustments */
+.drawer-related-container {
+    margin-top: var(--spacing-2xl);
+    border-top: 2px solid rgba(18, 18, 18, 0.08);
+    padding-top: var(--spacing-lg);
+}
+
+.drawer-section-label {
+    color: var(--text-secondary);
+    opacity: 0.8;
+    letter-spacing: 0.08em;
+}
+
 
 

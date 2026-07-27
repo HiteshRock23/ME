@@ -343,7 +343,13 @@ function initAppListeners() {
         if (window.location.pathname.startsWith('/memory/')) {
             router.navigate('/dashboard');
         } else {
-            // If somehow on dashboard already, just close visually
+            // If somehow on dashboard already, just close visually (checking unsaved changes first)
+            if (ui.hasUnsavedChanges && ui.hasUnsavedChanges()) {
+                if (!confirm('You have unsaved changes. Are you sure you want to discard them?')) {
+                    return;
+                }
+                ui.resetUnsavedChanges();
+            }
             ui.closeMemoryViewer();
         }
     };

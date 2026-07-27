@@ -3,6 +3,16 @@ import { api } from './api.js';
 let drawerCloseTimeout = null;
 
 export const ui = {
+    _isEditorDirty: false,
+
+    hasUnsavedChanges() {
+        return this._isEditorDirty;
+    },
+
+    resetUnsavedChanges() {
+        this._isEditorDirty = false;
+    },
+
     clearError() {
         const authErrorEl = document.getElementById('auth-error');
         if (authErrorEl) {
@@ -455,6 +465,7 @@ export const ui = {
      */
     hydrateMemoryViewer(memory) {
         this._clearViewerError();
+        this._isEditorDirty = false;
 
         const isLink = memory.memory_type === 'link';
         const typeBadge = isLink ? '🔗 Link' : '📝 Note';
@@ -468,24 +479,24 @@ export const ui = {
         document.getElementById('drawer-title').textContent = titleText;
 
         // --- Inline Note Editor ---
-        // Replace the static div with an auto-growing textarea + save controls
+        // Redesigned premium editing experience
         const contentArea = document.getElementById('drawer-content-text');
         contentArea.innerHTML = `
             <div id="note-editor-wrap" class="note-editor-wrap">
-                <textarea
-                    id="note-editor-textarea"
-                    class="note-editor-textarea"
-                    placeholder="Write your memory here..."
-                    maxlength="5000"
-                    aria-label="Memory content editor"
-                >${this.escapeHTML(rawContent)}</textarea>
-                <div class="note-editor-footer">
-                    <span id="note-editor-count" class="note-editor-count">${rawContent.length} / 5,000</span>
-                    <div class="note-editor-actions">
-                        <span id="note-editor-status" class="note-editor-status"></span>
-                        <button id="note-editor-save" class="btn btn-primary note-editor-save" disabled>Save</button>
-                    </div>
+                <div class="note-editor-container">
+                    <textarea
+                        id="note-editor-textarea"
+                        class="note-editor-textarea"
+                        placeholder="Write your memory here..."
+                        maxlength="5000"
+                        aria-label="Memory content editor"
+                    >${this.escapeHTML(rawContent)}</textarea>
                 </div>
+                <div class="note-editor-meta">
+                    <span id="note-editor-status" class="note-editor-status"></span>
+                    <span id="note-editor-count" class="note-editor-count">${rawContent.length} / 5,000</span>
+                </div>
+                <button id="note-editor-save" class="btn btn-primary note-editor-save" disabled>Save Changes</button>
             </div>`;
 
         // Wire up editor logic
@@ -494,6 +505,11 @@ export const ui = {
         const countEl = document.getElementById('note-editor-count');
         const statusEl = document.getElementById('note-editor-status');
         let originalContent = rawContent;
+
+        // Autofocus editor and place cursor at the end
+        textarea.focus();
+        const initialLen = textarea.value.length;
+        textarea.setSelectionRange(initialLen, initialLen);
 
         // Auto-grow textarea
         const autoGrow = () => {
@@ -509,6 +525,7 @@ export const ui = {
             countEl.style.color = len >= 4900 ? '#E53E3E' : 'var(--text-tertiary)';
             autoGrow();
             const isDirty = textarea.value !== originalContent;
+            this._isEditorDirty = isDirty;
             saveBtn.disabled = !isDirty || len === 0;
             if (isDirty) {
                 statusEl.textContent = '';
@@ -522,15 +539,18 @@ export const ui = {
             if (!newContent || newContent === originalContent) return;
 
             saveBtn.disabled = true;
-            saveBtn.textContent = 'Saving…';
+            saveBtn.classList.add('loading');
             statusEl.textContent = '';
 
             try {
                 await api.updateMemoryContent(memory.id, newContent);
 
                 originalContent = newContent;
-                saveBtn.textContent = 'Save';
-                statusEl.textContent = '✓ Saved';
+                this._isEditorDirty = false;
+                saveBtn.classList.remove('loading');
+                saveBtn.disabled = true;
+                
+                statusEl.textContent = '✓ Saved Changes';
                 statusEl.style.color = '#38A169';
                 statusEl.style.opacity = '1';
                 setTimeout(() => { statusEl.style.opacity = '0'; }, 2500);
@@ -538,8 +558,8 @@ export const ui = {
                 window.dispatchEvent(new CustomEvent('me:invalidate-memory', { detail: { id: memory.id } }));
                 window.dispatchEvent(new CustomEvent('me:memory-mutated', { detail: { id: memory.id } }));
             } catch (err) {
+                saveBtn.classList.remove('loading');
                 saveBtn.disabled = false;
-                saveBtn.textContent = 'Save';
                 statusEl.textContent = '⚠ ' + (err.message || 'Save failed');
                 statusEl.style.color = '#E53E3E';
                 statusEl.style.opacity = '1';
@@ -681,6 +701,7 @@ export const ui = {
         const drawer = document.getElementById('memory-detail-drawer');
         if (!drawer) return;
 
+        this._isEditorDirty = false;
         drawer.classList.add('hidden-slide');
 
         if (drawerCloseTimeout) clearTimeout(drawerCloseTimeout);

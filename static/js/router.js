@@ -25,9 +25,23 @@ import { memoryController } from './memory-controller.js';
 import { analytics } from './analytics.js';
 
 export const router = {
+    currentPath: null,
+
     init() {
+        this.currentPath = window.location.pathname;
+
         // Handle browser back/forward buttons
         window.addEventListener('popstate', () => {
+            if (ui.hasUnsavedChanges && ui.hasUnsavedChanges()) {
+                if (!confirm('You have unsaved changes. Are you sure you want to discard them?')) {
+                    if (this.currentPath) {
+                        window.history.pushState(null, '', this.currentPath);
+                    }
+                    return;
+                }
+                ui.resetUnsavedChanges();
+            }
+            this.currentPath = window.location.pathname;
             this.handleRoute(window.location.pathname);
         });
 
@@ -51,9 +65,17 @@ export const router = {
      * @param {string} path
      */
     navigate(path) {
+        if (ui.hasUnsavedChanges && ui.hasUnsavedChanges()) {
+            if (!confirm('You have unsaved changes. Are you sure you want to discard them?')) {
+                return;
+            }
+            ui.resetUnsavedChanges();
+        }
+
         if (window.location.pathname !== path) {
             window.history.pushState(null, '', path);
         }
+        this.currentPath = path;
         this.handleRoute(path);
     },
 
