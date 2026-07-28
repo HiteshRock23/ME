@@ -69,7 +69,7 @@ export const ui = {
     },
 
     showScreen(screenId) {
-        const screens = ['landing-screen', 'auth-screen', 'app-screen'];
+        const screens = ['landing-screen', 'auth-screen', 'app-screen', 'dump-screen'];
         screens.forEach(id => {
             const el = document.getElementById(id);
             if (el) {

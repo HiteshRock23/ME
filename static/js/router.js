@@ -112,6 +112,15 @@ export const router = {
             return;
         }
 
+        // --- Quick Dump ---
+        if (path === '/dump') {
+            memoryController.close();
+            ui.showScreen('dump-screen');
+            analytics.pageView('Quick Dump');
+            window.dispatchEvent(new CustomEvent('me:dump-enter'));
+            return;
+        }
+
         // --- Dashboard ---
         if (path === '/dashboard') {
             memoryController.close();

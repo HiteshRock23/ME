@@ -12,6 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="/static/css/style.css?v=5" />
+  <link rel="stylesheet" href="/static/css/dump.css?v=1" />
 
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <!-- Google tag (gtag.js) -->
@@ -250,6 +251,31 @@
       </div>
     </div>
   </section>
+  <!-- Free Tools -->
+  <section id="free-tools" class="section container">
+    <div class="text-center" style="margin-bottom: var(--spacing-2xl);">
+      <h2 class="display-3">Free Tools</h2>
+      <p class="body-large" style="color: var(--text-secondary); max-width: 600px; margin: var(--spacing-sm) auto 0;">
+        Simple tools built around the philosophy of ME.<br>
+        Capture thoughts, ideas, and useful information instantly — no account required.
+      </p>
+    </div>
+    <div style="display: grid; gap: var(--spacing-lg); max-width: 480px; margin: 0 auto;">
+      <div class="feature-card" style="display: flex; flex-direction: column; align-items: flex-start; text-align: left; padding: var(--spacing-2xl);">
+        <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: var(--spacing-md);">
+          <h3 class="heading-1" style="margin: 0; font-size: 1.5rem;">Quick Dump</h3>
+          <span style="background: var(--bg-tertiary); color: var(--text-secondary); padding: 4px 10px; border-radius: 100px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em; border: 1px solid rgba(0,0,0,0.05);">FREE</span>
+        </div>
+        <p class="body-base" style="color: var(--text-secondary); margin-bottom: var(--spacing-xl); line-height: 1.6;">
+          Got something on your mind?<br>
+          Dump it instantly.<br>
+          No account required.
+        </p>
+        <a href="/dump" data-route class="btn btn-primary" style="width: 100%; justify-content: center; height: 48px;">Try Quick Dump &rarr;</a>
+      </div>
+      <p class="body-small text-center" style="color: var(--text-secondary); opacity: 0.6; margin-top: var(--spacing-xs);">More free tools are coming.</p>
+    </div>
+  </section>
 
   <!-- Footer -->
   <footer class="footer">
@@ -286,7 +312,59 @@
 </div>
 
 <!-- ============================================================
-     SCREEN 2: Main Application
+     SCREEN 2: Quick Dump Screen
+     ============================================================ -->
+<div id="dump-screen" class="dump-screen hidden">
+  <div class="dump-container">
+    
+    <!-- Dump Input State -->
+    <div id="dump-input-view" class="dump-view">
+      <div class="dump-hero text-center">
+        <div class="nav-logo dump-logo" aria-hidden="true" tabindex="0" role="button" onclick="window.location.href='/'" onkeydown="if(event.key==='Enter')window.location.href='/'"><span>ME</span></div>
+        <h1 class="display-3 dump-title">Quick Dump</h1>
+        <p class="body-large dump-subtitle">
+          Unload whatever is on your mind.<br>
+          Ideas, reminders, links or random thoughts.<br>
+          No organization required.
+        </p>
+      </div>
+
+      <div class="dump-input-container">
+        <textarea id="dump-textarea" class="dump-textarea" placeholder="Start typing...&#10;&#10;Nothing is too small.&#10;&#10;An idea.&#10;A reminder.&#10;A problem.&#10;A link.&#10;&#10;Just get it out of your head." aria-label="Quick dump text input"></textarea>
+        <div id="dump-char-count" class="dump-char-count">0 characters</div>
+      </div>
+
+      <div class="dump-actions text-center">
+        <button id="dump-action-btn" class="btn btn-primary dump-btn" disabled>Dump</button>
+      </div>
+      
+      <p class="body-small dump-trust-text text-center">
+        🔒 Nothing is stored unless you choose to remember it.
+      </p>
+    </div>
+
+    <!-- Dump Confirmation State -->
+    <div id="dump-confirmation-view" class="dump-view hidden text-center">
+      <div class="dump-success-icon" aria-hidden="true">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #38A169;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+      </div>
+      <h2 class="display-2 dump-confirm-title">Nice.</h2>
+      <p class="body-large dump-confirm-subtitle">
+        Most ideas disappear in minutes.<br><br>
+        Don't let this one.
+      </p>
+      <div class="dump-confirm-actions">
+        <button id="dump-save-me-btn" class="btn btn-primary dump-save-btn">Save this forever</button>
+        <span style="font-size: 0.875rem; color: var(--text-secondary); margin-top: var(--spacing-xs);">Continue with ME</span>
+        <button id="dump-start-over-btn" class="btn btn-outline dump-start-over-btn" style="border:none; color: var(--text-secondary); margin-top: var(--spacing-md);">Start over</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 3: Main Application
      ============================================================ -->
 <div id="app-screen" class="app-screen hidden">
   <nav class="nav" role="navigation" aria-label="Main navigation">
@@ -459,6 +537,8 @@
 <!-- Scripts -->
 <script type="module" src="/static/js/config.js?v=3"></script>
 <script type="module" src="/static/js/google.js?v=3"></script>
+<script type="module" src="/static/js/dump.js?v=1"></script>
+<script type="module" src="/static/js/memory-prefill.js?v=1"></script>
 <script type="module" src="/static/js/app.js?v=3"></script>
 </body>
 </html>

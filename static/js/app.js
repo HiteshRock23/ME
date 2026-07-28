@@ -8,6 +8,8 @@ import { analytics } from './analytics.js';
 import { memoryController } from './memory-controller.js';
 import { CONFIG } from './config.js';
 import { initOnboarding } from './onboarding.js';
+import { initDump } from './dump.js?v=1';
+import { initPrefill } from './memory-prefill.js?v=1';
 
 // --- Dev Cache Clearing & Auto-Login Backdoor ---
 const searchParams = new URLSearchParams(window.location.search);
@@ -520,6 +522,8 @@ function init() {
     initAuthListeners();
     initAppListeners();
     initOnboarding();
+    initDump();
+    initPrefill();
 
     analytics.initScrollTracking();
 
