@@ -253,12 +253,15 @@
 
   <!-- Footer -->
   <footer class="footer">
-    <div class="container">
+    <div class="container" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
       <div class="nav-brand" style="justify-content: center; margin-bottom: var(--spacing-md);">
         <div class="nav-logo" aria-hidden="true"><span>ME</span></div>
         <span class="nav-wordmark">ME</span>
       </div>
-      <p class="body-small">© 2026 ME Memory Systems. All rights reserved.</p>
+      <p class="body-small" style="margin-bottom: var(--spacing-md);">© 2026 ME Memory Systems. All rights reserved.</p>
+      <a href="https://maidensail.com/startup/me" rel="dofollow" style="display: inline-block; transition: opacity 0.2s ease, transform 0.2s ease; opacity: 0.9;" onmouseover="this.style.opacity=1; this.style.transform='scale(1.02)'" onmouseout="this.style.opacity=0.9; this.style.transform='scale(1)'">
+        <img src="https://maidensail.com/badge/me.svg" alt="Featured on Maidensail" height="36" style="display: block;">
+      </a>
     </div>
   </footer>
 </div>
@@ -439,6 +442,19 @@
     <button id="drawer-delete-btn" class="btn btn-outline drawer-delete-btn">Delete Memory</button>
   </div>
 </aside>
+
+<!-- Install Onboarding Modal -->
+<div id="install-onboarding-modal" class="modal-overlay hidden" style="z-index: 1000;">
+  <div class="install-onboarding-card" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+    <h2 id="onboarding-title" class="display-3 onboarding-title">🎉 Welcome to ME</h2>
+    <p class="body-base onboarding-desc">Your AI memory is ready.<br><br>Install ME for instant access, faster loading, offline support, and a native app experience.</p>
+    <button id="onboarding-install-btn" class="btn btn-primary btn-large onboarding-primary-btn">Install ME</button>
+    <button id="onboarding-dismiss-btn" class="btn btn-outline onboarding-secondary-btn">Continue in Browser</button>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container" class="toast-container" aria-live="polite"></div>
 
 <!-- Scripts -->
 <script type="module" src="/static/js/config.js?v=3"></script>

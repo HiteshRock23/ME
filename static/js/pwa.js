@@ -14,6 +14,10 @@ export function initPWA() {
     setupInstallListeners();
 }
 
+export function getDeferredPrompt() {
+    return deferredPrompt;
+}
+
 function registerServiceWorker() {
     if ('serviceWorker' in navigator) {
         // Disable and unregister Service Worker on localhost/127.0.0.1 to prevent development caching issues

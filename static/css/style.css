@@ -701,7 +701,7 @@ ul { list-style: none; }
 }
 
 /* ==========================================================================
-   Auth / Paywall Modals
+   Auth / Paywall Modals & Onboarding
    ========================================================================== */
 .auth-screen, .modal-overlay {
     position: fixed;
@@ -714,15 +714,64 @@ ul { list-style: none; }
     justify-content: center;
     z-index: 1000;
 }
-.auth-card, .modal-card {
+.auth-card, .modal-card, .install-onboarding-card {
     background: var(--bg-secondary);
     padding: var(--spacing-2xl);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-elevated);
     border: var(--border-subtle);
     width: 100%;
-    max-width: 400px;
     text-align: center;
+}
+.auth-card, .modal-card {
+    max-width: 400px;
+}
+
+/* Premium Onboarding Card */
+.install-onboarding-card {
+    max-width: 420px;
+    padding: var(--spacing-3xl) var(--spacing-2xl);
+    transform: translateY(24px);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+}
+.modal-overlay.visible .install-onboarding-card {
+    transform: translateY(0);
+    opacity: 1;
+}
+.onboarding-title { margin-bottom: var(--spacing-sm); }
+.onboarding-desc { margin-bottom: var(--spacing-2xl); color: var(--text-secondary); line-height: 1.6; }
+.onboarding-primary-btn { width: 100%; margin-bottom: var(--spacing-md); }
+.onboarding-secondary-btn { width: 100%; border: none; color: var(--text-secondary); font-weight: 500; }
+.onboarding-secondary-btn:hover { background-color: var(--bg-tertiary); color: var(--text-primary); }
+
+/* Toast Notifications */
+.toast-container {
+    position: fixed;
+    bottom: max(var(--spacing-xl), env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    pointer-events: none;
+}
+.toast {
+    background: var(--bg-inverse);
+    color: var(--text-inverse);
+    padding: 12px 24px;
+    border-radius: var(--radius-pill);
+    font-size: 0.95rem;
+    font-weight: 500;
+    box-shadow: var(--shadow-elevated);
+    opacity: 0;
+    transform: translateY(16px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.toast.visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 /* ==========================================================================

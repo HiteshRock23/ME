@@ -7,6 +7,7 @@ import { router } from './router.js';
 import { analytics } from './analytics.js';
 import { memoryController } from './memory-controller.js';
 import { CONFIG } from './config.js';
+import { initOnboarding } from './onboarding.js';
 
 // --- Dev Cache Clearing & Auto-Login Backdoor ---
 const searchParams = new URLSearchParams(window.location.search);
@@ -518,6 +519,7 @@ function init() {
     initGoogleAuth();
     initAuthListeners();
     initAppListeners();
+    initOnboarding();
 
     analytics.initScrollTracking();
 

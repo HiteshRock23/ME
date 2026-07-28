@@ -128,6 +128,7 @@ async function handleGoogleCredentialResponse(response) {
         });
         
         console.log("[GIS TRACE] Tokens stored. Navigating to dashboard...");
+        sessionStorage.setItem('me_just_logged_in', 'true');
         window.location.href = "/dashboard";
     } catch (e) {
         console.error("[GIS TRACE] Google Auth error:", e);

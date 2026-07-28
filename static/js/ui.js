@@ -38,6 +38,29 @@ export const ui = {
         alert(message);
     },
 
+    showToast(message) {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = message;
+        toast.setAttribute('role', 'alert');
+
+        container.appendChild(toast);
+
+        // Force reflow for animation
+        void toast.offsetWidth;
+        toast.classList.add('visible');
+
+        setTimeout(() => {
+            toast.classList.remove('visible');
+            toast.addEventListener('transitionend', () => {
+                toast.remove();
+            });
+        }, 3000);
+    },
+
     escapeHTML(str) {
         if (!str) return '';
         const div = document.createElement('div');
