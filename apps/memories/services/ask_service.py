@@ -107,10 +107,14 @@ class AskService:
         # 7. Serialize DTOs for public API response (internal scores excluded)
         serialized_references = [mem.to_dict() for mem in referenced_memories]
 
+        from django.conf import settings
+        provider_name = getattr(settings, "LLM_PROVIDER", "nvidia").lower()
+
         return {
             "question": clean_question,
             "answer": answer.strip(),
             "retrieved_count": len(serialized_references),
             "referenced_memories": serialized_references,
-            "sources": serialized_references  # Alias for backward compatibility
+            "sources": serialized_references,  # Alias for backward compatibility
+            "ai_provider": provider_name
         }

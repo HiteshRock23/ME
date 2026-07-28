@@ -1,4 +1,5 @@
 import { auth } from './auth.js';
+import { analytics } from './analytics.js';
 
 /**
  * API Module
@@ -19,37 +20,68 @@ async function apiFetch(url, options = {}) {
         ...(options.headers || {})
     };
 
-    let response = await fetch(url, { ...options, headers });
+    const startTime = performance.now();
+    const method = options.method || 'GET';
+    let response;
+    let errorOccurred = false;
+    let statusCode = null;
+    let errMsg = null;
 
-    // Handle token expiration
-    if (response.status === 401) {
-        try {
-            await auth.refreshToken();
-            // Retry the original request with the new token
-            headers['Authorization'] = `Bearer ${auth.getAccessToken()}`;
-            response = await fetch(url, { ...options, headers });
-        } catch (e) {
-            auth.clearTokens();
-            throw new Error("Session expired. Please log in again.");
+    try {
+        response = await fetch(url, { ...options, headers });
+
+        // Handle token expiration
+        if (response.status === 401) {
+            try {
+                await auth.refreshToken();
+                // Retry the original request with the new token
+                headers['Authorization'] = `Bearer ${auth.getAccessToken()}`;
+                response = await fetch(url, { ...options, headers });
+            } catch (e) {
+                auth.clearTokens();
+                throw new Error("Session expired. Please log in again.");
+            }
+        }
+
+        statusCode = response.status;
+
+        // Handle generic errors
+        if (!response.ok) {
+            errorOccurred = true;
+            let msg = "A network error occurred.";
+            try {
+                const data = await response.json();
+                msg = data.detail || JSON.stringify(data);
+            } catch(e) {}
+            errMsg = msg;
+            throw new Error(msg);
+        }
+
+        // Handle 204 No Content for delete
+        if (response.status === 204) {
+            return null;
+        }
+
+        return await response.json();
+
+    } catch (err) {
+        errorOccurred = true;
+        if (!errMsg) errMsg = err.message || "Unknown error";
+        throw err;
+    } finally {
+        const endTime = performance.now();
+        const durationMs = endTime - startTime;
+
+        if (errorOccurred) {
+            analytics.capture('API Error', {
+                endpoint: url,
+                method: method,
+                status_code: statusCode,
+                duration_ms: durationMs,
+                error_type: errMsg
+            });
         }
     }
-
-    // Handle generic errors
-    if (!response.ok) {
-        let msg = "A network error occurred.";
-        try {
-            const data = await response.json();
-            msg = data.detail || JSON.stringify(data);
-        } catch(e) {}
-        throw new Error(msg);
-    }
-
-    // Handle 204 No Content for delete
-    if (response.status === 204) {
-        return null;
-    }
-
-    return await response.json();
 }
 
 export const api = {

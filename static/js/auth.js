@@ -3,6 +3,8 @@
  * Handles tokens, login, logout, and token refreshing.
  */
 
+import { analytics } from './analytics.js';
+
 const AUTH_KEYS = {
     ACCESS: 'me_access',
     REFRESH: 'me_refresh'
@@ -75,6 +77,7 @@ export const auth = {
             }
         }
         this.clearTokens();
+        analytics.resetUser();
     },
 
     async register(firstName, lastName, email, password) {
@@ -103,6 +106,11 @@ export const auth = {
         const refresh = data.refresh || data.tokens?.refresh;
         this.setTokens(access, refresh);
         
+        const userObj = data.user || data.tokens?.user;
+        if (userObj) {
+            analytics.identifyUser(userObj);
+        }
+        
         return data;
     },
 
@@ -120,6 +128,7 @@ export const auth = {
 
         if (!response.ok) {
             this.clearTokens();
+            analytics.resetUser();
             throw new Error("Session expired. Please log in again.");
         }
 

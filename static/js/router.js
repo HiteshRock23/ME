@@ -95,7 +95,7 @@ export const router = {
                 this.navigate('/dashboard');
             } else {
                 ui.showScreen('landing-screen');
-                analytics.track('Landing Viewed');
+                analytics.pageView('Landing Page');
             }
             return;
         }
@@ -107,7 +107,7 @@ export const router = {
                 this.navigate('/dashboard');
             } else {
                 ui.showScreen('auth-screen');
-                analytics.track('Auth Page Viewed');
+                analytics.pageView('Authentication');
             }
             return;
         }
@@ -120,7 +120,8 @@ export const router = {
                 return;
             }
             ui.showScreen('app-screen');
-            analytics.track('Dashboard Loaded');
+            analytics.pageView('Dashboard');
+            analytics.capture('Dashboard Opened');
             // Signal the dashboard to initialize/reload its timeline
             window.dispatchEvent(new CustomEvent('me:dashboard-enter'));
             return;
@@ -144,6 +145,7 @@ export const router = {
                 window.dispatchEvent(new CustomEvent('me:dashboard-enter'));
             }
             console.log('[ROUTER] calling memoryController.open(', memoryId, ')');
+            analytics.pageView('Memory Detail');
             memoryController.open(memoryId);
             return;
         }

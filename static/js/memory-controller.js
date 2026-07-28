@@ -90,7 +90,11 @@ export const memoryController = {
             _setState('ready');
             ui.openMemoryViewer(cached);
             this._fetchRelated(cached);
-            analytics.track('Memory Detail Viewed (Cache Hit)', { id: sid });
+            analytics.capture('Memory Viewed', {
+                memory_id: sid,
+                memory_type: cached.memory_type || 'note',
+                cache_hit: true
+            });
             return;
         }
 
@@ -98,7 +102,6 @@ export const memoryController = {
         console.log('[MC] no cache, opening loading skeleton');
         _setState('loading');
         ui.openMemoryViewerLoading();
-        analytics.track('Memory Detail Viewed', { id: sid });
 
         // Step 2: Fetch full memory
         try {
@@ -116,6 +119,12 @@ export const memoryController = {
             console.log('[MC] hydrating viewer...');
             ui.hydrateMemoryViewer(memory);
             this._fetchRelated(memory);
+
+            analytics.capture('Memory Viewed', {
+                memory_id: sid,
+                memory_type: memory.memory_type || 'note',
+                cache_hit: false
+            });
 
         } catch (err) {
             console.error('[MC] API error:', err);

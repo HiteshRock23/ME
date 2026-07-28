@@ -49,11 +49,17 @@ if (searchParams.has('dev_login')) {
 async function handleDeleteClick(id) {
     await api.deleteMemory(id);
     ui.removeMemoryCard(id);
+    analytics.capture('Memory Deleted', { memory_id: id });
 }
 
 async function handleEditTitleClick(id, newTitle) {
     const updatedMemory = await api.updateMemoryTitle(id, newTitle);
     ui.updateMemoryCard(updatedMemory, handleDeleteClick, handleEditTitleClick);
+    analytics.capture('Memory Edited', {
+        memory_id: id,
+        memory_type: updatedMemory.memory_type || 'note',
+        field: 'title'
+    });
 }
 
 async function loadMemories() {
@@ -62,6 +68,9 @@ async function loadMemories() {
         const memories = await api.getMemories();
         ui.renderTimeline(memories, handleDeleteClick, handleEditTitleClick);
         startPollingIfPending();
+        analytics.capture('Timeline Viewed', {
+            result_count: memories ? memories.length : 0
+        });
     } catch (e) {
         if (e.message.includes("Session expired") || e.message.includes("Unauthorized")) {
             auth.clearTokens();
@@ -214,8 +223,25 @@ function initAppListeners() {
 
             ui.setCaptureState(true);
 
+            const captureStartTime = performance.now();
             try {
-                await api.captureMemory(content, linkTitle);
+                const response = await api.captureMemory(content, linkTitle);
+                const durationMs = performance.now() - captureStartTime;
+
+                analytics.capture('Memory Created', {
+                    memory_id: response.id,
+                    memory_type: response.memory_type || 'note',
+                    duration_ms: durationMs,
+                    source: 'capture_input'
+                });
+
+                if (response.memory_type === 'link') {
+                    analytics.capture('Link Saved', {
+                        memory_id: response.id,
+                        duration_ms: durationMs
+                    });
+                }
+
                 ui.clearCaptureInput();
                 if (linkTitleInput) {
                     linkTitleInput.value = '';
@@ -249,8 +275,24 @@ function initAppListeners() {
                 if (!query) return;
 
                 ui.setSearchLoading();
+                const searchStartTime = performance.now();
+                analytics.capture('Search Started', {
+                    search_length: query.length
+                });
+                analytics.capture('AI Search Used', {
+                    search_length: query.length
+                });
+
                 try {
                     const response = await api.searchMemories(query);
+                    const durationMs = performance.now() - searchStartTime;
+
+                    analytics.capture('Search Completed', {
+                        search_length: query.length,
+                        result_count: response.results ? response.results.length : 0,
+                        duration_ms: durationMs
+                    });
+
                     ui.renderSearchResults(response.results, async (id) => {
                         await handleDeleteClick(id);
                         // For simplicity, just clear and reload search if we delete a search result
@@ -265,6 +307,12 @@ function initAppListeners() {
                         }
                     }, handleEditTitleClick);
                 } catch (err) {
+                    const durationMs = performance.now() - searchStartTime;
+                    analytics.capture('Search Failed', {
+                        search_length: query.length,
+                        error_message: err.message || 'Unknown error',
+                        duration_ms: durationMs
+                    });
                     ui.showError("Search failed: " + err.message);
                     ui.clearSearch();
                 }
@@ -289,11 +337,32 @@ function initAppListeners() {
             if (!question) return;
             
             ui.setAskLoading(true);
+            const askStartTime = performance.now();
+            analytics.capture('AI Ask Started', {
+                search_length: question.length
+            });
+
             try {
                 const response = await api.askQuestion(question);
+                const durationMs = performance.now() - askStartTime;
+
+                analytics.capture('AI Ask Completed', {
+                    search_length: question.length,
+                    result_count: response.referenced_memories ? response.referenced_memories.length : 0,
+                    response_time_ms: durationMs,
+                    ai_provider: response.ai_provider || 'nvidia'
+                });
+
                 ui.setAskLoading(false);
                 ui.renderAskAnswer(response);
             } catch (err) {
+                const durationMs = performance.now() - askStartTime;
+                analytics.capture('AI Ask Failed', {
+                    search_length: question.length,
+                    error_message: err.message || 'Unknown error',
+                    response_time_ms: durationMs
+                });
+
                 ui.setAskLoading(false);
                 ui.clearAskAnswer();   // Hide the white container on error
                 ui.showError(err.message);
@@ -396,7 +465,10 @@ function initAppListeners() {
                 
                 const location = trigger.getAttribute('data-location') || 'Unknown';
                 
-                // Track: Early Access CTA Click
+                // Track: Upgrade Button Clicked & Early Access CTA Click
+                analytics.capture('Upgrade Button Clicked', {
+                    source: `Early Access - ${location}`
+                });
                 analytics.track('Early Access CTA Click', { Location: location });
                 
                 // Fetch the Google Form URL from configuration
@@ -412,6 +484,31 @@ function initAppListeners() {
                 }
             }
         });
+    }
+
+    // Paywall Modal Upgrade Button
+    const paywallUpgradeBtn = document.querySelector('.paywall-upgrade-btn');
+    if (paywallUpgradeBtn) {
+        paywallUpgradeBtn.addEventListener('click', () => {
+            analytics.capture('Upgrade Button Clicked', {
+                source: 'Paywall Modal'
+            });
+        });
+    }
+
+    // Track Pricing Viewed using IntersectionObserver
+    const pricingSection = document.getElementById('pricing');
+    if (pricingSection) {
+        let pricingTracked = false;
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !pricingTracked) {
+                    analytics.capture('Pricing Viewed', { source: 'Landing Page' });
+                    pricingTracked = true;
+                }
+            });
+        }, { threshold: 0.2 });
+        observer.observe(pricingSection);
     }
 }
 

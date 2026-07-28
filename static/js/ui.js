@@ -1,4 +1,5 @@
 import { api } from './api.js';
+import { analytics } from './analytics.js';
 
 let drawerCloseTimeout = null;
 
@@ -555,6 +556,12 @@ export const ui = {
                 statusEl.style.opacity = '1';
                 setTimeout(() => { statusEl.style.opacity = '0'; }, 2500);
 
+                analytics.capture('Memory Edited', {
+                    memory_id: memory.id,
+                    memory_type: memory.memory_type || 'note',
+                    field: 'content'
+                });
+
                 window.dispatchEvent(new CustomEvent('me:invalidate-memory', { detail: { id: memory.id } }));
                 window.dispatchEvent(new CustomEvent('me:memory-mutated', { detail: { id: memory.id } }));
             } catch (err) {
@@ -593,6 +600,12 @@ export const ui = {
             const targetUrl = memory.url || rawContent;
             linkUrl.textContent = targetUrl;
             linkUrl.href = targetUrl;
+            linkUrl.onclick = () => {
+                analytics.capture('Link Opened', {
+                    memory_id: memory.id,
+                    url: targetUrl
+                });
+            };
             linkContainer.classList.remove('hidden');
         } else {
             linkContainer.classList.add('hidden');
@@ -618,6 +631,13 @@ export const ui = {
                 try {
                     await api.updateMemoryTitle(memory.id, newTitle.trim());
                     document.getElementById('drawer-title').textContent = newTitle.trim() || titleText;
+                    
+                    analytics.capture('Memory Edited', {
+                        memory_id: memory.id,
+                        memory_type: memory.memory_type || 'note',
+                        field: 'title'
+                    });
+
                     window.dispatchEvent(new CustomEvent('me:invalidate-memory', { detail: { id: memory.id } }));
                     window.dispatchEvent(new CustomEvent('me:memory-mutated', { detail: { id: memory.id } }));
                 } catch (err) {
@@ -634,6 +654,17 @@ export const ui = {
                 deleteBtn.textContent = 'Deleting...';
                 try {
                     await api.deleteMemory(memory.id);
+                    
+                    analytics.capture('Memory Deleted', {
+                        memory_id: memory.id,
+                        memory_type: memory.memory_type || 'note'
+                    });
+                    if (memory.memory_type === 'link') {
+                        analytics.capture('Link Deleted', {
+                            memory_id: memory.id
+                        });
+                    }
+
                     window.dispatchEvent(new CustomEvent('me:invalidate-memory', { detail: { id: memory.id } }));
                     window.dispatchEvent(new CustomEvent('me:navigate', { detail: { path: '/dashboard' } }));
                     window.dispatchEvent(new CustomEvent('me:memory-mutated', { detail: { id: memory.id, deleted: true } }));

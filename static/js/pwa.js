@@ -1,6 +1,7 @@
 /**
  * PWA & Native Install Experience
  */
+import { analytics } from './analytics.js';
 
 let deferredPrompt;
 
@@ -71,17 +72,20 @@ function setupInstallListeners() {
     window.addEventListener('appinstalled', (evt) => {
         console.log('[PWA] app installed successfully');
         trackEvent('App Installed');
+        analytics.capture('PWA Installed');
         hideInstallUI();
         deferredPrompt = null;
     });
 }
 
 function showInstallUI() {
+    let shown = false;
     // Show navbar button if it exists
     const navBtn = document.getElementById('pwa-nav-btn');
     if (navBtn) {
         navBtn.classList.remove('hidden');
         trackEvent('Install Button Viewed');
+        shown = true;
     }
 
     // Show banner if not dismissed recently
@@ -92,7 +96,12 @@ function showInstallUI() {
         if (banner) {
             banner.classList.remove('hidden');
             trackEvent('Install Banner Viewed');
+            shown = true;
         }
+    }
+
+    if (shown) {
+        analytics.capture('Install Prompt Shown');
     }
 }
 
@@ -133,6 +142,7 @@ export function dismissBanner() {
         banner.classList.add('hidden');
         localStorage.setItem(BANNER_DISMISSAL_KEY, Date.now().toString());
         trackEvent('Install Banner Dismissed');
+        analytics.capture('Install Banner Dismissed');
     }
 }
 
@@ -149,6 +159,6 @@ export function refreshApp() {
 }
 
 function trackEvent(eventName) {
-    // Integrate with analytics here
     console.log(`[Analytics] ${eventName}`);
+    analytics.capture(eventName);
 }

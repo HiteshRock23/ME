@@ -1,5 +1,6 @@
 import { auth } from "./auth.js";
 import { ui } from "./ui.js?v=3";
+import { analytics } from "./analytics.js";
 
 let googleClientId = null;
 let isInitialized = false;
@@ -89,6 +90,8 @@ window.addEventListener("auth-screen-shown", () => {
 
 async function handleGoogleCredentialResponse(response) {
     console.log("[GIS TRACE] handleGoogleCredentialResponse CALLED with response:", response);
+    const loginStartTime = performance.now();
+    analytics.capture('Google Login Started');
     try {
         ui.clearError();
         
@@ -116,11 +119,22 @@ async function handleGoogleCredentialResponse(response) {
         const data = await res.json();
         console.log("[GIS TRACE] Received tokens from backend:", data);
         auth.setTokens(data.access, data.refresh);
-        console.log("[GIS TRACE] Tokens stored. Navigating to dashboard...");
         
+        if (data.user) {
+            analytics.identifyUser(data.user);
+        }
+        analytics.capture('Google Login Success', {
+            duration_ms: performance.now() - loginStartTime
+        });
+        
+        console.log("[GIS TRACE] Tokens stored. Navigating to dashboard...");
         window.location.href = "/dashboard";
     } catch (e) {
         console.error("[GIS TRACE] Google Auth error:", e);
+        analytics.capture('Google Login Failed', {
+            error_message: e.message || 'Unknown error',
+            duration_ms: performance.now() - loginStartTime
+        });
         ui.showError(e.message);
     }
 }
