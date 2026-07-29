@@ -11,7 +11,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="/static/css/style.css?v=5" />
+  <link rel="stylesheet" href="/static/css/style.css?v=6" />
   <link rel="stylesheet" href="/static/css/dump.css?v=1" />
 
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -54,7 +54,7 @@
         <a href="#features">Features</a>
         <a href="#how-it-works">How It Works</a>
         <a href="#security">Security</a>
-        <a href="#pricing">Pricing</a>
+        <a href="#early-access">Early Access</a>
       </div>
       <div class="nav-actions">
         <a href="/auth" data-route class="btn btn-primary" id="landing-cta-btn">Continue with Google</a>
@@ -199,36 +199,63 @@
     </div>
   </section>
 
-  <!-- Pricing -->
-  <section id="pricing" class="section container">
-    <div class="text-center">
-      <h2 class="display-3">Simple Pricing</h2>
-    </div>
-    <div class="pricing-grid">
-      <div class="pricing-card">
-        <h3 class="heading-1">Free</h3>
-        <p class="body-base">Experience the future of memory.</p>
-        <div class="price">$0<span style="font-size: 1rem; color: var(--text-secondary);"> / forever</span></div>
-        <ul class="pricing-list">
-          <li>Unlimited text memories</li>
-          <li>Unlimited searches</li>
-          <li>AI summaries</li>
-          <li>Google Login</li>
-        </ul>
-        <a href="/auth" data-route class="btn btn-primary" style="width: 100%;">Get Started</a>
+  <!-- Early Access -->
+  <section id="early-access" class="section container">
+    <div class="early-access-card">
+      <div class="text-center">
+        <span class="early-access-badge">FREE DURING EARLY ACCESS</span>
+        <h2 class="display-3" style="margin-top: var(--spacing-sm); margin-bottom: var(--spacing-sm);">Join ME Early</h2>
+        <p class="body-large early-access-description">
+          ME is currently free while we're building the future of personal memory.<br>
+          Join early, use every feature available today, and help shape what we build next through your feedback.
+        </p>
       </div>
-      <div class="pricing-card pro">
-        <div class="pricing-badge">Early Access</div>
-        <h3 class="heading-1">Recall plus</h3>
-        <p class="body-base">For power users and professionals.</p>
-        <div class="price">$5<span style="font-size: 1rem; color: var(--text-secondary);"> / month</span></div>
-        <ul class="pricing-list">
-          <li>PDF & File support</li>
-          <li>Voice memories</li>
-          <li>Browser extensions</li>
-          <li>Priority AI models</li>
-        </ul>
-        <button class="btn btn-primary early-access-trigger" data-location="Pricing" style="width: 100%;">Join Early Access</button>
+
+      <div class="early-access-grid">
+        <div class="early-access-item">
+          <span class="early-access-item-icon">✓</span>
+          <span>Unlimited text memories</span>
+        </div>
+        <div class="early-access-item">
+          <span class="early-access-item-icon">✓</span>
+          <span>Unlimited semantic search</span>
+        </div>
+        <div class="early-access-item">
+          <span class="early-access-item-icon">✓</span>
+          <span>AI-powered summaries</span>
+        </div>
+        <div class="early-access-item">
+          <span class="early-access-item-icon">✓</span>
+          <span>Link Intelligence</span>
+        </div>
+        <div class="early-access-item">
+          <span class="early-access-item-icon">✓</span>
+          <span>Quick Dump</span>
+        </div>
+        <div class="early-access-item">
+          <span class="early-access-item-icon">✓</span>
+          <span>Save Link</span>
+        </div>
+        <div class="early-access-item">
+          <span class="early-access-item-icon">✓</span>
+          <span>Google Sign-In</span>
+        </div>
+        <div class="early-access-item">
+          <span class="early-access-item-icon">✓</span>
+          <span>All current features included</span>
+        </div>
+      </div>
+
+      <div class="early-access-cta-container">
+        <a href="/auth" data-route class="btn btn-primary btn-large" style="width: 100%; max-width: 320px; justify-content: center;">Start Free</a>
+        <p class="body-small" style="color: var(--text-secondary); margin-top: var(--spacing-xs);">No credit card required.</p>
+      </div>
+
+      <div class="early-access-notice">
+        <p class="body-small">
+          Premium features and advanced integrations will be introduced in the future as ME evolves.<br>
+          Everyone joining during Early Access will receive advance notice before any pricing changes.
+        </p>
       </div>
     </div>
   </section>
@@ -236,7 +263,7 @@
   <!-- Final CTA -->
   <section class="section container text-center" style="margin-top: var(--spacing-4xl); margin-bottom: var(--spacing-4xl);">
     <h2 class="display-2" style="margin-bottom: var(--spacing-lg);">Your memory deserves an upgrade.</h2>
-    <button class="btn btn-primary btn-large early-access-trigger" data-location="Final">Join Early Access</button>
+    <a href="/auth" data-route class="btn btn-primary btn-large">Start Free</a>
   </section>
 
   <!-- Feedback Section -->
