@@ -18,6 +18,7 @@ class CaptureSerializer(serializers.Serializer):
         }
     )
     link_title = serializers.CharField(max_length=255, required=False, allow_blank=True)
+    preview_id = serializers.UUIDField(required=False, allow_null=True)
 
     def validate_raw_content(self, value: str) -> str:
         if len(value) > 5000:
@@ -32,7 +33,8 @@ class CaptureSerializer(serializers.Serializer):
         return capture_memory(
             user=user, 
             raw_content=validated_data["raw_content"],
-            link_title=validated_data.get("link_title", "")
+            link_title=validated_data.get("link_title", ""),
+            preview_id=validated_data.get("preview_id")
         )
 
 
@@ -57,6 +59,26 @@ class MemoryReadSerializer(serializers.ModelSerializer):
             "ai_title",
             "ai_summary",
             "ai_status",
+            "platform",
+            "content_type",
+            "source_url",
+            "canonical_url",
+            "page_title",
+            "page_description",
+            "favicon_url",
+            "thumbnail_url",
+            "site_name",
+            "author",
+            "reading_time",
+            "metadata_json",
+            "tags",
+            "title_user_modified",
+            "summary_user_modified",
+            "tags_user_modified",
+            "capture_intent",
+            "title_confidence",
+            "summary_confidence",
+            "tags_confidence",
             "created_at",
             "updated_at",
         ]
@@ -71,4 +93,13 @@ class MemoryUpdateSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Memory
-        fields = ["link_title", "raw_content"]
+        fields = ["link_title", "raw_content", "ai_title", "ai_summary", "tags", "capture_intent"]
+        
+    def update(self, instance, validated_data):
+        if "ai_title" in validated_data:
+            instance.title_user_modified = True
+        if "ai_summary" in validated_data:
+            instance.summary_user_modified = True
+        if "tags" in validated_data:
+            instance.tags_user_modified = True
+        return super().update(instance, validated_data)

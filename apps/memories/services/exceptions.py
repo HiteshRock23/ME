@@ -19,3 +19,9 @@ class SupermemoryConnectionError(SupermemoryError):
 class SupermemoryAPIError(SupermemoryError):
     """Raised when Supermemory Local returns an HTTP error code (non-2xx)."""
     pass
+
+class DuplicateMemoryError(Exception):
+    """Raised when a duplicate URL is detected during capture."""
+    def __init__(self, memory):
+        self.memory = memory
+        super().__init__("Memory already exists for this URL.")

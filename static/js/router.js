@@ -20,7 +20,7 @@
  */
 
 import { auth } from './auth.js';
-import { ui } from './ui.js?v=3';
+import { ui } from './ui.js?v=4';
 import { memoryController } from './memory-controller.js';
 import { analytics } from './analytics.js';
 
@@ -118,6 +118,15 @@ export const router = {
             ui.showScreen('dump-screen');
             analytics.pageView('Quick Dump');
             window.dispatchEvent(new CustomEvent('me:dump-enter'));
+            return;
+        }
+
+        // --- Save Link ---
+        if (path === '/save-link') {
+            memoryController.close();
+            ui.showScreen('save-link-screen');
+            analytics.pageView('Save Link');
+            window.dispatchEvent(new CustomEvent('me:save-link-enter'));
             return;
         }
 

@@ -1,3 +1,4 @@
+import uuid
 from django.conf import settings
 from django.db import models
 from django.core.validators import MaxLengthValidator
@@ -23,10 +24,12 @@ class Memory(models.Model):
         # Future types: IMAGE, PDF, VIDEO, AUDIO — add here, nothing else changes.
 
     class AIStatus(models.TextChoices):
-        PENDING = "pending", "Pending"      # Saved, waiting for AI processing
-        PROCESSING = "processing", "Processing" # Currently being processed by worker
-        READY = "ready", "Ready"            # AI processing complete
-        FAILED = "failed", "Failed"         # AI failed, raw data preserved
+        PENDING = "pending", "Pending"
+        PLATFORM_DETECTION = "platform_detection", "Platform Detection"
+        METADATA_EXTRACTION = "metadata_extraction", "Metadata Extraction"
+        AI_ENRICHMENT = "ai_enrichment", "AI Enrichment"
+        COMPLETED = "completed", "Completed"
+        FAILED = "failed", "Failed"
 
     class SyncStatus(models.TextChoices):
         PENDING = "pending", "Pending"
@@ -97,7 +100,7 @@ class Memory(models.Model):
     # No embedding field on this model.
 
     ai_status = models.CharField(
-        max_length=10,
+        max_length=25,
         choices=AIStatus.choices,
         default=AIStatus.PENDING,
         db_index=True,
@@ -114,6 +117,38 @@ class Memory(models.Model):
         null=True,
         help_text="Error message from the last failed AI enrichment.",
     )
+
+    # -------------------------------------------------------------------------
+    # Link Intelligence Fields
+    # -------------------------------------------------------------------------
+    platform = models.CharField(max_length=255, blank=True)
+    content_type = models.CharField(max_length=50, blank=True)
+    source_url = models.URLField(max_length=2000, blank=True, null=True)
+    canonical_url = models.URLField(max_length=2000, blank=True, null=True)
+    page_title = models.CharField(max_length=500, blank=True)
+    page_description = models.TextField(blank=True)
+    favicon_url = models.URLField(max_length=2000, blank=True, null=True)
+    thumbnail_url = models.URLField(max_length=2000, blank=True, null=True)
+    site_name = models.CharField(max_length=255, blank=True)
+    author = models.CharField(max_length=255, blank=True)
+    reading_time = models.CharField(max_length=50, blank=True)
+    metadata_json = models.JSONField(default=dict, blank=True)
+    tags = models.JSONField(default=list, blank=True)
+
+    # -------------------------------------------------------------------------
+    # User Edit Protection & Intent
+    # -------------------------------------------------------------------------
+    title_user_modified = models.BooleanField(default=False)
+    summary_user_modified = models.BooleanField(default=False)
+    tags_user_modified = models.BooleanField(default=False)
+    capture_intent = models.CharField(max_length=255, blank=True)
+
+    # -------------------------------------------------------------------------
+    # AI Confidence Scores
+    # -------------------------------------------------------------------------
+    title_confidence = models.FloatField(blank=True, null=True)
+    summary_confidence = models.FloatField(blank=True, null=True)
+    tags_confidence = models.FloatField(blank=True, null=True)
 
     # -------------------------------------------------------------------------
     # Synchronization Fields
@@ -179,3 +214,42 @@ class Memory(models.Model):
         if self.ai_title:
             return self.ai_title
         return f"{self.raw_content[:50]}..."
+
+
+class LinkMetadataCache(models.Model):
+    """
+    Cache for fetched metadata to avoid repeating network requests and AI enrichment
+    for the same URL within a 24-hour period.
+    """
+    url_hash = models.CharField(max_length=64, unique=True, db_index=True)
+    normalized_url = models.URLField(max_length=2000)
+    metadata_json = models.JSONField(default=dict)
+    fetched_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+
+    class Meta:
+        verbose_name = "link metadata cache"
+        verbose_name_plural = "link metadata caches"
+
+    def __str__(self):
+        return f"Cache for {self.normalized_url[:50]}"
+
+
+class PendingCapture(models.Model):
+    """
+    Temporary storage for an enriched capture (e.g. from Save Link) before the user logs in
+    and saves it permanently. This is a generic structure supporting future free tools.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    capture_type = models.CharField(max_length=50, help_text="e.g. 'link', 'dump', 'code'")
+    payload_json = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    version = models.IntegerField(default=1)
+
+    class Meta:
+        verbose_name = "pending capture"
+        verbose_name_plural = "pending captures"
+
+    def __str__(self):
+        return f"PendingCapture {self.capture_type} ({self.id})"

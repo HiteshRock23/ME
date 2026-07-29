@@ -260,20 +260,33 @@
         Capture thoughts, ideas, and useful information instantly — no account required.
       </p>
     </div>
-    <div style="display: grid; gap: var(--spacing-lg); max-width: 480px; margin: 0 auto;">
+    <div style="display: grid; gap: var(--spacing-lg); max-width: 800px; margin: 0 auto; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+      <!-- Quick Dump -->
       <div class="feature-card" style="display: flex; flex-direction: column; align-items: flex-start; text-align: left; padding: var(--spacing-2xl);">
         <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: var(--spacing-md);">
           <h3 class="heading-1" style="margin: 0; font-size: 1.5rem;">Quick Dump</h3>
           <span style="background: var(--bg-tertiary); color: var(--text-secondary); padding: 4px 10px; border-radius: 100px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em; border: 1px solid rgba(0,0,0,0.05);">FREE</span>
         </div>
-        <p class="body-base" style="color: var(--text-secondary); margin-bottom: var(--spacing-xl); line-height: 1.6;">
+        <p class="body-base" style="color: var(--text-secondary); margin-bottom: var(--spacing-xl); line-height: 1.6; flex: 1;">
           Got something on your mind?<br>
           Dump it instantly.<br>
           No account required.
         </p>
         <a href="/dump" data-route class="btn btn-primary" style="width: 100%; justify-content: center; height: 48px;">Try Quick Dump &rarr;</a>
       </div>
-      <p class="body-small text-center" style="color: var(--text-secondary); opacity: 0.6; margin-top: var(--spacing-xs);">More free tools are coming.</p>
+      
+      <!-- Save Link -->
+      <div class="feature-card" style="display: flex; flex-direction: column; align-items: flex-start; text-align: left; padding: var(--spacing-2xl);">
+        <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: var(--spacing-md);">
+          <h3 class="heading-1" style="margin: 0; font-size: 1.5rem;">Save Link</h3>
+          <span style="background: var(--bg-tertiary); color: var(--text-secondary); padding: 4px 10px; border-radius: 100px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em; border: 1px solid rgba(0,0,0,0.05);">FREE</span>
+        </div>
+        <p class="body-base" style="color: var(--text-secondary); margin-bottom: var(--spacing-xl); line-height: 1.6; flex: 1;">
+          Paste any link and let ME read, summarize, and categorize it automatically.<br>
+          See the intelligence in action.
+        </p>
+        <a href="/save-link" data-route class="btn btn-primary" style="width: 100%; justify-content: center; height: 48px;">Try Save Link &rarr;</a>
+      </div>
     </div>
   </section>
 
@@ -360,6 +373,86 @@
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 2.5: Save Link Screen (Public Tool)
+     ============================================================ -->
+<div id="save-link-screen" class="save-link-screen hidden">
+  <div class="save-link-container container text-center" style="max-width: 600px; padding: var(--spacing-4xl) var(--spacing-md); margin: 0 auto;">
+    
+    <div class="save-link-hero" style="margin-bottom: var(--spacing-3xl);">
+      <div class="nav-logo dump-logo" aria-hidden="true" tabindex="0" role="button" onclick="window.location.href='/'" style="margin-bottom: var(--spacing-lg);"><span>ME</span></div>
+      <h1 class="display-3">Save Link</h1>
+      <p class="body-large" style="color: var(--text-secondary); margin-top: var(--spacing-sm);">
+        Never lose a useful link again.<br>
+        Paste any article, video, repository or webpage.<br>
+        We'll understand it for you.
+      </p>
+    </div>
+
+    <!-- Example Links -->
+    <div id="save-link-examples" style="margin-bottom: var(--spacing-2xl); display: flex; gap: var(--spacing-sm); justify-content: center; flex-wrap: wrap;">
+      <button class="btn btn-outline btn-small save-link-example-btn" data-url="https://github.com/openai/openai-python">🐙 GitHub Repository</button>
+      <button class="btn btn-outline btn-small save-link-example-btn" data-url="https://www.youtube.com/watch?v=M576WJCfCNE">📺 YouTube Video</button>
+      <button class="btn btn-outline btn-small save-link-example-btn" data-url="https://lilianweng.github.io/posts/2023-06-23-agent/">📝 Blog Article</button>
+    </div>
+
+    <!-- URL Input -->
+    <div class="save-link-input-container" style="margin-bottom: var(--spacing-xl);">
+      <input type="url" id="save-link-input" class="capture-textarea" style="height: 60px; min-height: 60px; font-size: 1.125rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 20px;" placeholder="https://..." required>
+    </div>
+
+    <div class="save-link-actions" style="margin-bottom: var(--spacing-4xl);">
+      <button id="save-link-analyze-btn" class="btn btn-primary btn-large" style="width: 100%;" disabled>Analyze Link</button>
+    </div>
+
+    <!-- Loading State -->
+    <div id="save-link-loading" class="hidden" style="text-align: left; background: var(--bg-secondary); padding: var(--spacing-xl); border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: var(--spacing-3xl);">
+      <h3 class="heading-2" style="margin-bottom: var(--spacing-lg);">Understanding your link...</h3>
+      <ul style="list-style: none; padding: 0; margin: 0; color: var(--text-secondary);" id="save-link-progress-list">
+        <li style="margin-bottom: var(--spacing-sm);" id="progress-detecting">⏳ Detecting Platform</li>
+        <li style="margin-bottom: var(--spacing-sm); opacity: 0.5;" id="progress-reading">⏳ Extracting Metadata</li>
+        <li style="margin-bottom: var(--spacing-sm); opacity: 0.5;" id="progress-understanding">⏳ Generating Summary</li>
+        <li style="opacity: 0.5;" id="progress-preparing">⏳ Preparing Preview</li>
+      </ul>
+    </div>
+
+    <!-- Rich Preview Result -->
+    <div id="save-link-result" class="hidden text-left" style="animation: fadeIn 0.5s ease;">
+      <div style="text-align: center; margin-bottom: var(--spacing-xl);">
+        <h2 class="display-3">✨ Your link is ready.</h2>
+        <p class="body-base" style="color: var(--text-secondary); margin-top: var(--spacing-xs);">We extracted the platform, summary, tags, and metadata.</p>
+      </div>
+
+      <!-- Preview Card -->
+      <div class="memory-card" style="margin-bottom: var(--spacing-2xl); pointer-events: none;">
+        <div class="memory-card-header">
+          <span class="memory-card-type-badge" id="preview-platform-badge">🌐 Website</span>
+        </div>
+        <div id="preview-thumbnail-container" class="hidden" style="margin-top: 12px;">
+          <img id="preview-thumbnail" src="" style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px;">
+        </div>
+        <div class="memory-card-body" style="margin-top: 12px;">
+          <h3 class="memory-card-title" id="preview-title"></h3>
+          <p class="memory-card-content" id="preview-summary" style="margin-top: 8px; color: var(--text-secondary);"></p>
+        </div>
+        <div id="preview-tags" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px;"></div>
+        <div class="memory-card-footer" style="margin-top: 12px; justify-content: space-between;">
+          <span class="memory-card-date" id="preview-site-name"></span>
+          <a href="#" id="preview-original-link" target="_blank" rel="noopener noreferrer" style="font-size: 0.85rem; color: var(--accent-primary); text-decoration: none; pointer-events: auto;">Open Original Link &rarr;</a>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div style="text-align: center;">
+        <button id="save-link-forever-btn" class="btn btn-primary btn-large" style="width: 100%; margin-bottom: var(--spacing-md);">Save this forever</button>
+        <button id="save-link-another-btn" class="btn btn-outline" style="width: 100%; border: none;">Analyze another link</button>
+        <p class="body-small" style="color: var(--text-secondary); margin-top: var(--spacing-lg);">Create a free ME account to remember this forever.</p>
+      </div>
+    </div>
+    
   </div>
 </div>
 
@@ -491,9 +584,23 @@
   <div class="drawer-body">
     <h2 id="drawer-title" class="display-3 drawer-title"></h2>
     
+    <div id="drawer-thumbnail-container" class="drawer-section hidden" style="text-align: center; margin-bottom: 1rem;">
+      <img id="drawer-thumbnail-image" src="" alt="Thumbnail" style="max-width: 100%; border-radius: 8px; object-fit: cover; max-height: 200px;">
+    </div>
+    
     <div id="drawer-summary-container" class="drawer-section hidden">
       <h4 class="drawer-section-label">Summary</h4>
       <p id="drawer-summary-text" class="body-base drawer-summary-text"></p>
+    </div>
+
+    <div id="drawer-tags-container" class="drawer-section hidden">
+      <h4 class="drawer-section-label">Tags</h4>
+      <div id="drawer-tags-grid" class="drawer-tags-grid" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+    </div>
+
+    <div id="drawer-metadata-container" class="drawer-section hidden">
+      <h4 class="drawer-section-label">Metadata</h4>
+      <ul id="drawer-metadata-list" class="drawer-metadata-list body-small" style="list-style: none; padding: 0; color: var(--text-secondary);"></ul>
     </div>
 
     <div class="drawer-section drawer-section-content">
@@ -539,6 +646,6 @@
 <script type="module" src="/static/js/google.js?v=3"></script>
 <script type="module" src="/static/js/dump.js?v=1"></script>
 <script type="module" src="/static/js/memory-prefill.js?v=1"></script>
-<script type="module" src="/static/js/app.js?v=3"></script>
+<script type="module" src="/static/js/app.js?v=5"></script>
 </body>
 </html>

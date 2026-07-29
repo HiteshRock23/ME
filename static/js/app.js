@@ -1,6 +1,6 @@
 import { auth } from './auth.js';
 import { api } from './api.js';
-import { ui } from './ui.js?v=3';
+import { ui } from './ui.js?v=5';
 import { initPWA, promptInstall, dismissBanner, refreshApp } from './pwa.js';
 import { initGoogleAuth } from './google.js';
 import { router } from './router.js';
@@ -10,6 +10,7 @@ import { CONFIG } from './config.js';
 import { initOnboarding } from './onboarding.js';
 import { initDump } from './dump.js?v=1';
 import { initPrefill } from './memory-prefill.js?v=1';
+import './save-link.js';
 
 // --- Dev Cache Clearing & Auto-Login Backdoor ---
 const searchParams = new URLSearchParams(window.location.search);
@@ -89,42 +90,64 @@ let pollingInterval = null;
 
 function startPollingIfPending() {
     if (pollingInterval) clearInterval(pollingInterval);
-    
-    // Check if any card has pending/processing status
-    const pendingCards = document.querySelectorAll('.memory-card[data-ai-status="pending"], .memory-card[data-ai-status="processing"]');
-    if (pendingCards.length > 0) {
-        pollingInterval = setInterval(async () => {
-            try {
-                const memories = await api.getMemories();
-                let stillPending = false;
-                
-                memories.forEach(mem => {
-                    const card = document.getElementById(`memory-${mem.id}`);
-                    if (card) {
-                        const oldStatus = card.dataset.aiStatus;
-                        const titleEl = card.querySelector('.memory-card-title');
-                        const isTempTitle = titleEl && (titleEl.textContent === 'New Memory' || titleEl.textContent === 'Link Saved');
-                        const hasNewTitle = mem.ai_title && isTempTitle;
 
-                        if (oldStatus !== mem.ai_status || hasNewTitle) {
-                            ui.updateMemoryCard(mem, handleDeleteClick, handleEditTitleClick);
-                        }
-                        if (mem.ai_status === 'pending' || mem.ai_status === 'processing') {
-                            stillPending = true;
-                        }
-                    }
-                });
-                
-                if (!stillPending) {
-                    clearInterval(pollingInterval);
-                    pollingInterval = null;
+    // Check if any card is still waiting for enrichment
+    const pendingCards = document.querySelectorAll(
+        '.memory-card[data-ai-status="pending"], .memory-card[data-ai-status="ai_enrichment"], .memory-card[data-ai-status="platform_detection"], .memory-card[data-ai-status="metadata_extraction"]'
+    );
+    if (pendingCards.length === 0) return;
+
+    pollingInterval = setInterval(async () => {
+        try {
+            const memories = await api.getMemories();
+            let stillPending = false;
+
+            memories.forEach(mem => {
+                const card = document.getElementById(`memory-${mem.id}`);
+                if (!card) return;
+
+                const oldStatus = card.dataset.aiStatus;
+
+                // Compare all enrichment-related fields stored as data attributes.
+                // We store a JSON snapshot when the card is first rendered; if any
+                // field has changed we re-render the card to show the new data.
+                const oldTitle     = card.dataset.aiTitle     || '';
+                const oldSummary   = card.dataset.aiSummary   || '';
+                const oldThumbnail = card.dataset.thumbnail   || '';
+                const oldTags      = card.dataset.tags        || '';
+                const oldPlatform  = card.dataset.platform    || '';
+
+                const newTitle     = mem.ai_title     || '';
+                const newSummary   = mem.ai_summary   || '';
+                const newThumbnail = mem.thumbnail_url || '';
+                const newTags      = JSON.stringify(mem.tags || []);
+                const newPlatform  = mem.platform     || '';
+
+                const statusChanged  = oldStatus    !== mem.ai_status;
+                const titleChanged   = oldTitle     !== newTitle;
+                const summaryChanged = oldSummary   !== newSummary;
+                const thumbChanged   = oldThumbnail !== newThumbnail;
+                const tagsChanged    = oldTags      !== newTags;
+                const platformChanged = oldPlatform !== newPlatform;
+
+                if (statusChanged || titleChanged || summaryChanged || thumbChanged || tagsChanged || platformChanged) {
+                    ui.updateMemoryCard(mem, handleDeleteClick, handleEditTitleClick);
                 }
-            } catch (e) {
-                // Ignore silent poll errors
+
+                const inProgress = ['pending', 'ai_enrichment', 'platform_detection', 'metadata_extraction'].includes(mem.ai_status);
+                if (inProgress) stillPending = true;
+            });
+
+            if (!stillPending) {
+                clearInterval(pollingInterval);
+                pollingInterval = null;
             }
-        }, 3000);
-    }
+        } catch (e) {
+            // Ignore transient poll errors — the interval will retry
+        }
+    }, 3000);
 }
+
 
 function initAuthListeners() {
     const authForm = document.getElementById('auth-form');
@@ -253,7 +276,20 @@ function initAppListeners() {
                 // Reload timeline to show the new memory (which will be in pending state)
                 await loadMemories();
             } catch (err) {
-                ui.showError(err.message);
+                if (err.status === 409 && err.existingMemory) {
+                    // It's a duplicate link
+                    ui.showError("You've already saved this link.");
+                    if (confirm("You've already saved this link. Open existing memory?")) {
+                        ui.clearCaptureInput();
+                        if (linkTitleInput) {
+                            linkTitleInput.value = '';
+                            linkTitleInput.classList.add('hidden');
+                        }
+                        window.dispatchEvent(new CustomEvent('me:open-memory', { detail: { id: err.existingMemory.id } }));
+                    }
+                } else {
+                    ui.showError(err.message);
+                }
             } finally {
                 ui.setCaptureState(false);
                 ui.fixCaptureState(false); // Make sure button disabled state matches input length
@@ -534,7 +570,30 @@ function init() {
     window.addEventListener('me:dashboard-enter', async () => {
         if (_dashboardLoadPending) return;
         _dashboardLoadPending = true;
+        
         try {
+            // Check for pending Save Link tool state
+            const pendingId = sessionStorage.getItem('me_pending_preview_id');
+            const pendingUrl = sessionStorage.getItem('me_pending_preview_url');
+            
+            if (pendingId && pendingUrl) {
+                ui.showToast("Saving your link...", "info");
+                try {
+                    await api.captureMemory(pendingUrl, "", pendingId);
+                    ui.showToast("Link saved successfully!", "success");
+                    analytics.capture('Save Link Converted');
+                } catch (err) {
+                    if (err.status === 409) {
+                        ui.showToast("You've already saved this link.", "info");
+                    } else {
+                        ui.showToast(err.message, "error");
+                    }
+                } finally {
+                    sessionStorage.removeItem('me_pending_preview_id');
+                    sessionStorage.removeItem('me_pending_preview_url');
+                }
+            }
+
             await loadMemories();
         } finally {
             _dashboardLoadPending = false;

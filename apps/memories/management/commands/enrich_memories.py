@@ -11,7 +11,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write("Starting bulk enrichment retry...")
         
-        memories = Memory.objects.exclude(ai_status=Memory.AIStatus.READY)
+        memories = Memory.objects.exclude(ai_status=Memory.AIStatus.COMPLETED)
         total = memories.count()
         
         if total == 0:

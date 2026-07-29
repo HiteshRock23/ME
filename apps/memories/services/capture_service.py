@@ -29,7 +29,7 @@ from apps.memories.services.supermemory_service import SupermemoryService
 logger = logging.getLogger(__name__)
 
 
-def capture_memory(user, raw_content: str, link_title: str = "") -> Memory:
+def capture_memory(user, raw_content: str, link_title: str = "", force_save: bool = False, preview_id=None) -> Memory:
     """
     Capture a new memory for the given user.
 
@@ -57,21 +57,34 @@ def capture_memory(user, raw_content: str, link_title: str = "") -> Memory:
         classification.memory_type, user.pk,
     )
 
-    # Step 2: Extract deterministic metadata (domain title, display name, etc.)
+    # Step 2: Normalise URL and Check for Duplicates
+    url = classification.url
+    if classification.memory_type == "link" and url:
+        from apps.memories.services.link_intelligence.url_normalizer import URLNormalizer
+        url = URLNormalizer.normalize(url)
+        
+        if not force_save:
+            from apps.memories.services.exceptions import DuplicateMemoryError
+            existing = Memory.objects.filter(user=user, url=url).first()
+            if existing:
+                logger.info("Duplicate link detected for user %s: %s", user.pk, url)
+                raise DuplicateMemoryError(existing)
+
+    # Step 3: Extract deterministic metadata (domain title, display name, etc.)
     metadata = MetadataService.extract(
         memory_type=classification.memory_type,
-        url=classification.url,
+        url=url,
         domain=classification.domain,
     )
 
-    # Step 3: Save immediately — source of truth is always PostgreSQL
+    # Step 4: Save immediately — source of truth is always PostgreSQL
     memory = Memory.objects.create(
         user=user,
         memory_type=classification.memory_type,
         raw_content=raw_content,
-        url=classification.url,
+        url=url,
         domain=classification.domain or "",
-        link_url=classification.url if classification.memory_type == "link" else None,
+        link_url=url if classification.memory_type == "link" else None,
         link_title=link_title if classification.memory_type == "link" else "",
         # Pre-populate the title from metadata for link memories.
         # AI enrichment will refine text memories; links get their
@@ -80,9 +93,52 @@ def capture_memory(user, raw_content: str, link_title: str = "") -> Memory:
         ai_status=Memory.AIStatus.PENDING,
         sync_status=Memory.SyncStatus.PENDING,
     )
+
+    if preview_id and classification.memory_type == "link":
+        from apps.memories.models import PendingCapture
+        try:
+            pending = PendingCapture.objects.get(id=preview_id, capture_type="link")
+            payload = pending.payload_json
+            
+            memory.platform = payload.get("platform", "")
+            memory.content_type = payload.get("content_type", "")
+            memory.canonical_url = payload.get("canonical_url", "")
+            memory.page_title = payload.get("page_title", "")
+            memory.page_description = payload.get("page_description", "")
+            memory.favicon_url = payload.get("favicon_url", "")
+            memory.thumbnail_url = payload.get("thumbnail_url", "")
+            memory.site_name = payload.get("site_name", "")
+            memory.author = payload.get("author", "")
+            memory.reading_time = payload.get("reading_time", "")
+            memory.metadata_json = payload.get("metadata_json", {})
+            memory.ai_title = payload.get("title", metadata.display_title)
+            memory.ai_summary = payload.get("summary", "")
+            memory.tags = payload.get("tags", [])
+            memory.title_confidence = payload.get("title_confidence")
+            memory.summary_confidence = payload.get("summary_confidence")
+            memory.tags_confidence = payload.get("tags_confidence")
+            
+            memory.ai_status = Memory.AIStatus.COMPLETED
+            memory.ai_processed_at = timezone.now()
+            memory.save()
+            
+            pending.delete()
+            logger.info(f"Applied PendingCapture {preview_id} to Memory {memory.pk}")
+        except PendingCapture.DoesNotExist:
+            logger.warning(f"PendingCapture {preview_id} not found. Proceeding with standard background enrichment.")
+
     logger.info("Memory %s captured (type=%s) for user %s", memory.pk, memory.memory_type, user.pk)
 
-    # Step 4: Synchronize with Supermemory
+    # Trigger Link Intelligence enrichment for fresh link captures.
+    # preview_id captures are already fully enriched — skip them.
+    # Uses transaction.on_commit() so the DB row is committed and visible
+    # before the background thread begins. Passes only memory_id (not the ORM
+    # object) so the thread always works with a fresh database state.
+    if memory.memory_type == "link" and not preview_id:
+        from apps.memories.services.link_intelligence.enrichment_service import LinkEnrichmentService
+        LinkEnrichmentService.schedule(memory.pk)
+
+    # Step 5: Synchronize with Supermemory
     try:
         sm_service = SupermemoryService()
         memory.last_sync_attempt = timezone.now()

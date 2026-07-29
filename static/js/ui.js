@@ -69,7 +69,7 @@ export const ui = {
     },
 
     showScreen(screenId) {
-        const screens = ['landing-screen', 'auth-screen', 'app-screen', 'dump-screen'];
+        const screens = ['landing-screen', 'auth-screen', 'app-screen', 'dump-screen', 'save-link-screen'];
         screens.forEach(id => {
             const el = document.getElementById(id);
             if (el) {
@@ -278,7 +278,12 @@ export const ui = {
         const article = document.createElement('article');
         article.className = 'memory-card';
         article.id = `memory-${memory.id}`;
-        article.dataset.aiStatus = memory.ai_status;
+        article.dataset.aiStatus  = memory.ai_status  || '';
+        article.dataset.aiTitle   = memory.ai_title   || '';
+        article.dataset.aiSummary = memory.ai_summary || '';
+        article.dataset.thumbnail = memory.thumbnail_url || '';
+        article.dataset.tags      = JSON.stringify(memory.tags || []);
+        article.dataset.platform  = memory.platform   || '';
 
         const isLink = memory.memory_type === 'link';
         const typeBadge = isLink ? '🔗 Link' : '📝 Note';
@@ -465,6 +470,9 @@ export const ui = {
                 </div>
             </div>`;
         document.getElementById('drawer-summary-container').classList.add('hidden');
+        document.getElementById('drawer-thumbnail-container').classList.add('hidden');
+        document.getElementById('drawer-tags-container').classList.add('hidden');
+        document.getElementById('drawer-metadata-container').classList.add('hidden');
         document.getElementById('drawer-link-container').classList.add('hidden');
         document.getElementById('drawer-related-container').classList.add('hidden');
         this._clearViewerError();
@@ -614,6 +622,45 @@ export const ui = {
             summaryContainer.classList.remove('hidden');
         } else {
             summaryContainer.classList.add('hidden');
+        }
+
+        // --- Thumbnail section ---
+        const thumbContainer = document.getElementById('drawer-thumbnail-container');
+        const thumbImg = document.getElementById('drawer-thumbnail-image');
+        if (memory.thumbnail_url) {
+            thumbImg.src = memory.thumbnail_url;
+            thumbContainer.classList.remove('hidden');
+        } else {
+            thumbContainer.classList.add('hidden');
+        }
+
+        // --- Tags section ---
+        const tagsContainer = document.getElementById('drawer-tags-container');
+        const tagsGrid = document.getElementById('drawer-tags-grid');
+        if (memory.tags && memory.tags.length > 0) {
+            tagsGrid.innerHTML = memory.tags.map(t => 
+                `<span style="background: var(--bg-tertiary); padding: 4px 10px; border-radius: 12px; font-size: 0.85rem; color: var(--text-secondary);">${this.escapeHTML(t)}</span>`
+            ).join('');
+            tagsContainer.classList.remove('hidden');
+        } else {
+            tagsContainer.classList.add('hidden');
+        }
+
+        // --- Metadata section ---
+        const metaContainer = document.getElementById('drawer-metadata-container');
+        const metaList = document.getElementById('drawer-metadata-list');
+        const metaItems = [];
+        if (memory.platform && memory.platform !== 'Unknown') metaItems.push(`Platform: ${memory.platform}`);
+        if (memory.content_type && memory.content_type !== 'Website') metaItems.push(`Content Type: ${memory.content_type}`);
+        if (memory.author) metaItems.push(`Author: ${memory.author}`);
+        if (memory.site_name) metaItems.push(`Site: ${memory.site_name}`);
+        if (memory.reading_time) metaItems.push(`Reading Time: ${memory.reading_time}`);
+        
+        if (metaItems.length > 0) {
+            metaList.innerHTML = metaItems.map(m => `<li>${this.escapeHTML(m)}</li>`).join('');
+            metaContainer.classList.remove('hidden');
+        } else {
+            metaContainer.classList.add('hidden');
         }
 
         // --- Link section ---

@@ -111,7 +111,7 @@ class MemoryEnrichmentService:
             logger.error("Enrichment failed: Memory %s does not exist", memory_id)
             return False
 
-        if memory.ai_status == Memory.AIStatus.READY:
+        if memory.ai_status == Memory.AIStatus.COMPLETED:
             logger.info("Memory %s is already enriched", memory_id)
             return True
 
@@ -127,27 +127,9 @@ class MemoryEnrichmentService:
 
     @staticmethod
     def _enrich_link(memory: Memory) -> bool:
-        """
-        Finalize enrichment for a LINK memory.
-
-        The display title was already set at capture time by MetadataService.
-        The summary is the raw URL — honest, accurate, no hallucination risk.
-        No LLM call is made.
-        """
-        logger.info("Enriching LINK memory %s (no LLM required)", memory.pk)
-
-        summary = memory.url or memory.raw_content
-
-        memory.ai_summary = summary
-        memory.ai_status = Memory.AIStatus.READY
-        memory.ai_processed_at = timezone.now()
-        memory.ai_last_error = ""
-        memory.save(update_fields=[
-            "ai_summary", "ai_status", "ai_processed_at", "ai_last_error", "updated_at",
-        ])
-
-        logger.info("LINK memory %s marked READY", memory.pk)
-        return True
+        from apps.memories.services.link_intelligence.enrichment_service import LinkEnrichmentService
+        logger.info("Routing LINK memory %s to LinkEnrichmentService", memory.pk)
+        return LinkEnrichmentService.enrich(memory.pk)
 
     @staticmethod
     def _enrich_text(memory: Memory) -> bool:
@@ -156,7 +138,7 @@ class MemoryEnrichmentService:
         """
         logger.info("Enriching TEXT memory %s via LLM", memory.pk)
 
-        memory.ai_status = Memory.AIStatus.PROCESSING
+        memory.ai_status = Memory.AIStatus.AI_ENRICHMENT
         memory.save(update_fields=["ai_status", "updated_at"])
 
         try:
@@ -177,7 +159,7 @@ class MemoryEnrichmentService:
 
             memory.ai_title = sanitized_title
             memory.ai_summary = clean_summary
-            memory.ai_status = Memory.AIStatus.READY
+            memory.ai_status = Memory.AIStatus.COMPLETED
             memory.ai_processed_at = timezone.now()
             memory.ai_last_error = ""
             memory.save(update_fields=[

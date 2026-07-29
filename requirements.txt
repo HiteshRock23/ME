@@ -6,3 +6,4 @@ djangorestframework-simplejwt==5.5.0
 openai==1.82.0
 google-auth==2.30.0
 requests==2.34.2
+beautifulsoup4==4.13.3

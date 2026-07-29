@@ -23,12 +23,23 @@ class CaptureView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        memory = serializer.save()
-
-        return Response(
-            MemoryReadSerializer(memory).data,
-            status=status.HTTP_201_CREATED,
-        )
+        
+        from apps.memories.services.exceptions import DuplicateMemoryError
+        
+        try:
+            memory = serializer.save()
+            return Response(
+                MemoryReadSerializer(memory).data,
+                status=status.HTTP_201_CREATED,
+            )
+        except DuplicateMemoryError as e:
+            return Response(
+                {
+                    "error": "You've already saved this link.",
+                    "existing_memory": MemoryReadSerializer(e.memory).data
+                },
+                status=status.HTTP_409_CONFLICT,
+            )
 
 
 from rest_framework.pagination import CursorPagination
@@ -153,3 +164,37 @@ class RelatedMemoriesView(generics.GenericAPIView):
             return Response({"results": filtered}, status=status.HTTP_200_OK)
         except Exception:
             return Response({"results": []}, status=status.HTTP_200_OK)
+
+
+from rest_framework.throttling import AnonRateThrottle
+
+class AnalyzeLinkThrottle(AnonRateThrottle):
+    rate = '10/min'
+
+class AnalyzeLinkDayThrottle(AnonRateThrottle):
+    rate = '50/day'
+
+class AnalyzeLinkView(generics.GenericAPIView):
+    """
+    POST /api/memories/analyze-link/
+
+    Public endpoint to analyze a URL and generate a rich preview.
+    Uses LinkAnalysisService which validates the URL and returns a PendingCapture ID.
+    """
+    permission_classes = [permissions.AllowAny]
+    throttle_classes = [AnalyzeLinkThrottle, AnalyzeLinkDayThrottle]
+
+    def post(self, request, *args, **kwargs):
+        url = request.data.get("url", "").strip()
+        
+        from apps.memories.services.link_intelligence.analysis_service import LinkAnalysisService
+        from rest_framework.exceptions import ValidationError
+        
+        try:
+            result = LinkAnalysisService.analyze_public_link(url)
+            return Response(result, status=status.HTTP_200_OK)
+        except ValidationError as e:
+            # We want to return exactly what LinkAnalysisService raised
+            return Response({"error": str(e.detail[0] if isinstance(e.detail, list) else e.detail)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": "An unexpected error occurred."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
