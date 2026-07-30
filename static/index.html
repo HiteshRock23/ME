@@ -525,7 +525,13 @@
           placeholder="Link Title (optional)"
         />
         <div class="capture-footer">
-          <span class="label" id="char-count">0 / 5,000</span>
+          <div class="capture-footer-left">
+            <span class="label" id="char-count">0 / 5,000</span>
+            <button type="button" id="capture-pin-btn" class="pin-toggle-btn" aria-pressed="false" title="Pin memory to top of timeline">
+              <span class="pin-icon" aria-hidden="true">📌</span>
+              <span class="pin-btn-text">Pin memory</span>
+            </button>
+          </div>
           <button class="btn btn-primary" id="capture-btn" disabled>Capture</button>
         </div>
       </div>
@@ -538,6 +544,21 @@
         <button class="btn btn-outline" id="clear-search-btn">Clear Search</button>
       </div>
       <div id="search-results-feed" role="feed"></div>
+    </section>
+
+    <!-- Pinned Memories Section -->
+    <section aria-label="Pinned Memories" id="pinned-captures-section" class="pinned-captures-section hidden">
+      <div class="section-header pinned-section-header">
+        <h2 class="heading-1">Pinned</h2>
+        <span id="pinned-feed-count" class="pinned-count-text">0 of 5 pinned</span>
+      </div>
+
+      <div id="pinned-memory-feed" class="memory-feed" role="feed"></div>
+
+      <div class="pinned-empty-state hidden" id="pinned-empty-state">
+        <p class="pinned-empty-title">Pinned</p>
+        <p class="pinned-empty-desc">Pin important memories to keep them at the top.</p>
+      </div>
     </section>
 
     <section aria-label="Memory Timeline" id="recent-captures-section" class="recent-captures-section">
@@ -624,7 +645,10 @@
       <button id="drawer-copy-btn" class="btn btn-outline drawer-btn-half">Copy Content</button>
       <button id="drawer-edit-btn" class="btn btn-outline drawer-btn-half">Edit Title</button>
     </div>
-    <button id="drawer-delete-btn" class="btn btn-outline drawer-delete-btn">Delete Memory</button>
+    <div class="drawer-footer-row" style="margin-top: 8px;">
+      <button id="drawer-pin-btn" class="btn btn-outline drawer-btn-full" style="width: 100%;">📌 Pin Memory</button>
+    </div>
+    <button id="drawer-delete-btn" class="btn btn-outline drawer-delete-btn" style="margin-top: 8px;">Delete Memory</button>
   </div>
 </aside>
 

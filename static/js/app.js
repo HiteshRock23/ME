@@ -239,6 +239,18 @@ function initAppListeners() {
         });
     }
 
+    const capturePinBtn = document.getElementById('capture-pin-btn');
+    if (capturePinBtn) {
+        capturePinBtn.addEventListener('click', () => {
+            const isActive = capturePinBtn.classList.toggle('active');
+            capturePinBtn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            const label = capturePinBtn.querySelector('.pin-btn-text');
+            if (label) {
+                label.textContent = isActive ? 'Pinned' : 'Pin memory';
+            }
+        });
+    }
+
     if (captureBtn) {
         captureBtn.addEventListener('click', async () => {
             const content = captureInput.value.trim();
@@ -247,19 +259,27 @@ function initAppListeners() {
             const linkTitle = (linkTitleInput && !linkTitleInput.classList.contains('hidden')) 
                 ? linkTitleInput.value.trim() : "";
 
+            const isPinned = capturePinBtn ? capturePinBtn.classList.contains('active') : false;
+
             ui.setCaptureState(true);
 
             const captureStartTime = performance.now();
             try {
-                const response = await api.captureMemory(content, linkTitle);
+                const response = await api.captureMemory(content, linkTitle, null, isPinned);
                 const durationMs = performance.now() - captureStartTime;
 
                 analytics.capture('Memory Created', {
                     memory_id: response.id,
                     memory_type: response.memory_type || 'note',
                     duration_ms: durationMs,
-                    source: 'capture_input'
+                    source: 'capture_input',
+                    is_pinned: isPinned
                 });
+
+                if (isPinned) {
+                    analytics.capture('memory_pinned', { memory_id: response.id, source: 'capture' });
+                    analytics.capture('memory_pinned_on_capture', { memory_id: response.id });
+                }
 
                 if (response.memory_type === 'link') {
                     analytics.capture('Link Saved', {
@@ -272,6 +292,12 @@ function initAppListeners() {
                 if (linkTitleInput) {
                     linkTitleInput.value = '';
                     linkTitleInput.classList.add('hidden');
+                }
+                if (capturePinBtn) {
+                    capturePinBtn.classList.remove('active');
+                    capturePinBtn.setAttribute('aria-pressed', 'false');
+                    const label = capturePinBtn.querySelector('.pin-btn-text');
+                    if (label) label.textContent = 'Pin memory';
                 }
                 // Reload timeline to show the new memory (which will be in pending state)
                 await loadMemories();
@@ -603,6 +629,29 @@ function init() {
     // Memory mutated (edit title or delete): refresh the timeline.
     window.addEventListener('me:memory-mutated', (e) => {
         loadMemories();
+    });
+
+    window.addEventListener('me:toggle-pin', async (e) => {
+        const { id, isPinned } = e.detail;
+        try {
+            let updatedMemory;
+            if (isPinned) {
+                updatedMemory = await api.unpinMemory(id);
+                analytics.capture('memory_unpinned', { memory_id: id });
+                ui.showToast('Memory unpinned');
+            } else {
+                updatedMemory = await api.pinMemory(id);
+                analytics.capture('memory_pinned', { memory_id: id, source: 'drawer' });
+                analytics.capture('memory_pinned_from_drawer', { memory_id: id });
+                ui.showToast('Memory pinned');
+            }
+
+            memoryController.invalidate(id);
+            ui.hydrateMemoryViewer(updatedMemory);
+            await loadMemories();
+        } catch (err) {
+            ui.showError(err.message || "Failed to update pin status.");
+        }
     });
 
     // Memory card events — dispatched by ui.js, handled here where router+memoryController are available

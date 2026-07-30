@@ -100,14 +100,27 @@ async function apiFetch(url, options = {}) {
 }
 
 export const api = {
-    async captureMemory(content, linkTitle = "", previewId = null) {
+    async captureMemory(content, linkTitle = "", previewId = null, isPinned = false) {
         const payload = { raw_content: content };
         if (linkTitle) payload.link_title = linkTitle;
         if (previewId) payload.preview_id = previewId;
+        if (isPinned) payload.is_pinned = true;
 
         return await apiFetch(API_URLS.capture, {
             method: 'POST',
             body: JSON.stringify(payload)
+        });
+    },
+
+    async pinMemory(id) {
+        return await apiFetch(`${API_URLS.memories}${id}/pin/`, {
+            method: 'POST'
+        });
+    },
+
+    async unpinMemory(id) {
+        return await apiFetch(`${API_URLS.memories}${id}/unpin/`, {
+            method: 'POST'
         });
     },
 

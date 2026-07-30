@@ -197,27 +197,65 @@ export const ui = {
     },
 
     renderTimeline(memories, onDeleteClick, onEditTitleClick) {
-        const container = document.getElementById('memory-feed');
-        const emptyState = document.getElementById('empty-state');
+        const pinnedSection = document.getElementById('pinned-captures-section');
+        const pinnedFeed = document.getElementById('pinned-memory-feed');
+        const pinnedEmptyState = document.getElementById('pinned-empty-state');
+        const pinnedCountEl = document.getElementById('pinned-feed-count');
+
+        const recentContainer = document.getElementById('memory-feed');
+        const recentEmptyState = document.getElementById('empty-state');
         const feedCount = document.getElementById('feed-count');
-        
-        container.innerHTML = '';
+
+        if (recentContainer) recentContainer.innerHTML = '';
+        if (pinnedFeed) pinnedFeed.innerHTML = '';
 
         if (!memories || memories.length === 0) {
-            if (emptyState) emptyState.classList.remove('hidden');
-            if (container) container.classList.add('hidden');
+            if (recentEmptyState) recentEmptyState.classList.remove('hidden');
+            if (recentContainer) recentContainer.classList.add('hidden');
             if (feedCount) feedCount.textContent = '[0]';
+            if (pinnedSection) pinnedSection.classList.add('hidden');
             return;
         }
 
-        if (emptyState) emptyState.classList.add('hidden');
-        if (container) container.classList.remove('hidden');
-        if (feedCount) feedCount.textContent = `[${memories.length.toString()}]`;
+        const pinnedMemories = memories
+            .filter(m => m.is_pinned || m.pinned_at != null)
+            .sort((a, b) => new Date(b.pinned_at || 0) - new Date(a.pinned_at || 0));
 
-        memories.forEach(memory => {
-            const card = this.createMemoryCard(memory, onDeleteClick, onEditTitleClick);
-            container.appendChild(card);
-        });
+        const recentMemories = memories
+            .filter(m => !m.is_pinned && m.pinned_at == null);
+
+        // Render Pinned Section
+        if (pinnedSection) {
+            pinnedSection.classList.remove('hidden');
+            if (pinnedCountEl) pinnedCountEl.textContent = `${pinnedMemories.length} of 5 pinned`;
+
+            if (pinnedMemories.length === 0) {
+                if (pinnedEmptyState) pinnedEmptyState.classList.remove('hidden');
+            } else {
+                if (pinnedEmptyState) pinnedEmptyState.classList.add('hidden');
+                pinnedMemories.forEach(memory => {
+                    const card = this.createMemoryCard(memory, onDeleteClick, onEditTitleClick);
+                    pinnedFeed.appendChild(card);
+                });
+            }
+        }
+
+        // Render Recent Memories
+        if (recentMemories.length === 0 && pinnedMemories.length > 0) {
+            // All memories are pinned
+            if (recentEmptyState) recentEmptyState.classList.add('hidden');
+            if (recentContainer) recentContainer.classList.remove('hidden');
+            if (feedCount) feedCount.textContent = '[0]';
+        } else {
+            if (recentEmptyState) recentEmptyState.classList.add('hidden');
+            if (recentContainer) recentContainer.classList.remove('hidden');
+            if (feedCount) feedCount.textContent = `[${recentMemories.length.toString()}]`;
+
+            recentMemories.forEach(memory => {
+                const card = this.createMemoryCard(memory, onDeleteClick, onEditTitleClick);
+                recentContainer.appendChild(card);
+            });
+        }
     },
 
     setSearchLoading() {
@@ -283,10 +321,11 @@ export const ui = {
         article.dataset.aiSummary = memory.ai_summary || '';
         article.dataset.thumbnail = memory.thumbnail_url || '';
         article.dataset.tags      = JSON.stringify(memory.tags || []);
-        article.dataset.platform  = memory.platform   || '';
+        article.dataset.pinned    = (memory.is_pinned || memory.pinned_at != null) ? 'true' : 'false';
 
         const isLink = memory.memory_type === 'link';
-        const typeBadge = isLink ? '🔗 Link' : '📝 Note';
+        const typeLabel = isLink ? 'LINK' : 'NOTE';
+        const isPinned = memory.is_pinned || memory.pinned_at != null;
 
         // Title Rendering Priority: User Title -> Enriched Title -> Temporary Title
         let titleText = '';
@@ -298,7 +337,7 @@ export const ui = {
             titleText = isLink ? 'Link Saved' : 'New Memory';
         }
 
-        const dateObj = new Date(memory.created_at);
+        const dateObj = new Date(memory.created_at || Date.now());
         const dateString = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
 
         // Card Preview Priority: Enriched Summary -> Original Content / Link URL
@@ -329,12 +368,16 @@ export const ui = {
         article.innerHTML = `
             <div class="memory-card-content-wrapper">
                 <div class="memory-card-main">
-                    <div class="memory-card-header">
-                        <span class="memory-card-type-badge">${typeBadge}</span>
-                        <time class="memory-card-time" datetime="${memory.created_at}">${dateString}</time>
+                    <div class="memory-card-top-row">
+                        <h3 class="memory-card-title">${this.escapeHTML(titleText)}</h3>
+                        ${isPinned ? '<span class="memory-card-pin-badge" title="Pinned memory" aria-label="Pinned">📌</span>' : ''}
                     </div>
-                    <h3 class="memory-card-title">${this.escapeHTML(titleText)}</h3>
                     ${bodyHtml}
+                    <div class="memory-card-meta-row">
+                        <time datetime="${memory.created_at}">${dateString}</time>
+                        <span class="meta-separator">•</span>
+                        <span class="meta-type-tag">${typeLabel}</span>
+                    </div>
                 </div>
                 <div class="memory-card-arrow" aria-hidden="true">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
@@ -709,10 +752,20 @@ export const ui = {
                     });
 
                     window.dispatchEvent(new CustomEvent('me:invalidate-memory', { detail: { id: memory.id } }));
-                    window.dispatchEvent(new CustomEvent('me:memory-mutated', { detail: { id: memory.id } }));
                 } catch (err) {
                     alert(err.message);
                 }
+            };
+        }
+
+        const pinBtn = document.getElementById('drawer-pin-btn');
+        if (pinBtn) {
+            const isCurrentlyPinned = memory.is_pinned || memory.pinned_at != null;
+            pinBtn.textContent = isCurrentlyPinned ? '📌 Unpin Memory' : '📌 Pin Memory';
+            pinBtn.onclick = () => {
+                window.dispatchEvent(new CustomEvent('me:toggle-pin', {
+                    detail: { id: memory.id, isPinned: isCurrentlyPinned }
+                }));
             };
         }
 

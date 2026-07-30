@@ -198,3 +198,57 @@ class AnalyzeLinkView(generics.GenericAPIView):
             return Response({"error": str(e.detail[0] if isinstance(e.detail, list) else e.detail)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error": "An unexpected error occurred."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+from django.db import transaction
+from django.utils import timezone
+
+
+class MemoryPinView(generics.GenericAPIView):
+    """
+    POST /api/memories/<pk>/pin/
+
+    Pins an existing memory if current pinned count < 5.
+    Returns 400 with a friendly error if 5 memories are already pinned.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk: int, *args, **kwargs):
+        try:
+            with transaction.atomic():
+                memory = Memory.objects.select_for_update().get(pk=pk, user=request.user)
+                if memory.pinned_at is not None:
+                    return Response(MemoryReadSerializer(memory).data, status=status.HTTP_200_OK)
+
+                current_pinned_count = Memory.objects.filter(user=request.user, pinned_at__isnull=False).select_for_update().count()
+                if current_pinned_count >= 5:
+                    return Response(
+                        {"error": "You can pin up to 5 memories. Unpin one to pin another."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
+                memory.pinned_at = timezone.now()
+                memory.save(update_fields=["pinned_at", "updated_at"])
+                return Response(MemoryReadSerializer(memory).data, status=status.HTTP_200_OK)
+
+        except Memory.DoesNotExist:
+            return Response({"error": "Memory not found."}, status=status.HTTP_404_NOT_FOUND)
+
+
+class MemoryUnpinView(generics.GenericAPIView):
+    """
+    POST /api/memories/<pk>/unpin/
+
+    Unpins an existing memory.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk: int, *args, **kwargs):
+        try:
+            memory = Memory.objects.get(pk=pk, user=request.user)
+            if memory.pinned_at is not None:
+                memory.pinned_at = None
+                memory.save(update_fields=["pinned_at", "updated_at"])
+            return Response(MemoryReadSerializer(memory).data, status=status.HTTP_200_OK)
+        except Memory.DoesNotExist:
+            return Response({"error": "Memory not found."}, status=status.HTTP_404_NOT_FOUND)
