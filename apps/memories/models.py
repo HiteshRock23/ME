@@ -4,6 +4,14 @@ from django.db import models
 from django.core.validators import MaxLengthValidator
 
 
+class MemoryQuerySet(models.QuerySet):
+    def pinned(self, user):
+        return self.filter(user=user, pinned_at__isnull=False).order_by("-pinned_at")
+
+    def recent(self, user):
+        return self.filter(user=user, pinned_at__isnull=True).order_by("-created_at")
+
+
 class Memory(models.Model):
     """
     A single memory captured by a user.
@@ -17,6 +25,8 @@ class Memory(models.Model):
     is open for extension: adding a new type requires only a new
     MemoryType choice and a corresponding metadata extractor.
     """
+
+    objects = MemoryQuerySet.as_manager()
 
     class MemoryType(models.TextChoices):
         TEXT = "text", "Text"  # Plain text thought, note, or reflection
@@ -187,9 +197,20 @@ class Memory(models.Model):
         help_text="Error message from the last failed synchronization.",
     )
 
+    pinned_at = models.DateTimeField(
+        blank=True,
+        null=True,
+        db_index=True,
+        help_text="Timestamp when memory was pinned, or null if unpinned.",
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def is_pinned(self) -> bool:
+        return self.pinned_at is not None
 
     class Meta:
         verbose_name = "memory"
@@ -199,6 +220,10 @@ class Memory(models.Model):
             models.Index(
                 fields=["user", "-created_at"],
                 name="idx_memory_user_created",
+            ),
+            models.Index(
+                fields=["user", "-pinned_at"],
+                name="idx_memory_user_pinned",
             ),
             models.Index(
                 fields=["user", "ai_status"],

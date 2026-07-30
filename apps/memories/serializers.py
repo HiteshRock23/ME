@@ -19,6 +19,7 @@ class CaptureSerializer(serializers.Serializer):
     )
     link_title = serializers.CharField(max_length=255, required=False, allow_blank=True)
     preview_id = serializers.UUIDField(required=False, allow_null=True)
+    is_pinned = serializers.BooleanField(required=False, default=False)
 
     def validate_raw_content(self, value: str) -> str:
         if len(value) > 5000:
@@ -34,7 +35,8 @@ class CaptureSerializer(serializers.Serializer):
             user=user, 
             raw_content=validated_data["raw_content"],
             link_title=validated_data.get("link_title", ""),
-            preview_id=validated_data.get("preview_id")
+            preview_id=validated_data.get("preview_id"),
+            is_pinned=validated_data.get("is_pinned", False),
         )
 
 
@@ -45,6 +47,8 @@ class MemoryReadSerializer(serializers.ModelSerializer):
     Includes both the raw content, AI-generated metadata,
     and content-type fields (memory_type, url, domain).
     """
+
+    is_pinned = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = Memory
@@ -79,6 +83,8 @@ class MemoryReadSerializer(serializers.ModelSerializer):
             "title_confidence",
             "summary_confidence",
             "tags_confidence",
+            "pinned_at",
+            "is_pinned",
             "created_at",
             "updated_at",
         ]

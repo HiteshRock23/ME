@@ -29,7 +29,11 @@ from apps.memories.services.supermemory_service import SupermemoryService
 logger = logging.getLogger(__name__)
 
 
-def capture_memory(user, raw_content: str, link_title: str = "", force_save: bool = False, preview_id=None) -> Memory:
+from django.db import transaction
+from rest_framework.exceptions import ValidationError
+
+
+def capture_memory(user, raw_content: str, link_title: str = "", force_save: bool = False, preview_id=None, is_pinned: bool = False) -> Memory:
     """
     Capture a new memory for the given user.
 
@@ -46,6 +50,7 @@ def capture_memory(user, raw_content: str, link_title: str = "", force_save: boo
     Args:
         user:        The authenticated user.
         raw_content: The user's unprocessed input (text, URL, etc.).
+        is_pinned:   Optional flag to pin the memory on creation.
 
     Returns:
         The saved Memory instance.
@@ -77,7 +82,16 @@ def capture_memory(user, raw_content: str, link_title: str = "", force_save: boo
         domain=classification.domain,
     )
 
-    # Step 4: Save immediately — source of truth is always PostgreSQL
+    # Step 4: Validate Pin Limit if is_pinned is True
+    pinned_at_time = None
+    if is_pinned:
+        with transaction.atomic():
+            current_pinned_count = Memory.objects.filter(user=user, pinned_at__isnull=False).select_for_update().count()
+            if current_pinned_count >= 5:
+                raise ValidationError("You can pin up to 5 memories. Unpin one to pin another.")
+            pinned_at_time = timezone.now()
+
+    # Save immediately — source of truth is always PostgreSQL
     memory = Memory.objects.create(
         user=user,
         memory_type=classification.memory_type,
@@ -86,12 +100,10 @@ def capture_memory(user, raw_content: str, link_title: str = "", force_save: boo
         domain=classification.domain or "",
         link_url=url if classification.memory_type == "link" else None,
         link_title=link_title if classification.memory_type == "link" else "",
-        # Pre-populate the title from metadata for link memories.
-        # AI enrichment will refine text memories; links get their
-        # display title here so the card shows something useful immediately.
         ai_title=metadata.display_title,
         ai_status=Memory.AIStatus.PENDING,
         sync_status=Memory.SyncStatus.PENDING,
+        pinned_at=pinned_at_time,
     )
 
     if preview_id and classification.memory_type == "link":

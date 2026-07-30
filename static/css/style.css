@@ -1549,5 +1549,143 @@ ul { list-style: none; }
     letter-spacing: 0.08em;
 }
 
+/* Pinned Memories Feature Styles & UI Polish */
+.pin-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 100px;
+    border: 1px solid var(--border-color, rgba(18, 18, 18, 0.15));
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
+    user-select: none;
+}
+
+.pin-toggle-btn:hover {
+    border-color: var(--text-secondary);
+    color: var(--text-primary);
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.pin-toggle-btn.active {
+    background: var(--text-primary, #121212);
+    color: var(--bg-primary, #FFFFFF);
+    border-color: var(--text-primary, #121212);
+}
+
+.pin-toggle-btn:focus-visible {
+    outline: 2px solid var(--accent-primary, #121212);
+    outline-offset: 2px;
+}
+
+.capture-footer-left {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md, 16px);
+}
+
+.pinned-captures-section {
+    margin-bottom: 40px;
+    transition: opacity 220ms cubic-bezier(0, 0, 0.2, 1), transform 220ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.recent-captures-section {
+    margin-bottom: 40px;
+}
+
+.pinned-section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-md, 16px);
+}
+
+.pinned-count-text {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 400;
+}
+
+.pinned-empty-state {
+    padding: 28px 16px;
+    text-align: center;
+    background: transparent;
+    border: 1px dashed var(--border-color, rgba(18, 18, 18, 0.15));
+    border-radius: var(--radius-md, 12px);
+    margin-top: 12px;
+    transition: all 200ms ease;
+}
+
+.pinned-empty-title {
+    font-size: var(--font-size-body, 1rem);
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+.pinned-empty-desc {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+.memory-card[data-pinned="true"] {
+    border-left: 2.5px solid rgba(18, 18, 18, 0.35);
+}
+
+.memory-card-top-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 4px;
+}
+
+.memory-card-pin-badge {
+    font-size: 0.85rem;
+    line-height: 1.2;
+    flex-shrink: 0;
+    user-select: none;
+}
+
+.memory-card-meta-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.meta-separator {
+    opacity: 0.5;
+}
+
+.meta-type-tag {
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+
+/* Responsive Polish */
+@media (max-width: 640px) {
+    .capture-footer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+    .capture-footer-left {
+        justify-content: space-between;
+        width: 100%;
+    }
+    #capture-btn {
+        width: 100%;
+    }
+}
+
 
 
