@@ -46,6 +46,22 @@ class Memory(models.Model):
         SYNCED = "synced", "Synced"
         FAILED = "failed", "Failed"
 
+    class CaptureSource(models.TextChoices):
+        MANUAL = "MANUAL", "Manual"
+        WEB_SHARE = "WEB_SHARE", "Web Share"
+        ANDROID_SHARE = "ANDROID_SHARE", "Android Share"
+        EXTENSION = "EXTENSION", "Extension"
+        IMPORT = "IMPORT", "Import"
+        API = "API", "API"
+
+    capture_source = models.CharField(
+        max_length=20,
+        choices=CaptureSource.choices,
+        default=CaptureSource.MANUAL,
+        db_index=True,
+        help_text="Originating source of this memory capture.",
+    )
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -261,6 +277,11 @@ class Memory(models.Model):
         if self.ai_title:
             return self.ai_title
         return f"{self.raw_content[:50]}..."
+
+    def save(self, *args, **kwargs):
+        if not self.capture_source:
+            self.capture_source = self.CaptureSource.MANUAL
+        super().save(*args, **kwargs)
 
 
 class LinkMetadataCache(models.Model):

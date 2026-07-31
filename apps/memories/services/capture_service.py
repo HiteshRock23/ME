@@ -33,7 +33,15 @@ from django.db import transaction
 from rest_framework.exceptions import ValidationError
 
 
-def capture_memory(user, raw_content: str, link_title: str = "", force_save: bool = False, preview_id=None, is_pinned: bool = False) -> Memory:
+def capture_memory(
+    user,
+    raw_content: str,
+    link_title: str = "",
+    force_save: bool = False,
+    preview_id=None,
+    is_pinned: bool = False,
+    capture_source: str = Memory.CaptureSource.MANUAL,
+) -> Memory:
     """
     Capture a new memory for the given user.
 
@@ -48,18 +56,25 @@ def capture_memory(user, raw_content: str, link_title: str = "", force_save: boo
     AI enrichment is fully decoupled and handled by a background worker.
 
     Args:
-        user:        The authenticated user.
-        raw_content: The user's unprocessed input (text, URL, etc.).
-        is_pinned:   Optional flag to pin the memory on creation.
+        user:           The authenticated user.
+        raw_content:    The user's unprocessed input (text, URL, etc.).
+        link_title:     User-provided title.
+        force_save:     Skip duplicate check if True.
+        preview_id:     Optional PendingCapture UUID.
+        is_pinned:      Whether to pin this memory immediately.
+        capture_source: Originating capture source (MANUAL, WEB_SHARE, etc.).
 
     Returns:
         The saved Memory instance.
     """
+    if not capture_source:
+        capture_source = Memory.CaptureSource.MANUAL
+
     # Step 1: Classify — what did the user paste?
     classification = ContentClassifier.classify(raw_content)
     logger.info(
-        "Input classified as %s for user %s",
-        classification.memory_type, user.pk,
+        "Input classified as %s for user %s (source=%s)",
+        classification.memory_type, user.pk, capture_source
     )
 
     # Step 2: Normalise URL and Check for Duplicates
@@ -104,6 +119,7 @@ def capture_memory(user, raw_content: str, link_title: str = "", force_save: boo
         ai_status=Memory.AIStatus.PENDING,
         sync_status=Memory.SyncStatus.PENDING,
         pinned_at=pinned_at_time,
+        capture_source=capture_source,
     )
 
     if preview_id and classification.memory_type == "link":
