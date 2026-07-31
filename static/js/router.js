@@ -145,6 +145,20 @@ export const router = {
             return;
         }
 
+        // --- Public Shared Memory Page (/s/<token>) ---
+        if (path.startsWith('/s/') || path.startsWith('/m/')) {
+            memoryController.close();
+            const token = path.split('/')[2];
+            if (!token) {
+                this.navigate('/');
+                return;
+            }
+            ui.showScreen('public-shared-screen');
+            analytics.pageView('Public Shared Memory');
+            ui.loadPublicSharedMemory(token);
+            return;
+        }
+
         // --- Memory Detail ---
         if (path.startsWith('/memory/')) {
             console.log('[ROUTER] /memory/ route hit, isLoggedIn:', isLoggedIn);

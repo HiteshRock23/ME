@@ -1,5 +1,6 @@
 import { api } from './api.js';
 import { analytics } from './analytics.js';
+import { overlayManager } from './overlay-manager.js';
 
 let drawerCloseTimeout = null;
 
@@ -69,7 +70,7 @@ export const ui = {
     },
 
     showScreen(screenId) {
-        const screens = ['landing-screen', 'auth-screen', 'app-screen', 'dump-screen', 'save-link-screen'];
+        const screens = ['landing-screen', 'auth-screen', 'app-screen', 'dump-screen', 'save-link-screen', 'public-shared-screen'];
         screens.forEach(id => {
             const el = document.getElementById(id);
             if (el) {
@@ -758,6 +759,16 @@ export const ui = {
             };
         }
 
+        const headerShareBtn = document.getElementById('drawer-header-share-btn');
+        if (headerShareBtn) {
+            headerShareBtn.onclick = (e) => this.openShareModal(memory, e.currentTarget);
+        }
+
+        const footerShareBtn = document.getElementById('drawer-share-btn');
+        if (footerShareBtn) {
+            footerShareBtn.onclick = (e) => this.openShareModal(memory, e.currentTarget);
+        }
+
         const pinBtn = document.getElementById('drawer-pin-btn');
         if (pinBtn) {
             const isCurrentlyPinned = memory.is_pinned || memory.pinned_at != null;
@@ -802,6 +813,262 @@ export const ui = {
         // Clear related grid while controller fetches them
         document.getElementById('drawer-related-container').classList.add('hidden');
         document.getElementById('drawer-related-grid').innerHTML = '';
+    },
+
+    // -------------------------------------------------------------------------
+    // Knowledge Sharing Modal & Public Page
+    // -------------------------------------------------------------------------
+
+    _currentShareMemory: null,
+    _shareModalListenersInitialized: false,
+
+    initShareModalListeners() {
+        if (this._shareModalListenersInitialized) return;
+        this._shareModalListenersInitialized = true;
+
+        const closeBtn = document.getElementById('share-modal-close-btn');
+        if (closeBtn) closeBtn.onclick = () => this.closeShareModal();
+
+        const backdrop = document.getElementById('share-modal');
+        if (backdrop) {
+            backdrop.onclick = (e) => {
+                if (e.target === backdrop) this.closeShareModal();
+            };
+        }
+
+        const createBtn = document.getElementById('create-share-link-btn');
+        if (createBtn) {
+            createBtn.onclick = async () => {
+                const memory = this._currentShareMemory;
+                if (!memory) return;
+                createBtn.disabled = true;
+                createBtn.textContent = 'Creating link...';
+                try {
+                    const res = await api.shareMemory(memory.id);
+                    memory.share_token = res.token;
+                    const fullUrl = res.url.startsWith('http') ? res.url : `${window.location.origin}${res.url}`;
+                    this._showShareStateShared(fullUrl);
+                    this.showToast('Share link created.');
+                } catch (err) {
+                    alert(err.message || 'Failed to create share link.');
+                } finally {
+                    createBtn.disabled = false;
+                    createBtn.textContent = 'Create Share Link';
+                }
+            };
+        }
+
+        const copyBtn = document.getElementById('copy-share-link-btn');
+        if (copyBtn) {
+            copyBtn.onclick = async () => {
+                const input = document.getElementById('share-url-input');
+                if (input && input.value) {
+                    try {
+                        await navigator.clipboard.writeText(input.value);
+                        this.showToast('Share link copied.');
+                    } catch (_) {
+                        input.select();
+                        document.execCommand('copy');
+                        this.showToast('Share link copied.');
+                    }
+                }
+            };
+        }
+
+        const nativeBtn = document.getElementById('native-share-btn');
+        if (nativeBtn) {
+            nativeBtn.onclick = () => {
+                const memory = this._currentShareMemory;
+                const input = document.getElementById('share-url-input');
+                if (navigator.share && input && input.value) {
+                    navigator.share({
+                        title: memory.ai_title || memory.link_title || memory.page_title || 'Shared Memory',
+                        text: memory.ai_summary || memory.raw_content,
+                        url: input.value
+                    }).catch(() => {});
+                }
+            };
+        }
+
+        const copyMdBtn = document.getElementById('copy-markdown-btn');
+        if (copyMdBtn) {
+            copyMdBtn.onclick = async () => {
+                const memory = this._currentShareMemory;
+                const input = document.getElementById('share-url-input');
+                if (!memory) return;
+                const title = memory.ai_title || memory.link_title || memory.page_title || 'Memory';
+                const summary = memory.ai_summary ? `> ${memory.ai_summary}\n\n` : '';
+                const content = memory.raw_content || '';
+                const url = input ? input.value : '';
+                const md = `# ${title}\n\n${summary}${content}\n\n[Shared via ME](${url})`;
+
+                try {
+                    await navigator.clipboard.writeText(md);
+                    this.showToast('Markdown copied to clipboard.');
+                } catch (_) {
+                    this.showToast('Failed to copy Markdown.');
+                }
+            };
+        }
+
+        const regenBtn = document.getElementById('regenerate-share-link-btn');
+        if (regenBtn) {
+            regenBtn.onclick = async () => {
+                const memory = this._currentShareMemory;
+                if (!memory) return;
+                if (!confirm('Regenerating this link will immediately disable the previous link. Continue?')) return;
+                regenBtn.disabled = true;
+                try {
+                    const res = await api.regenerateShareMemory(memory.id);
+                    memory.share_token = res.token;
+                    const fullUrl = res.url.startsWith('http') ? res.url : `${window.location.origin}${res.url}`;
+                    this._showShareStateShared(fullUrl);
+                    this.showToast('New share link generated.');
+                } catch (err) {
+                    alert(err.message || 'Failed to regenerate share link.');
+                } finally {
+                    regenBtn.disabled = false;
+                }
+            };
+        }
+
+        const revokeBtn = document.getElementById('revoke-share-link-btn');
+        if (revokeBtn) {
+            revokeBtn.onclick = async () => {
+                const memory = this._currentShareMemory;
+                if (!memory) return;
+                if (!confirm('Revoking access will immediately make this memory private again. Continue?')) return;
+                revokeBtn.disabled = true;
+                try {
+                    await api.revokeShareMemory(memory.id);
+                    memory.share_token = null;
+                    this._showShareStateUnshared();
+                    this.showToast('Sharing revoked.');
+                } catch (err) {
+                    alert(err.message || 'Failed to revoke access.');
+                } finally {
+                    revokeBtn.disabled = false;
+                }
+            };
+        }
+    },
+
+    openShareModal(memory, triggerEl = null) {
+        if (!memory) return;
+        this._currentShareMemory = memory;
+        this.initShareModalListeners();
+
+        const modal = document.getElementById('share-modal');
+        if (!modal) return;
+        modal.classList.remove('hidden');
+
+        const focusTarget = document.getElementById('copy-share-link-btn') || document.getElementById('create-share-link-btn');
+        overlayManager.open('share-modal', () => {
+            this.closeShareModal();
+        }, {
+            type: 'transient',
+            triggerElement: triggerEl || document.activeElement,
+            initialFocus: focusTarget
+        });
+
+        if (memory.share_token) {
+            const fullUrl = `${window.location.origin}/s/${memory.share_token}`;
+            this._showShareStateShared(fullUrl);
+        } else {
+            this._showShareStateUnshared();
+        }
+    },
+
+    closeShareModal() {
+        const modal = document.getElementById('share-modal');
+        if (modal) modal.classList.add('hidden');
+        overlayManager.close('share-modal');
+    },
+
+    _showShareStateUnshared() {
+        const unsharedState = document.getElementById('share-unshared-state');
+        const sharedState = document.getElementById('share-shared-state');
+        if (unsharedState) unsharedState.classList.remove('hidden');
+        if (sharedState) sharedState.classList.add('hidden');
+    },
+
+    _showShareStateShared(url) {
+        const unsharedState = document.getElementById('share-unshared-state');
+        const sharedState = document.getElementById('share-shared-state');
+        if (unsharedState) unsharedState.classList.add('hidden');
+        if (sharedState) sharedState.classList.remove('hidden');
+
+        const input = document.getElementById('share-url-input');
+        if (input) input.value = url;
+
+        const nativeBtn = document.getElementById('native-share-btn');
+        if (nativeBtn) {
+            nativeBtn.style.display = navigator.share ? 'block' : 'none';
+        }
+    },
+
+    async loadPublicSharedMemory(token) {
+        const skeleton = document.getElementById('public-skeleton');
+        const errorBox = document.getElementById('public-error-container');
+        const contentBox = document.getElementById('public-content-container');
+
+        if (skeleton) skeleton.classList.remove('hidden');
+        if (errorBox) errorBox.classList.add('hidden');
+        if (contentBox) contentBox.classList.add('hidden');
+
+        try {
+            const memory = await api.getPublicMemory(token);
+
+            document.title = `${memory.title} — Shared Knowledge (ME)`;
+
+            const badgeEl = document.getElementById('public-memory-type-badge');
+            if (badgeEl) {
+                badgeEl.textContent = memory.memory_type === 'link' ? '🔗 Link' : '📝 Note';
+            }
+
+            const dateEl = document.getElementById('public-memory-date');
+            if (dateEl) {
+                const dateObj = new Date(memory.created_at || Date.now());
+                dateEl.textContent = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+            }
+
+            const titleEl = document.getElementById('public-memory-title');
+            if (titleEl) titleEl.textContent = memory.title;
+
+            // AI Summary (First!)
+            const summaryBox = document.getElementById('public-summary-box');
+            const summaryText = document.getElementById('public-summary-text');
+            if (memory.summary && memory.summary.trim()) {
+                if (summaryText) summaryText.textContent = memory.summary;
+                if (summaryBox) summaryBox.classList.remove('hidden');
+            } else {
+                if (summaryBox) summaryBox.classList.add('hidden');
+            }
+
+            // Source Link if present
+            const linkBox = document.getElementById('public-link-box');
+            const sourceLink = document.getElementById('public-source-link');
+            if (memory.source_link) {
+                if (sourceLink) {
+                    sourceLink.href = memory.source_link;
+                    sourceLink.textContent = memory.source_link;
+                }
+                if (linkBox) linkBox.classList.remove('hidden');
+            } else {
+                if (linkBox) linkBox.classList.add('hidden');
+            }
+
+            // Memory Content
+            const contentText = document.getElementById('public-content-text');
+            if (contentText) contentText.textContent = memory.content;
+
+            if (skeleton) skeleton.classList.add('hidden');
+            if (contentBox) contentBox.classList.remove('hidden');
+
+        } catch (err) {
+            if (skeleton) skeleton.classList.add('hidden');
+            if (errorBox) errorBox.classList.remove('hidden');
+        }
     },
 
     /**
@@ -858,6 +1125,8 @@ export const ui = {
         this._isEditorDirty = false;
         drawer.classList.add('hidden-slide');
 
+        overlayManager.close('memory-drawer');
+
         if (drawerCloseTimeout) clearTimeout(drawerCloseTimeout);
         drawerCloseTimeout = setTimeout(() => {
             if (backdrop) backdrop.classList.add('hidden');
@@ -880,6 +1149,10 @@ export const ui = {
         if (!backdrop || !drawer) return;
         backdrop.classList.remove('hidden');
         drawer.classList.remove('hidden', 'hidden-slide');
+
+        overlayManager.open('memory-drawer', () => {
+            window.dispatchEvent(new CustomEvent('me:navigate', { detail: { path: '/dashboard' } }));
+        });
     },
 
     _clearViewerError() {

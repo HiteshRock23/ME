@@ -204,6 +204,24 @@ class Memory(models.Model):
         help_text="Timestamp when memory was pinned, or null if unpinned.",
     )
 
+    # -------------------------------------------------------------------------
+    # Knowledge Sharing Fields
+    # -------------------------------------------------------------------------
+    share_token = models.CharField(
+        max_length=64,
+        unique=True,
+        null=True,
+        blank=True,
+        db_index=True,
+        help_text="Cryptographically secure token for public knowledge sharing.",
+    )
+
+    shared_at = models.DateTimeField(
+        blank=True,
+        null=True,
+        help_text="Timestamp when sharing was enabled or regenerated.",
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     updated_at = models.DateTimeField(auto_now=True)
@@ -211,6 +229,10 @@ class Memory(models.Model):
     @property
     def is_pinned(self) -> bool:
         return self.pinned_at is not None
+
+    @property
+    def is_shared(self) -> bool:
+        return self.share_token is not None
 
     class Meta:
         verbose_name = "memory"

@@ -109,3 +109,53 @@ class MemoryUpdateSerializer(serializers.ModelSerializer):
         if "tags" in validated_data:
             instance.tags_user_modified = True
         return super().update(instance, validated_data)
+
+
+class SharedMemorySerializer(serializers.ModelSerializer):
+    """
+    Public read-only serializer for shared memories.
+
+    EXPLICIT PRIVACY GUARANTEE:
+    Exposes ONLY:
+      - title
+      - summary (ai_summary)
+      - content (raw_content)
+      - created_at
+      - memory_type
+      - source_link
+
+    NEVER exposes user IDs, owner info, internal DB primary keys,
+    sync status, or private metadata.
+    """
+
+    title = serializers.SerializerMethodField()
+    summary = serializers.CharField(source="ai_summary", read_only=True)
+    content = serializers.CharField(source="raw_content", read_only=True)
+    source_link = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Memory
+        fields = [
+            "title",
+            "summary",
+            "content",
+            "created_at",
+            "memory_type",
+            "source_link",
+        ]
+        read_only_fields = fields
+
+    def get_title(self, obj: Memory) -> str:
+        if obj.link_title:
+            return obj.link_title
+        if obj.ai_title:
+            return obj.ai_title
+        if obj.page_title:
+            return obj.page_title
+        # Fallback to truncated raw content if no title exists
+        content = obj.raw_content.strip()
+        return content[:60] + "..." if len(content) > 60 else content
+
+    def get_source_link(self, obj: Memory) -> str:
+        return obj.link_url or obj.url or obj.source_url or ""
+

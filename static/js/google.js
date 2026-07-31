@@ -6,6 +6,10 @@ let googleClientId = null;
 let isInitialized = false;
 
 export async function initGoogleAuth() {
+    if (isInitialized) {
+        renderGoogleButton();
+        return;
+    }
     try {
         console.log("[GIS TRACE] Fetching Google config...");
         const res = await fetch("/api/auth/google/config/");
@@ -78,6 +82,9 @@ export function renderGoogleButton() {
         console.error("[GIS TRACE] GSI render error:", err);
     }
 }
+
+// Automatically initialize Google Auth on module load
+initGoogleAuth();
 
 // Re-render when auth-screen is shown
 window.addEventListener("auth-screen-shown", () => {

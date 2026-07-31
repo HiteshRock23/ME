@@ -184,5 +184,35 @@ export const api = {
             method: 'POST',
             body: JSON.stringify({ question })
         });
+    },
+
+    async shareMemory(id) {
+        return await apiFetch(`${API_URLS.memories}${id}/share/`, {
+            method: 'POST'
+        });
+    },
+
+    async regenerateShareMemory(id) {
+        return await apiFetch(`${API_URLS.memories}${id}/share/regenerate/`, {
+            method: 'POST'
+        });
+    },
+
+    async revokeShareMemory(id) {
+        return await apiFetch(`${API_URLS.memories}${id}/share/`, {
+            method: 'DELETE'
+        });
+    },
+
+    async getPublicMemory(token) {
+        const response = await fetch(`/api/shared/${encodeURIComponent(token)}/`, {
+            headers: { 'Content-Type': 'application/json' }
+        });
+        if (!response.ok) {
+            const err = new Error("Shared memory not found or link has been revoked.");
+            err.status = response.status;
+            throw err;
+        }
+        return await response.json();
     }
 };
