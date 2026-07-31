@@ -41,7 +41,6 @@ class CaptureView(generics.CreateAPIView):
                 status=status.HTTP_409_CONFLICT,
             )
 
-
 from rest_framework.pagination import CursorPagination
 
 class MemoryCursorPagination(CursorPagination):
