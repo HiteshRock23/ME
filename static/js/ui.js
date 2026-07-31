@@ -70,41 +70,48 @@ export const ui = {
     },
 
     showScreen(screenId) {
-        const screens = ['landing-screen', 'auth-screen', 'app-screen', 'dump-screen', 'save-link-screen', 'public-shared-screen'];
+        console.log(`[UI] showScreen: ${screenId}`);
+        const screens = [
+            'landing-screen',
+            'auth-screen',
+            'app-screen',
+            'dump-screen',
+            'save-link-screen',
+            'public-shared-screen',
+            'quick-capture-screen'
+        ];
+
+        // Close any lingering active overlays (drawers, modals) when switching full screens
+        if (overlayManager && typeof overlayManager.closeAll === 'function') {
+            overlayManager.closeAll();
+        }
+        document.body.classList.remove('overlay-open');
+
         screens.forEach(id => {
             const el = document.getElementById(id);
             if (el) {
                 if (id === screenId) {
-                    if (el.classList.contains('hidden')) {
-                        // Prepare for animation
-                        el.style.opacity = '0';
-                        el.style.transform = 'translateY(15px)';
-                        el.style.transition = 'opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
-                        
-                        el.classList.remove('hidden');
-                        
-                        // Force reflow
-                        void el.offsetWidth;
-                        
-                        // Execute animation
-                        el.style.opacity = '1';
-                        el.style.transform = 'translateY(0)';
-                        
-                        // Dispatch event and auto-focus Google button when auth screen loads
-                        if (id === 'auth-screen') {
-                            window.dispatchEvent(new CustomEvent('auth-screen-shown'));
-                            setTimeout(() => {
-                                const googleBtn = document.getElementById('google-btn-container');
-                                if (googleBtn) {
-                                    googleBtn.setAttribute('tabindex', '0');
-                                    googleBtn.focus();
-                                    googleBtn.style.outline = 'none'; // Avoid harsh outline if click-focused
-                                }
-                            }, 400);
-                        }
+                    el.classList.remove('hidden');
+                    el.style.display = 'block';
+                    el.style.opacity = '1';
+                    el.style.transform = 'none';
+                    el.style.visibility = 'visible';
+
+                    // Dispatch event and auto-focus Google button when auth screen loads
+                    if (id === 'auth-screen') {
+                        window.dispatchEvent(new CustomEvent('auth-screen-shown'));
+                        setTimeout(() => {
+                            const googleBtn = document.getElementById('google-btn-container');
+                            if (googleBtn) {
+                                googleBtn.setAttribute('tabindex', '0');
+                                googleBtn.focus();
+                                googleBtn.style.outline = 'none';
+                            }
+                        }, 400);
                     }
                 } else {
                     el.classList.add('hidden');
+                    el.style.display = 'none';
                 }
             }
         });
@@ -1008,6 +1015,7 @@ export const ui = {
     },
 
     async loadPublicSharedMemory(token) {
+        console.log('[Share] Loading public shared memory for token:', token);
         const skeleton = document.getElementById('public-skeleton');
         const errorBox = document.getElementById('public-error-container');
         const contentBox = document.getElementById('public-content-container');
@@ -1017,9 +1025,19 @@ export const ui = {
         if (contentBox) contentBox.classList.add('hidden');
 
         try {
-            const memory = await api.getPublicMemory(token);
+            if (!token || typeof token !== 'string') {
+                throw new Error("Invalid share token.");
+            }
 
-            document.title = `${memory.title} — Shared Knowledge (ME)`;
+            const memory = await api.getPublicMemory(token);
+            console.log('[Share] Received public memory:', memory);
+
+            if (!memory) {
+                throw new Error("Empty memory data returned.");
+            }
+
+            const titleText = (memory.title && String(memory.title).trim()) ? memory.title : 'Untitled Memory';
+            document.title = `${titleText} — Shared Knowledge (ME)`;
 
             const badgeEl = document.getElementById('public-memory-type-badge');
             if (badgeEl) {
@@ -1033,13 +1051,13 @@ export const ui = {
             }
 
             const titleEl = document.getElementById('public-memory-title');
-            if (titleEl) titleEl.textContent = memory.title;
+            if (titleEl) titleEl.textContent = titleText;
 
             // AI Summary (First!)
             const summaryBox = document.getElementById('public-summary-box');
             const summaryText = document.getElementById('public-summary-text');
-            if (memory.summary && memory.summary.trim()) {
-                if (summaryText) summaryText.textContent = memory.summary;
+            if (memory.summary && String(memory.summary).trim()) {
+                if (summaryText) summaryText.textContent = memory.summary.trim();
                 if (summaryBox) summaryBox.classList.remove('hidden');
             } else {
                 if (summaryBox) summaryBox.classList.add('hidden');
@@ -1048,10 +1066,10 @@ export const ui = {
             // Source Link if present
             const linkBox = document.getElementById('public-link-box');
             const sourceLink = document.getElementById('public-source-link');
-            if (memory.source_link) {
+            if (memory.source_link && String(memory.source_link).trim()) {
                 if (sourceLink) {
-                    sourceLink.href = memory.source_link;
-                    sourceLink.textContent = memory.source_link;
+                    sourceLink.href = memory.source_link.trim();
+                    sourceLink.textContent = memory.source_link.trim();
                 }
                 if (linkBox) linkBox.classList.remove('hidden');
             } else {
@@ -1060,12 +1078,13 @@ export const ui = {
 
             // Memory Content
             const contentText = document.getElementById('public-content-text');
-            if (contentText) contentText.textContent = memory.content;
+            if (contentText) contentText.textContent = (memory && memory.content) ? memory.content : '';
 
             if (skeleton) skeleton.classList.add('hidden');
             if (contentBox) contentBox.classList.remove('hidden');
 
         } catch (err) {
+            console.error('[Share] Failed to load public shared memory:', err);
             if (skeleton) skeleton.classList.add('hidden');
             if (errorBox) errorBox.classList.remove('hidden');
         }
