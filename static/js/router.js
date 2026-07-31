@@ -23,6 +23,8 @@ import { auth } from './auth.js';
 import { ui } from './ui.js?v=4';
 import { memoryController } from './memory-controller.js';
 import { analytics } from './analytics.js';
+import { CaptureGateway } from './capture-gateway.js';
+import { quickCaptureUI } from './quick-capture-ui.js';
 
 export const router = {
     currentPath: null,
@@ -88,6 +90,13 @@ export const router = {
     handleRoute(path) {
         const isLoggedIn = auth.isAuthenticated();
 
+        // Check for pending quick capture after login
+        const pendingQuery = sessionStorage.getItem('pending_quick_capture');
+        if (isLoggedIn && pendingQuery && path !== '/quick-capture' && path !== '/share-target') {
+            this.navigate('/quick-capture');
+            return;
+        }
+
         // --- Root ---
         if (path === '/' || path === '/index.html') {
             memoryController.close();
@@ -97,6 +106,34 @@ export const router = {
                 ui.showScreen('landing-screen');
                 analytics.pageView('Landing Page');
             }
+            return;
+        }
+
+        // --- Quick Capture & Share Target ---
+        if (path === '/quick-capture' || path === '/share-target') {
+            memoryController.close();
+
+            const searchParams = new URLSearchParams(window.location.search);
+            const hasSharedData = searchParams.has('url') || searchParams.has('text') || searchParams.has('title') || searchParams.has('link');
+
+            if (!isLoggedIn) {
+                if (hasSharedData) {
+                    sessionStorage.setItem('pending_quick_capture', searchParams.toString());
+                }
+                this.navigate('/auth');
+                return;
+            }
+
+            let sessionParams = searchParams;
+            if (pendingQuery && !hasSharedData) {
+                sessionParams = new URLSearchParams(pendingQuery);
+                sessionStorage.removeItem('pending_quick_capture');
+            }
+
+            const session = CaptureGateway.createFromParams(sessionParams);
+            ui.showScreen('app-screen');
+            quickCaptureUI.open(session);
+            analytics.pageView('Quick Capture');
             return;
         }
 

@@ -64,3 +64,22 @@ class MemoryTests(TestCase):
         self.assertEqual(memory.link_title, "New Title")
         # Ensure other fields aren't overwritten
         self.assertEqual(memory.memory_type, "link")
+
+    def test_capture_source_defaults_to_manual(self):
+        response = self.client.post("/api/memories/capture/", {
+            "raw_content": "Testing manual capture source default"
+        })
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["capture_source"], "MANUAL")
+        memory = Memory.objects.get(pk=response.data["id"])
+        self.assertEqual(memory.capture_source, Memory.CaptureSource.MANUAL)
+
+    def test_capture_source_can_be_overridden(self):
+        response = self.client.post("/api/memories/capture/", {
+            "raw_content": "Testing web share capture source",
+            "capture_source": "WEB_SHARE"
+        })
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["capture_source"], "WEB_SHARE")
+        memory = Memory.objects.get(pk=response.data["id"])
+        self.assertEqual(memory.capture_source, Memory.CaptureSource.WEB_SHARE)

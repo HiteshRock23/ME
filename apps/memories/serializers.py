@@ -19,6 +19,12 @@ class CaptureSerializer(serializers.Serializer):
     )
     link_title = serializers.CharField(max_length=255, required=False, allow_blank=True)
     preview_id = serializers.UUIDField(required=False, allow_null=True)
+    is_pinned = serializers.BooleanField(required=False, default=False)
+    capture_source = serializers.ChoiceField(
+        choices=Memory.CaptureSource.choices,
+        required=False,
+        default=Memory.CaptureSource.MANUAL
+    )
 
     def validate_raw_content(self, value: str) -> str:
         if len(value) > 5000:
@@ -34,7 +40,9 @@ class CaptureSerializer(serializers.Serializer):
             user=user, 
             raw_content=validated_data["raw_content"],
             link_title=validated_data.get("link_title", ""),
-            preview_id=validated_data.get("preview_id")
+            preview_id=validated_data.get("preview_id"),
+            is_pinned=validated_data.get("is_pinned", False),
+            capture_source=validated_data.get("capture_source", Memory.CaptureSource.MANUAL),
         )
 
 
@@ -46,11 +54,15 @@ class MemoryReadSerializer(serializers.ModelSerializer):
     and content-type fields (memory_type, url, domain).
     """
 
+    is_pinned = serializers.BooleanField(read_only=True)
+
     class Meta:
         model = Memory
         fields = [
             "id",
             "memory_type",
+            "capture_source",
+            "is_pinned",
             "raw_content",
             "url",
             "domain",

@@ -628,6 +628,75 @@
   </div>
 </aside>
 
+<!-- Universal Quick Capture Screen (/quick-capture) -->
+<div id="quick-capture-screen" class="quick-capture-screen hidden">
+  <div class="quick-capture-card">
+    <header class="quick-capture-header">
+      <h2 class="display-3" style="margin: 0;">Save to ME</h2>
+      <button id="quick-capture-close-btn" class="drawer-close-btn" aria-label="Cancel capture">&times;</button>
+    </header>
+
+    <!-- State 1: Active Capture Form -->
+    <div id="quick-capture-form-view">
+      <!-- Preview Box -->
+      <div id="quick-capture-preview-box" class="quick-capture-preview-box">
+        <!-- Skeleton state -->
+        <div id="quick-capture-skeleton" class="skeleton-wrapper hidden">
+          <div class="skeleton skeleton-title" style="height: 18px; width: 70%; margin-bottom: 8px;"></div>
+          <div class="skeleton skeleton-text" style="height: 14px; width: 90%;"></div>
+        </div>
+
+        <!-- Content Preview -->
+        <div id="quick-capture-preview-content">
+          <div id="quick-capture-thumb-box" class="quick-capture-thumb-box hidden">
+            <img id="quick-capture-thumb-img" src="" alt="Preview thumbnail">
+          </div>
+          <div class="quick-capture-meta">
+            <h4 id="quick-capture-title-text" class="quick-capture-title-text"></h4>
+            <div id="quick-capture-domain-text" class="quick-capture-domain-text"></div>
+            <p id="quick-capture-body-text" class="quick-capture-body-text"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls & Pin Toggle Pill -->
+      <div class="quick-capture-controls">
+        <button id="quick-capture-pin-btn" type="button" class="pin-toggle-pill" aria-pressed="false">
+          📌 Pin
+        </button>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="quick-capture-actions">
+        <button id="quick-capture-submit-btn" class="btn btn-primary btn-large" style="flex: 1;">Save to ME</button>
+        <button id="quick-capture-cancel-btn" class="btn btn-outline" style="width: auto;">Cancel</button>
+      </div>
+    </div>
+
+    <!-- State 2: Success View -->
+    <div id="quick-capture-success-view" class="quick-capture-status-view hidden">
+      <div class="status-icon success-icon">✓</div>
+      <h3 class="heading-1" style="margin-bottom: 6px;">Saved to ME</h3>
+      <p class="body-base text-secondary" style="margin-bottom: 24px;">Memory saved successfully.</p>
+      <div class="quick-capture-actions">
+        <button id="quick-capture-open-btn" class="btn btn-primary" style="flex: 1;">Open Memory</button>
+        <button id="quick-capture-done-btn" class="btn btn-outline" style="flex: 1;">Done</button>
+      </div>
+    </div>
+
+    <!-- State 3: Duplicate View -->
+    <div id="quick-capture-duplicate-view" class="quick-capture-status-view hidden">
+      <div class="status-icon duplicate-icon">💡</div>
+      <h3 class="heading-1" style="margin-bottom: 6px;">Already in ME</h3>
+      <p class="body-base text-secondary" style="margin-bottom: 24px;">You have already saved this link to your memory.</p>
+      <div class="quick-capture-actions">
+        <button id="quick-capture-open-dup-btn" class="btn btn-primary" style="flex: 1;">Open Memory</button>
+        <button id="quick-capture-done-dup-btn" class="btn btn-outline" style="flex: 1;">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Install Onboarding Modal -->
 <div id="install-onboarding-modal" class="modal-overlay hidden" style="z-index: 1000;">
   <div class="install-onboarding-card" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
@@ -642,6 +711,8 @@
 <div id="toast-container" class="toast-container" aria-live="polite"></div>
 
 <!-- Scripts -->
+<script type="module" src="/static/js/capture-gateway.js"></script>
+<script type="module" src="/static/js/quick-capture-ui.js"></script>
 <script type="module" src="/static/js/config.js?v=3"></script>
 <script type="module" src="/static/js/google.js?v=3"></script>
 <script type="module" src="/static/js/dump.js?v=1"></script>
