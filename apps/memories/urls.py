@@ -2,7 +2,8 @@ from django.urls import path
 
 from apps.memories.views import (
     CaptureView, MemoryDetailView, MemoryListView, SearchView, AskView,
-    RelatedMemoriesView, AnalyzeLinkView, MemoryPinView, MemoryUnpinView
+    RelatedMemoriesView, AnalyzeLinkView, MemoryPinView, MemoryUnpinView,
+    MemoryShareView, MemoryShareRegenerateView, PublicSharedMemoryView
 )
 
 app_name = "memories"
@@ -16,5 +17,8 @@ urlpatterns = [
     path("<int:pk>/", MemoryDetailView.as_view(), name="memory-detail"),
     path("<int:pk>/pin/", MemoryPinView.as_view(), name="memory-pin"),
     path("<int:pk>/unpin/", MemoryUnpinView.as_view(), name="memory-unpin"),
+    path("<int:pk>/share/", MemoryShareView.as_view(), name="memory-share"),
+    path("<int:pk>/share/regenerate/", MemoryShareRegenerateView.as_view(), name="memory-share-regenerate"),
+    path("shared/<str:token>/", PublicSharedMemoryView.as_view(), name="shared-memory"),
     path("<int:pk>/related/", RelatedMemoriesView.as_view(), name="memory-related"),
 ]

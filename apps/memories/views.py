@@ -252,3 +252,68 @@ class MemoryUnpinView(generics.GenericAPIView):
             return Response(MemoryReadSerializer(memory).data, status=status.HTTP_200_OK)
         except Memory.DoesNotExist:
             return Response({"error": "Memory not found."}, status=status.HTTP_404_NOT_FOUND)
+
+
+from django.http import Http404
+from apps.memories.serializers import SharedMemorySerializer
+from apps.memories.services import share_service
+
+
+class MemoryShareView(generics.GenericAPIView):
+    """
+    POST   /api/memories/<pk>/share/ — Enable knowledge sharing for a memory
+    DELETE /api/memories/<pk>/share/ — Revoke knowledge sharing for a memory
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk: int, *args, **kwargs):
+        try:
+            memory = Memory.objects.get(pk=pk, user=request.user)
+            share_data = share_service.share_memory(memory, request=request)
+            return Response(share_data, status=status.HTTP_200_OK)
+        except Memory.DoesNotExist:
+            return Response({"error": "Memory not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, pk: int, *args, **kwargs):
+        try:
+            memory = Memory.objects.get(pk=pk, user=request.user)
+            share_data = share_service.revoke_memory_share(memory)
+            return Response(share_data, status=status.HTTP_200_OK)
+        except Memory.DoesNotExist:
+            return Response({"error": "Memory not found."}, status=status.HTTP_404_NOT_FOUND)
+
+
+class MemoryShareRegenerateView(generics.GenericAPIView):
+    """
+    POST /api/memories/<pk>/share/regenerate/
+
+    Regenerates a share link, invalidating any existing link immediately.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk: int, *args, **kwargs):
+        try:
+            memory = Memory.objects.get(pk=pk, user=request.user)
+            share_data = share_service.regenerate_share_link(memory, request=request)
+            return Response(share_data, status=status.HTTP_200_OK)
+        except Memory.DoesNotExist:
+            return Response({"error": "Memory not found."}, status=status.HTTP_404_NOT_FOUND)
+
+
+class PublicSharedMemoryView(generics.RetrieveAPIView):
+    """
+    GET /api/shared/<token>/
+
+    Public unauthenticated endpoint to retrieve a shared memory.
+    Exposes strictly public fields via SharedMemorySerializer.
+    """
+    permission_classes = [permissions.AllowAny]
+    serializer_class = SharedMemorySerializer
+
+    def get_object(self):
+        token = self.kwargs.get("token")
+        try:
+            return share_service.get_shared_memory(token)
+        except share_service.SharedMemoryNotFoundError:
+            raise Http404("Shared memory not found or link has been revoked.")
+

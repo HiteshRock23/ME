@@ -626,7 +626,12 @@
       <span id="drawer-type-badge" class="memory-card-type-badge">📝 Note</span>
       <span id="drawer-date" class="drawer-date"></span>
     </div>
-    <button id="drawer-close-btn" class="drawer-close-btn" aria-label="Close detail view">&times;</button>
+    <div style="display: flex; align-items: center;">
+      <button id="drawer-header-share-btn" class="nav-btn-icon" title="Share" aria-label="Share" style="margin-right: 8px; border: none; background: transparent; cursor: pointer; color: var(--text-secondary); display: flex; align-items: center; justify-content: center;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      </button>
+      <button id="drawer-close-btn" class="drawer-close-btn" aria-label="Close detail view">&times;</button>
+    </div>
   </div>
   
   <div class="drawer-body">
@@ -673,11 +678,138 @@
       <button id="drawer-edit-btn" class="btn btn-outline drawer-btn-half">Edit Title</button>
     </div>
     <div class="drawer-footer-row" style="margin-top: 8px;">
+      <button id="drawer-share-btn" class="btn btn-outline drawer-btn-full" style="width: 100%;">🔗 Share</button>
+    </div>
+    <div class="drawer-footer-row" style="margin-top: 8px;">
       <button id="drawer-pin-btn" class="btn btn-outline drawer-btn-full" style="width: 100%;">📌 Pin Memory</button>
     </div>
     <button id="drawer-delete-btn" class="btn btn-outline drawer-delete-btn" style="margin-top: 8px;">Delete Memory</button>
   </div>
 </aside>
+
+<!-- Share Memory Modal / Bottom Sheet -->
+<div id="share-modal" class="modal-overlay hidden">
+  <div class="share-modal-card" role="dialog" aria-modal="true" aria-labelledby="share-modal-title">
+    <div class="share-modal-header" style="display: flex; justify-content: space-between; align-items: center;">
+      <h3 id="share-modal-title" class="heading-1" style="margin: 0;">Share Memory</h3>
+      <button id="share-modal-close-btn" class="drawer-close-btn" aria-label="Close share modal">&times;</button>
+    </div>
+    <p class="body-small text-secondary" style="margin-top: 6px; margin-bottom: 20px;">
+      Share this memory without exposing your personal library. Anyone with this link can view only this memory.
+    </p>
+
+    <!-- State A: Unshared -->
+    <div id="share-unshared-state" class="share-state-view">
+      <div class="share-option-box" style="background: var(--bg-tertiary, #F4F1EC); padding: 12px 16px; border-radius: 8px;">
+        <label class="share-option-label" style="display: flex; align-items: center; cursor: pointer; font-size: 14px;">
+          <input type="checkbox" checked disabled style="margin-right: 8px; accent-color: var(--text-primary, #000);">
+          <span>Anyone with the link can view</span>
+        </label>
+      </div>
+      <button id="create-share-link-btn" class="btn btn-primary btn-large" style="width: 100%; margin-top: 16px;">
+        Create Share Link
+      </button>
+    </div>
+
+    <!-- State B: Shared -->
+    <div id="share-shared-state" class="share-state-view hidden">
+      <div class="share-url-container" style="display: flex; gap: 8px; margin-bottom: 12px;">
+        <input type="text" id="share-url-input" readonly class="share-url-input" value="" style="flex: 1; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border-color, #E5E5E5); font-size: 13px; font-family: monospace; background: var(--bg-tertiary, #F9F8F6);">
+        <button id="copy-share-link-btn" class="btn btn-primary" style="white-space: nowrap;">Copy Link</button>
+      </div>
+      
+      <div class="share-actions-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+        <button id="native-share-btn" class="btn btn-outline" style="display: none;">Share…</button>
+        <button id="copy-markdown-btn" class="btn btn-outline">Copy as Markdown</button>
+        <button id="regenerate-share-link-btn" class="btn btn-outline" style="grid-column: span 2;">Regenerate Link</button>
+      </div>
+
+      <!-- Destructive Danger Zone visually separated -->
+      <div style="margin-top: 20px; border-top: 1px solid var(--border-color, #E5E5E5); padding-top: 16px;">
+        <button id="revoke-share-link-btn" class="btn btn-outline drawer-delete-btn" style="width: 100%;">Revoke Access</button>
+      </div>
+    </div>
+
+    <div style="margin-top: 16px; font-size: 12px; color: var(--text-secondary); text-align: center; line-height: 1.4;">
+      🔒 This shares only this memory. Your personal library always remains private.
+    </div>
+  </div>
+</div>
+
+<!-- Public Shared Memory Screen (/s/<token>) -->
+<div id="public-shared-screen" class="public-shared-screen hidden">
+  <header class="public-header" style="border-bottom: 1px solid var(--border-color, #E5E5E5); background: var(--bg-primary, #FAF8F5); padding: 16px 0;">
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+      <a href="/" data-route class="nav-brand" style="text-decoration: none; display: flex; align-items: center; gap: 8px;">
+        <div class="nav-logo" aria-hidden="true"><span>ME</span></div>
+        <span class="nav-wordmark">ME</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="container" style="max-width: 680px; padding-top: 40px; padding-bottom: 60px;">
+    <!-- Skeleton loader -->
+    <div id="public-skeleton" class="public-card">
+      <div class="skeleton skeleton-title"></div>
+      <div class="skeleton skeleton-text medium" style="margin-top: 12px;"></div>
+      <div class="skeleton skeleton-text" style="margin-top: 8px;"></div>
+    </div>
+
+    <!-- Error / 404 state -->
+    <div id="public-error-container" class="public-card text-center hidden" style="padding: 48px 24px;">
+      <div style="font-size: 40px; margin-bottom: 12px;">🔒</div>
+      <h2 class="heading-1">Shared Memory Unavailable</h2>
+      <p class="body-base text-secondary" style="margin-top: 8px; line-height: 1.6;">
+        This shared memory is no longer available.<br>It may have been removed or the sharing link was revoked.
+      </p>
+      <div style="margin-top: 24px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+        <a href="/auth" data-route class="btn btn-primary">Continue with Google</a>
+        <a href="/" data-route class="btn btn-outline">Return to Home</a>
+      </div>
+    </div>
+
+    <!-- Shared Content state -->
+    <article id="public-content-container" class="public-card hidden">
+      <div class="public-memory-meta" style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+        <span id="public-memory-type-badge" class="memory-card-type-badge">📝 Note</span>
+        <time id="public-memory-date" class="public-date" style="font-size: 13px; color: var(--text-secondary);"></time>
+      </div>
+
+      <h1 id="public-memory-title" class="display-2 public-title" style="margin-bottom: 24px; word-break: break-word;"></h1>
+
+      <!-- AI Summary (First!) -->
+      <div id="public-summary-box" class="public-summary-box hidden" style="background: var(--bg-secondary, #F4F1EC); border-left: 3px solid var(--color-primary, #000); padding: 16px 20px; border-radius: 0 8px 8px 0; margin-bottom: 28px;">
+        <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 6px;">✨ AI Summary</div>
+        <p id="public-summary-text" class="body-large public-summary-text" style="margin: 0; line-height: 1.6;"></p>
+      </div>
+
+      <!-- Source Link if applicable -->
+      <div id="public-link-box" class="public-link-box hidden" style="margin-bottom: 24px;">
+        <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 6px;">Source Link</div>
+        <a id="public-source-link" href="#" target="_blank" rel="noopener noreferrer" class="memory-card-link-url" style="word-break: break-all;"></a>
+      </div>
+
+      <!-- Memory Content -->
+      <div class="public-content-section" style="margin-bottom: 40px;">
+        <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 8px;">Memory Content</div>
+        <div id="public-content-text" class="body-base public-content-text" style="white-space: pre-wrap; line-height: 1.7; font-size: 16px;"></div>
+      </div>
+
+      <!-- Shared with ME & Growth Loop CTA -->
+      <footer class="public-footer" style="border-top: 1px solid var(--border-color, #E5E5E5); padding-top: 32px; margin-top: 40px;">
+        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 24px;">
+          Shared with <strong style="color: var(--text-primary);">ME</strong>
+        </div>
+
+        <div class="public-cta-box" style="background: var(--bg-secondary, #F4F1EC); padding: 24px; border-radius: 12px; text-align: center;">
+          <h4 class="heading-2" style="margin-bottom: 6px;">Found this useful?</h4>
+          <p class="body-small text-secondary" style="margin-bottom: 16px;">Save ideas, links, and knowledge to your own personal ME memory system.</p>
+          <a href="/auth" data-route class="btn btn-primary" style="display: inline-block; padding: 10px 24px;">Continue with Google</a>
+        </div>
+      </footer>
+    </article>
+  </main>
+</div>
 
 <!-- Install Onboarding Modal -->
 <div id="install-onboarding-modal" class="modal-overlay hidden" style="z-index: 1000;">
@@ -693,6 +825,7 @@
 <div id="toast-container" class="toast-container" aria-live="polite"></div>
 
 <!-- Scripts -->
+<script type="module" src="/static/js/overlay-manager.js"></script>
 <script type="module" src="/static/js/config.js?v=3"></script>
 <script type="module" src="/static/js/google.js?v=3"></script>
 <script type="module" src="/static/js/dump.js?v=1"></script>

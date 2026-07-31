@@ -27,12 +27,15 @@ def sitemap_view(request):
     file_path = settings.BASE_DIR / "static" / "sitemap.xml"
     return FileResponse(open(file_path, "rb"), content_type="application/xml")
 
+from apps.memories.views import PublicSharedMemoryView
+
 urlpatterns = [
     path("robots.txt", robots_view),
     path("sitemap.xml", sitemap_view),
     path("admin/", admin.site.urls),
     path("api/auth/", include("apps.users.urls")),
     path("api/memories/", include("apps.memories.urls")),
+    path("api/shared/<str:token>/", PublicSharedMemoryView.as_view(), name="public-shared-memory"),
     # SPA catch-all — must be last
     re_path(r"^(?!api/|admin/).*$", spa_view, name="spa"),
 ]

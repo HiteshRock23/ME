@@ -130,3 +130,77 @@ class MemoryTests(TestCase):
         self.assertEqual(capture_resp.status_code, status.HTTP_400_BAD_REQUEST)
 
 
+class MemorySharingTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(email="owner@example.com", password="password123")
+        self.other_user = User.objects.create_user(email="other@example.com", password="password123")
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+
+        self.memory = Memory.objects.create(
+            user=self.user,
+            raw_content="Deep insight about system architecture and modular design.",
+            ai_title="System Architecture Insights",
+            ai_summary="Key observations on decoupling modules and maintainability.",
+        )
+
+    def test_share_memory_flow(self):
+        # 1. Enable share
+        res = self.client.post(f"/api/memories/{self.memory.id}/share/", format="json")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(res.data["shared"])
+        token = res.data["token"]
+        self.assertIsNotNone(token)
+        self.assertIn(token, res.data["url"])
+
+        # Repeated share returns same token
+        res_repeat = self.client.post(f"/api/memories/{self.memory.id}/share/", format="json")
+        self.assertEqual(res_repeat.data["token"], token)
+
+        # 2. Access public link (unauthenticated)
+        public_client = APIClient()
+        pub_res = public_client.get(f"/api/shared/{token}/")
+        self.assertEqual(pub_res.status_code, status.HTTP_200_OK)
+        self.assertEqual(pub_res.data["title"], "System Architecture Insights")
+        self.assertEqual(pub_res.data["summary"], "Key observations on decoupling modules and maintainability.")
+        self.assertEqual(pub_res.data["content"], "Deep insight about system architecture and modular design.")
+
+        # Privacy check: Ensure sensitive keys are absent
+        forbidden_keys = {"id", "user", "email", "user_id", "sync_status", "ai_status", "embedding"}
+        self.assertTrue(forbidden_keys.isdisjoint(set(pub_res.data.keys())))
+
+        # 3. Regenerate share link
+        regen_res = self.client.post(f"/api/memories/{self.memory.id}/share/regenerate/", format="json")
+        self.assertEqual(regen_res.status_code, status.HTTP_200_OK)
+        new_token = regen_res.data["token"]
+        self.assertNotEqual(new_token, token)
+
+        # Old token returns 404
+        old_pub_res = public_client.get(f"/api/shared/{token}/")
+        self.assertEqual(old_pub_res.status_code, status.HTTP_404_NOT_FOUND)
+
+        # New token works
+        new_pub_res = public_client.get(f"/api/shared/{new_token}/")
+        self.assertEqual(new_pub_res.status_code, status.HTTP_200_OK)
+
+        # 4. Revoke access
+        revoke_res = self.client.delete(f"/api/memories/{self.memory.id}/share/", format="json")
+        self.assertEqual(revoke_res.status_code, status.HTTP_200_OK)
+        self.assertFalse(revoke_res.data["shared"])
+
+        # Public access now 404
+        revoked_pub_res = public_client.get(f"/api/shared/{new_token}/")
+        self.assertEqual(revoked_pub_res.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_user_cannot_share_or_revoke_other_user_memory(self):
+        other_client = APIClient()
+        other_client.force_authenticate(user=self.other_user)
+
+        res = other_client.post(f"/api/memories/{self.memory.id}/share/", format="json")
+        self.assertEqual(res.status_code, status.HTTP_404_NOT_FOUND)
+
+        revoke_res = other_client.delete(f"/api/memories/{self.memory.id}/share/", format="json")
+        self.assertEqual(revoke_res.status_code, status.HTTP_404_NOT_FOUND)
+
+
+
