@@ -131,7 +131,7 @@ export const router = {
             }
 
             const session = CaptureGateway.createFromParams(sessionParams);
-            ui.showScreen('quick-capture-screen');
+            ui.showScreen('app-screen');
             quickCaptureUI.open(session);
             analytics.pageView('Quick Capture');
             return;
