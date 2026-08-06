@@ -100,11 +100,19 @@ async function apiFetch(url, options = {}) {
 }
 
 export const api = {
-    async captureMemory(content, linkTitle = "", previewId = null, isPinned = false) {
-        const payload = { raw_content: content };
-        if (linkTitle) payload.link_title = linkTitle;
-        if (previewId) payload.preview_id = previewId;
-        if (isPinned) payload.is_pinned = true;
+    async captureMemory(contentOrPayload, linkTitle = "", previewId = null, isPinned = false, captureSource = "MANUAL") {
+        let payload;
+        if (typeof contentOrPayload === 'object' && contentOrPayload !== null) {
+            payload = contentOrPayload;
+        } else {
+            payload = {
+                raw_content: contentOrPayload,
+                link_title: linkTitle,
+                is_pinned: isPinned,
+                capture_source: captureSource
+            };
+            if (previewId) payload.preview_id = previewId;
+        }
 
         return await apiFetch(API_URLS.capture, {
             method: 'POST',
@@ -124,12 +132,17 @@ export const api = {
         });
     },
 
-    async analyzeLink(url) {
-        const response = await fetch(API_URLS.analyzeLink, {
+    async analyzeLink(url, options = {}) {
+        const fetchOpts = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ url })
-        });
+        };
+        if (options.signal) {
+            fetchOpts.signal = options.signal;
+        }
+
+        const response = await fetch(API_URLS.analyzeLink, fetchOpts);
         
         if (!response.ok) {
             let msg = "Failed to analyze link.";

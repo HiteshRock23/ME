@@ -1,20 +1,33 @@
 import { api } from './api.js';
+import { CaptureSource } from './capture-source.js';
+import { ShareSession } from './share-session.js';
+
+const OFFLINE_QUEUE_KEY = 'me_offline_capture_queue';
 
 /**
  * CaptureSession
- * Lightweight frontend session state for incoming shared knowledge.
+ * Frontend session state representation for incoming knowledge.
  */
 export class CaptureSession {
-    constructor({ rawContent = '', title = '', type = 'text', source = 'WEB_SHARE' }) {
-        this.rawContent = rawContent.trim();
-        this.title = title.trim();
+    constructor({ rawContent = '', title = '', type = 'text', source = CaptureSource.WEB_SHARE, originatingApp = 'Web' }) {
+        this.rawContent = (rawContent || '').trim();
+        this.title = (title || '').trim();
         this.type = type; // 'link' | 'text'
-        this.source = source; // 'WEB_SHARE' | 'ANDROID_SHARE' | 'MANUAL' | 'EXTENSION'
+        this.source = source; // CaptureSource enum value
+        this.originatingApp = originatingApp;
         this.isPinned = false;
         this.previewData = null;
-        this.status = 'idle'; // 'idle' | 'analyzing' | 'saving' | 'saved' | 'duplicate' | 'error'
+        this.status = 'idle'; // 'idle' | 'analyzing' | 'saving' | 'saved' | 'duplicate' | 'error' | 'offline_saved'
         this.errorMessage = '';
         this.savedMemory = null;
+        this.abortController = new AbortController();
+    }
+
+    cancelPendingAnalysis() {
+        if (this.abortController) {
+            this.abortController.abort();
+            this.abortController = new AbortController();
+        }
     }
 }
 
@@ -24,54 +37,26 @@ export class CaptureSession {
  */
 export class CaptureGateway {
     /**
-     * Extract URL from text if present using regex.
-     * @param {string} text
-     * @returns {string|null}
-     */
-    static extractUrl(text) {
-        if (!text) return null;
-        const match = text.match(/https?:\/\/[^\s]+/i);
-        return match ? match[0] : null;
-    }
-
-    /**
-     * Create a CaptureSession from URL search parameters (Web Share / Android Share Target).
+     * Create a CaptureSession from URLSearchParams (Web Share / Android Share Target) using ShareSession.
      * @param {URLSearchParams} params
+     * @param {string} defaultSource
      * @returns {CaptureSession}
      */
-    static createFromParams(params) {
-        const sharedUrl = params.get('url') || params.get('link') || '';
-        const sharedText = params.get('text') || '';
-        const sharedTitle = params.get('title') || '';
+    static createFromParams(params, defaultSource = CaptureSource.ANDROID_SHARE) {
+        const shareSession = ShareSession.fromSearchParams(params, defaultSource);
 
-        let finalUrl = sharedUrl.trim();
-        if (!finalUrl && sharedText) {
-            const extracted = this.extractUrl(sharedText);
-            if (extracted) {
-                finalUrl = extracted;
-            }
-        }
-
-        if (finalUrl) {
-            return new CaptureSession({
-                rawContent: finalUrl,
-                title: sharedTitle,
-                type: 'link',
-                source: 'WEB_SHARE'
-            });
-        }
-
-        const rawText = sharedText || sharedTitle;
         return new CaptureSession({
-            rawContent: rawText,
-            title: sharedTitle,
-            type: 'text',
-            source: 'WEB_SHARE'
+            rawContent: shareSession.primaryContent,
+            title: shareSession.rawTitle,
+            type: shareSession.contentType,
+            source: shareSession.source,
+            originatingApp: shareSession.originatingApp
         });
     }
 
     /**
      * Fetch link intelligence preview asynchronously without blocking initial UI render.
+     * Supports AbortSignal for cancellation.
      * @param {CaptureSession} session
      * @returns {Promise<CaptureSession>}
      */
@@ -80,13 +65,19 @@ export class CaptureGateway {
 
         session.status = 'analyzing';
         try {
-            const res = await api.analyzeLink(session.rawContent);
+            const res = await api.analyzeLink(session.rawContent, {
+                signal: session.abortController.signal
+            });
             session.previewData = res;
             if (!session.title && res.title) {
                 session.title = res.title;
             }
             session.status = 'idle';
         } catch (err) {
+            if (err.name === 'AbortError') {
+                console.log('[CaptureGateway] Link analysis aborted by user.');
+                return session;
+            }
             console.warn('[CaptureGateway] Link analysis fallback:', err);
             session.status = 'idle'; // Fallback gracefully: preserve raw URL
         }
@@ -95,6 +86,7 @@ export class CaptureGateway {
 
     /**
      * Submit a CaptureSession to the backend pipeline.
+     * Supports offline fallback queue if offline.
      * @param {CaptureSession} session
      * @returns {Promise<CaptureSession>}
      */
@@ -106,6 +98,14 @@ export class CaptureGateway {
         }
 
         session.status = 'saving';
+
+        // Offline check
+        if (typeof navigator !== 'undefined' && !navigator.onLine) {
+            this.enqueueOfflineSession(session);
+            session.status = 'offline_saved';
+            return session;
+        }
+
         try {
             const payload = {
                 raw_content: session.rawContent,
@@ -124,9 +124,14 @@ export class CaptureGateway {
             if (err.status === 409 || (err.message && err.message.toLowerCase().includes('already saved'))) {
                 session.status = 'duplicate';
                 session.errorMessage = 'Already saved in your ME memory.';
-                if (err.existing_memory) {
+                if (err.existingMemory) {
+                    session.savedMemory = err.existingMemory;
+                } else if (err.existing_memory) {
                     session.savedMemory = err.existing_memory;
                 }
+            } else if (!navigator.onLine || err.message?.toLowerCase().includes('network')) {
+                this.enqueueOfflineSession(session);
+                session.status = 'offline_saved';
             } else {
                 session.status = 'error';
                 session.errorMessage = err.message || 'Failed to save memory. Please check your connection.';
@@ -134,4 +139,64 @@ export class CaptureGateway {
         }
         return session;
     }
+
+    /**
+     * Enqueue session to local storage for offline synchronization
+     * @param {CaptureSession} session
+     */
+    static enqueueOfflineSession(session) {
+        try {
+            const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
+            queue.push({
+                rawContent: session.rawContent,
+                title: session.title,
+                isPinned: session.isPinned,
+                source: session.source,
+                timestamp: Date.now()
+            });
+            localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
+            console.log('[CaptureGateway] Queued capture for offline sync.');
+        } catch (e) {
+            console.error('[CaptureGateway] Failed to queue offline capture:', e);
+        }
+    }
+
+    /**
+     * Synchronize offline queue when connectivity returns.
+     */
+    static async syncOfflineQueue() {
+        if (!navigator.onLine) return;
+        try {
+            const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]');
+            if (queue.length === 0) return;
+
+            console.log(`[CaptureGateway] Syncing ${queue.length} offline captures...`);
+            const remaining = [];
+
+            for (const item of queue) {
+                try {
+                    await api.captureMemory({
+                        raw_content: item.rawContent,
+                        link_title: item.title,
+                        is_pinned: item.isPinned,
+                        capture_source: item.source || CaptureSource.ANDROID_SHARE
+                    });
+                } catch (err) {
+                    if (err.status !== 409) {
+                        remaining.push(item);
+                    }
+                }
+            }
+
+            localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(remaining));
+            console.log('[CaptureGateway] Offline sync complete.');
+        } catch (e) {
+            console.error('[CaptureGateway] Offline sync error:', e);
+        }
+    }
+}
+
+// Auto-sync listener when browser comes back online
+if (typeof window !== 'undefined') {
+    window.addEventListener('online', () => CaptureGateway.syncOfflineQueue());
 }

@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'v5';
+const CACHE_VERSION = 'v6';
 const CACHE_STATIC = `me-static-${CACHE_VERSION}`;
 const CACHE_IMAGES = `me-images-${CACHE_VERSION}`;
 const CACHE_HTML = `me-html-${CACHE_VERSION}`;
@@ -14,6 +14,10 @@ const STATIC_ASSETS = [
   '/static/js/auth.js',
   '/static/js/ui.js',
   '/static/js/pwa.js',
+  '/static/js/capture-source.js',
+  '/static/js/share-session.js',
+  '/static/js/capture-gateway.js',
+  '/static/js/quick-capture-ui.js',
   '/static/manifest.json',
   '/static/icons/icon-192.png',
   '/static/icons/icon-512.png',
