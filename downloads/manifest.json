@@ -1,0 +1,41 @@
+{
+  "latest": {
+    "version": "1.0.0",
+    "build": 1,
+    "channel": "developer-preview",
+    "apk_filename": "ME_1.0.0.apk",
+    "apk_url": "/downloads/ME_1.0.0.apk",
+    "size_bytes": 4645572,
+    "size_display": "4.43 MB",
+    "sha256": "bf867fde21c18063ed7c57d982298b9bab3e6effd572fa94940a0f9efd4ab7dd",
+    "min_android": "5.1",
+    "min_sdk": 22,
+    "package": "com.me.memory.app",
+    "released": "2026-08-07",
+    "release_notes": [
+      "Native Android application via Capacitor",
+      "Native Google Sign-In",
+      "AI-powered semantic memory search",
+      "Ask ME — natural language Q&A over your memories",
+      "Save Link with automatic AI enrichment",
+      "Memory sharing with public links",
+      "Pinned memories"
+    ]
+  },
+  "history": [
+    {
+      "version": "1.0.0",
+      "build": 1,
+      "channel": "developer-preview",
+      "apk_filename": "ME_1.0.0.apk",
+      "released": "2026-08-07",
+      "highlights": [
+        "Initial Developer Preview release",
+        "Native Android App via Capacitor",
+        "Google Sign-In integration",
+        "AI Memory Search & Ask ME Q&A",
+        "URL Link Save with metadata enrichment"
+      ]
+    }
+  ]
+}

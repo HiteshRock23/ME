@@ -10,6 +10,7 @@ import { CONFIG } from './config.js';
 import { initOnboarding } from './onboarding.js';
 import { initDump } from './dump.js?v=1';
 import { initPrefill } from './memory-prefill.js?v=1';
+import { initDownload } from './download.js?v=1';
 import './save-link.js';
 import { Native } from './native.js';
 
@@ -457,6 +458,52 @@ function initAppListeners() {
         });
     }
 
+    // About Panel
+    const aboutBtn = document.getElementById('about-btn');
+    const aboutPanel = document.getElementById('about-panel');
+    const aboutPanelClose = document.getElementById('about-panel-close');
+    const aboutPlatformEl = document.getElementById('about-platform');
+
+    if (aboutBtn && aboutPanel) {
+        // Set platform dynamically
+        if (aboutPlatformEl) {
+            try {
+                const isNative = typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform();
+                aboutPlatformEl.textContent = isNative ? 'Android' : 'Web';
+            } catch (_) {
+                aboutPlatformEl.textContent = 'Web';
+            }
+        }
+
+        aboutBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            aboutPanel.classList.toggle('hidden');
+        });
+
+        if (aboutPanelClose) {
+            aboutPanelClose.addEventListener('click', () => {
+                aboutPanel.classList.add('hidden');
+            });
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!aboutPanel.classList.contains('hidden') &&
+                !aboutPanel.contains(e.target) &&
+                e.target !== aboutBtn) {
+                aboutPanel.classList.add('hidden');
+            }
+        });
+    }
+
+    // Feedback Button — reuses CONFIG.EARLY_ACCESS_FORM_URL (single source of truth)
+    const feedbackBtn = document.getElementById('feedback-btn');
+    if (feedbackBtn) {
+        feedbackBtn.addEventListener('click', () => {
+            analytics.capture('Feedback Button Clicked', { source: 'app_nav' });
+            window.open(CONFIG.EARLY_ACCESS_FORM_URL, '_blank', 'noopener,noreferrer');
+        });
+    }
+
     const pwaNavBtn = document.getElementById('pwa-nav-btn');
     if (pwaNavBtn) pwaNavBtn.addEventListener('click', promptInstall);
 
@@ -587,6 +634,7 @@ function init() {
     initOnboarding();
     initDump();
     initPrefill();
+    initDownload();
 
     analytics.initScrollTracking();
 

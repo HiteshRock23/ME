@@ -167,6 +167,15 @@ export const router = {
             return;
         }
 
+        // --- Download ---
+        if (path === '/download') {
+            memoryController.close();
+            ui.showScreen('download-screen');
+            analytics.pageView('Download Page');
+            window.dispatchEvent(new CustomEvent('me:download-page-viewed'));
+            return;
+        }
+
         // --- Dashboard ---
         if (path === '/dashboard') {
             memoryController.close();

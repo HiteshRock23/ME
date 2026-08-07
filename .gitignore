@@ -42,6 +42,7 @@ mobile/www/
 # Android Build Outputs
 mobile/android/.gradle/
 mobile/android/build/
+mobile/android/app/release/
 mobile/android/app/build/
 mobile/android/app/src/main/assets/
 
@@ -55,3 +56,16 @@ mobile/android/capacitor-cordova-android-plugins/
 
 # Logs
 *.log
+
+# Android signing
+mobile/android/keystore.properties
+*.jks
+*.keystore
+
+# ==========================
+# Release Artifacts
+# ==========================
+# APK/AAB binaries are deployed directly to the VPS — not stored in git.
+# The downloads/ directory is tracked via .gitkeep; binaries are excluded.
+downloads/*.apk
+downloads/*.aab

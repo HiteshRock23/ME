@@ -1,21 +1,35 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# ME Android — ProGuard Rules
+# Note: minification is currently disabled for Developer Preview (minifyEnabled false).
+# These rules are pre-configured for when minification is enabled in future releases.
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# ─── Capacitor WebView Bridge ────────────────────────────────────────────────
+-keep class com.getcapacitor.** { *; }
+-keep interface com.getcapacitor.** { *; }
+-dontwarn com.getcapacitor.**
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# Keep WebView JavaScript interface methods callable from JS
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# ─── Google Auth Plugin ───────────────────────────────────────────────────────
+-keep class com.codetrixstudio.capacitor.** { *; }
+-dontwarn com.codetrixstudio.capacitor.**
+
+# ─── Google Sign-In ───────────────────────────────────────────────────────────
+-keep class com.google.android.gms.** { *; }
+-dontwarn com.google.android.gms.**
+
+# ─── Crash Reporting (keep line numbers) ─────────────────────────────────────
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile
+
+# ─── Cordova / Capacitor Plugins ──────────────────────────────────────────────
+-keep class org.apache.cordova.** { *; }
+-dontwarn org.apache.cordova.**
+
+# ─── Serialization ────────────────────────────────────────────────────────────
+# Keep Parcelable implementations intact
+-keep class * implements android.os.Parcelable {
+    public static final android.os.Parcelable$Creator *;
+}
