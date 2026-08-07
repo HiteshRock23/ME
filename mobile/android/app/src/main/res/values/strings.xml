@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">ME — Your AI Memory</string>
+    <string name="title_activity_main">ME — Your AI Memory</string>
+    <string name="package_name">com.me.memory.app</string>
+    <string name="custom_url_scheme">com.me.memory.app</string>
+</resources>

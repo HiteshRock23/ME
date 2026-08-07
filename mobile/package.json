@@ -1,0 +1,35 @@
+{
+  "name": "me-mobile-shell",
+  "version": "1.0.0",
+  "description": "Native Android shell for ME — Your AI Memory powered by Capacitor",
+  "private": true,
+  "scripts": {
+    "clean": "node scripts/clean.js",
+    "package": "node scripts/package-web.js",
+    "verify": "node scripts/verify-assets.js",
+    "build-info": "node scripts/build-info.js",
+    "android:build": "npm run clean && npm run package && npm run build-info && npm run verify && npx cap sync && node scripts/verify-assets.js --android",
+    "android:dev": "npx cap copy android",
+    "android:sync": "npx cap sync",
+    "android:open": "npx cap open android",
+    "cap:build": "npm run android:build",
+    "cap:sync": "npm run android:sync",
+    "cap:open": "npm run android:open",
+    "cap:copy": "npx cap copy android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/app": "^6.0.0",
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/device": "^6.0.0",
+    "@capacitor/keyboard": "^6.0.0",
+    "@capacitor/network": "^6.0.0",
+    "@capacitor/splash-screen": "^6.0.0",
+    "@capacitor/status-bar": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}
