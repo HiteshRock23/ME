@@ -27,3 +27,31 @@ Thumbs.db
 
 #client
 client_secret.json
+
+# ==========================
+# Mobile / Capacitor
+# ==========================
+
+# Node
+node_modules/
+mobile/node_modules/
+
+# Generated Capacitor Web Bundle
+mobile/www/
+
+# Android Build Outputs
+mobile/android/.gradle/
+mobile/android/build/
+mobile/android/app/build/
+mobile/android/app/src/main/assets/
+
+# Android Studio
+mobile/android/.idea/
+mobile/android/local.properties
+*.iml
+
+# Capacitor Generated Plugins
+mobile/android/capacitor-cordova-android-plugins/
+
+# Logs
+*.log

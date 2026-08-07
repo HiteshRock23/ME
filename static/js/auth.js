@@ -1,8 +1,10 @@
 /**
  * Authentication Module
- * Handles tokens, login, logout, and token refreshing.
+ * Handles tokens, login, logout, registration, and token refreshing via the central network layer.
+ * Registers token getters & refresh handlers with network module via Dependency Injection.
  */
 
+import { network, setAuthHandlers } from './network.js';
 import { analytics } from './analytics.js';
 
 const AUTH_KEYS = {
@@ -42,21 +44,10 @@ export const auth = {
     },
 
     async login(email, password) {
-        const response = await fetch('/api/auth/login/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, password })
-        });
-
-        if (!response.ok) {
-            const data = await response.json().catch(() => ({}));
-            throw new Error(data.detail || 'Login failed. Please check your credentials.');
+        const data = await network.post('/api/auth/login/', { email, password }, { skipAuth: true, category: 'DEFAULT' });
+        if (data && data.access) {
+            this.setTokens(data.access, data.refresh);
         }
-
-        const data = await response.json();
-        this.setTokens(data.access, data.refresh);
         return data;
     },
 
@@ -64,53 +55,36 @@ export const auth = {
         const refresh = this.getRefreshToken();
         if (refresh) {
             try {
-                await fetch('/api/auth/logout/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${this.getAccessToken()}`
-                    },
-                    body: JSON.stringify({ refresh })
-                });
+                await network.post('/api/auth/logout/', { refresh }, { skipAuth: false });
             } catch (e) {
                 console.error("Logout request failed, but clearing local tokens.", e);
             }
         }
         this.clearTokens();
-        analytics.resetUser();
+        if (typeof analytics !== 'undefined' && analytics.resetUser) {
+            analytics.resetUser();
+        }
     },
 
     async register(firstName, lastName, email, password) {
-        const response = await fetch('/api/auth/register/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ first_name: firstName, last_name: lastName, email, password })
-        });
-
-        const data = await response.json();
-        
-        if (!response.ok) {
-            const msg = data.detail
-                || data.email?.[0]
-                || data.password?.[0]
-                || data.first_name?.[0]
-                || data.last_name?.[0]
-                || data.non_field_errors?.[0]
-                || 'Registration failed.';
-            throw new Error(msg);
-        }
+        const data = await network.post('/api/auth/register/', {
+            first_name: firstName,
+            last_name: lastName,
+            email,
+            password
+        }, { skipAuth: true });
 
         const access = data.access || data.tokens?.access;
         const refresh = data.refresh || data.tokens?.refresh;
-        this.setTokens(access, refresh);
-        
+        if (access) {
+            this.setTokens(access, refresh);
+        }
+
         const userObj = data.user || data.tokens?.user;
-        if (userObj) {
+        if (userObj && typeof analytics !== 'undefined' && analytics.identifyUser) {
             analytics.identifyUser(userObj);
         }
-        
+
         return data;
     },
 
@@ -118,22 +92,22 @@ export const auth = {
         const refresh = this.getRefreshToken();
         if (!refresh) throw new Error("No refresh token available");
 
-        const response = await fetch('/api/auth/token/refresh/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ refresh })
-        });
-
-        if (!response.ok) {
-            this.clearTokens();
-            analytics.resetUser();
-            throw new Error("Session expired. Please log in again.");
+        const data = await network.post('/api/auth/token/refresh/', { refresh }, { skipAuth: true });
+        if (data && data.access) {
+            this.setTokens(data.access, data.refresh || refresh);
+            return data.access;
         }
-
-        const data = await response.json();
-        this.setTokens(data.access, data.refresh || refresh);
-        return data.access;
+        throw new Error("Invalid token refresh response");
     }
 };
+
+// Dependency Injection: Register Auth handlers with Network Layer (Zero Circular Dependencies)
+setAuthHandlers({
+    getAccessToken: () => auth.getAccessToken(),
+    refreshToken: () => auth.refreshToken(),
+    clearTokens: () => auth.clearTokens()
+});
+
+if (typeof window !== 'undefined') {
+    window.auth = auth;
+}

@@ -1,6 +1,7 @@
 import { auth } from "./auth.js";
 import { ui } from "./ui.js?v=3";
 import { analytics } from "./analytics.js";
+import { network } from "./network.js";
 
 let googleClientId = null;
 let isInitialized = false;
@@ -12,13 +13,8 @@ export async function initGoogleAuth() {
     }
     try {
         console.log("[GIS TRACE] Fetching Google config...");
-        const res = await fetch("/api/auth/google/config/");
-        if (!res.ok) {
-            console.warn("[GIS TRACE] Google Client ID endpoint failed or not configured.");
-            return;
-        }
+        const data = await network.get("/api/auth/google/config/", { skipAuth: true });
         
-        const data = await res.json();
         googleClientId = data.client_id;
         console.log("[GIS TRACE] Obtained Client ID:", googleClientId);
         
@@ -29,7 +25,7 @@ export async function initGoogleAuth() {
 
         setupGIS();
     } catch (e) {
-        console.error("[GIS TRACE] Failed to initialize Google Auth:", e);
+        console.warn("[GIS TRACE] Failed to initialize Google Auth:", e.message || e);
     }
 }
 
@@ -103,27 +99,8 @@ async function handleGoogleCredentialResponse(response) {
         ui.clearError();
         
         console.log("[GIS TRACE] Sending POST to /api/auth/google/...");
-        const res = await fetch("/api/auth/google/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ credential: response.credential }),
-        });
+        const data = await network.post("/api/auth/google/", { credential: response.credential }, { skipAuth: true });
 
-        console.log("[GIS TRACE] Response status from /api/auth/google/:", res.status);
-
-        if (!res.ok) {
-            let msg = "Google Login failed.";
-            try {
-                const data = await res.json();
-                msg = data.detail || msg;
-                console.error("[GIS TRACE] Backend error data:", data);
-            } catch(e) {}
-            throw new Error(msg);
-        }
-
-        const data = await res.json();
         console.log("[GIS TRACE] Received tokens from backend:", data);
         auth.setTokens(data.access, data.refresh);
         

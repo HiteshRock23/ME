@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     # Third-party
+    "corsheaders",
     "rest_framework",
     "rest_framework_simplejwt.token_blacklist",
     # Local apps
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -267,5 +269,26 @@ LOGGING = {
         },
     },
 }
+
+# =============================================================================
+# CORS CONFIGURATION
+# =============================================================================
+# Explicitly allow Capacitor Android WebView origin (https://localhost)
+# and Web deployment environments without using global wildcards.
+
+CORS_ALLOWED_ORIGINS = config(
+    "CORS_ALLOWED_ORIGINS",
+    default="https://localhost,http://localhost:8000,http://127.0.0.1:8000,https://me.lyrprompt.cloud,http://10.0.2.2:8000",
+    cast=Csv()
+)
+
+CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = config(
+    "CSRF_TRUSTED_ORIGINS",
+    default="https://localhost,http://localhost:8000,http://127.0.0.1:8000,https://me.lyrprompt.cloud",
+    cast=Csv()
+)
+
 
 
