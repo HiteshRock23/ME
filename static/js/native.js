@@ -94,9 +94,35 @@ export const Native = {
             platform: isNative() ? 'android' : 'web',
             isVirtual: false
         };
+    },
+
+    _splashHidden: false,
+
+    async hideSplashScreen() {
+        if (this._splashHidden) return;
+        this._splashHidden = true;
+
+        if (typeof window === 'undefined' || !window.Capacitor?.Plugins?.SplashScreen) {
+            return; // No-op on web / desktop
+        }
+
+        console.log('[Native] Requesting SplashScreen.hide()...');
+        try {
+            await window.Capacitor.Plugins.SplashScreen.hide();
+            console.log('[Native] SplashScreen hidden successfully.');
+        } catch (e) {
+            console.warn('[Native] SplashScreen hide failed:', e);
+        }
     }
 };
 
 if (typeof window !== 'undefined') {
     window.Native = Native;
+
+    // React to the canonical application-ready lifecycle signal.
+    // This keeps the Native layer independent of startup orchestration:
+    // it does not know how routing works, it only knows when the app is ready.
+    window.addEventListener('app-ready', async () => {
+        await Native.hideSplashScreen();
+    }, { once: true });
 }

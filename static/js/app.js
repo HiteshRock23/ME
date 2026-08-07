@@ -11,6 +11,7 @@ import { initOnboarding } from './onboarding.js';
 import { initDump } from './dump.js?v=1';
 import { initPrefill } from './memory-prefill.js?v=1';
 import './save-link.js';
+import { Native } from './native.js';
 
 // --- Dev Cache Clearing & Auto-Login Backdoor ---
 const searchParams = new URLSearchParams(window.location.search);
@@ -669,6 +670,13 @@ function init() {
     });
 
     router.init();
+    console.log('[Startup] Router initialized. Landing page rendered.');
+
+    // Signal that the application has completed startup and the initial UI
+    // is ready for user interaction. Consumers (e.g. Native splash dismissal)
+    // react to this event independently — no timing assumptions required.
+    window.dispatchEvent(new CustomEvent('app-ready'));
+    console.log('[Startup] app-ready dispatched.');
 }
 
 // Start application

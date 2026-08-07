@@ -1,125 +1,19 @@
-import { auth } from "./auth.js";
-import { ui } from "./ui.js?v=3";
-import { analytics } from "./analytics.js";
-import { network } from "./network.js";
+/**
+ * Google Auth Entry Point (Platform Abstraction Proxy)
+ * Delegates authentication to GoogleProvider (Web GIS or Native Capacitor GoogleAuth).
+ */
 
-let googleClientId = null;
-let isInitialized = false;
+import { GoogleProvider, initGoogleAuth, renderGoogleButton, signInWithGoogle, signOutGoogle } from "./auth/google-provider.js";
 
-export async function initGoogleAuth() {
-    if (isInitialized) {
-        renderGoogleButton();
-        return;
-    }
-    try {
-        console.log("[GIS TRACE] Fetching Google config...");
-        const data = await network.get("/api/auth/google/config/", { skipAuth: true });
-        
-        googleClientId = data.client_id;
-        console.log("[GIS TRACE] Obtained Client ID:", googleClientId);
-        
-        if (!googleClientId) {
-            console.warn("[GIS TRACE] Google Client ID is empty.");
-            return;
-        }
-
-        setupGIS();
-    } catch (e) {
-        console.warn("[GIS TRACE] Failed to initialize Google Auth:", e.message || e);
-    }
-}
-
-function setupGIS() {
-    const initialize = () => {
-        if (!isInitialized && window.google && window.google.accounts && window.google.accounts.id) {
-            console.log("[GIS TRACE] Initializing google.accounts.id...");
-            window.google.accounts.id.initialize({
-                client_id: googleClientId,
-                callback: handleGoogleCredentialResponse,
-                auto_select: false,
-                cancel_on_tap_outside: false
-            });
-            isInitialized = true;
-        }
-        renderGoogleButton();
-    };
-
-    if (window.google && window.google.accounts && window.google.accounts.id) {
-        initialize();
-    } else {
-        let attempts = 0;
-        const interval = setInterval(() => {
-            if (window.google && window.google.accounts && window.google.accounts.id) {
-                clearInterval(interval);
-                initialize();
-            } else if (attempts > 30) {
-                clearInterval(interval);
-                console.warn("[GIS TRACE] Google Identity Services script not loaded.");
-            }
-            attempts++;
-        }, 100);
-    }
-}
-
-export function renderGoogleButton() {
-    if (!isInitialized || !window.google || !window.google.accounts || !window.google.accounts.id) return;
-
-    const container = document.getElementById("google-btn-container");
-    if (!container) return;
-
-    try {
-        console.log("[GIS TRACE] Rendering Google button into container...");
-        container.innerHTML = "";
-        window.google.accounts.id.renderButton(
-            container,
-            { theme: "filled_black", shape: "pill", size: "large", width: 280, text: "continue_with" }
-        );
-    } catch (err) {
-        console.error("[GIS TRACE] GSI render error:", err);
-    }
-}
+export { initGoogleAuth, renderGoogleButton, signInWithGoogle, signOutGoogle, GoogleProvider };
 
 // Automatically initialize Google Auth on module load
-initGoogleAuth();
+initGoogleAuth("module_load");
 
 // Re-render when auth-screen is shown
-window.addEventListener("auth-screen-shown", () => {
-    if (isInitialized) {
-        renderGoogleButton();
-    } else {
-        initGoogleAuth();
-    }
-});
-
-async function handleGoogleCredentialResponse(response) {
-    console.log("[GIS TRACE] handleGoogleCredentialResponse CALLED with response:", response);
-    const loginStartTime = performance.now();
-    analytics.capture('Google Login Started');
-    try {
-        ui.clearError();
-        
-        console.log("[GIS TRACE] Sending POST to /api/auth/google/...");
-        const data = await network.post("/api/auth/google/", { credential: response.credential }, { skipAuth: true });
-
-        console.log("[GIS TRACE] Received tokens from backend:", data);
-        auth.setTokens(data.access, data.refresh);
-        
-        if (data.user) {
-            analytics.identifyUser(data.user);
-        }
-        analytics.capture('Google Login Success', {
-            duration_ms: performance.now() - loginStartTime
-        });
-        
-        console.log("[GIS TRACE] Tokens stored. Navigating to dashboard...");
-        sessionStorage.setItem('me_just_logged_in', 'true');
-        window.location.href = "/dashboard";
-    } catch (e) {
-        console.error("[GIS TRACE] Google Auth error:", e);
-        analytics.capture('Google Login Failed', {
-            error_message: e.message || 'Unknown error',
-            duration_ms: performance.now() - loginStartTime
-        });
-        ui.showError(e.message);
-    }
+if (typeof window !== 'undefined') {
+    window.addEventListener("auth-screen-shown", () => {
+        console.log("[google.js] Event 'auth-screen-shown' received. Refreshing Google Auth button...");
+        initGoogleAuth("event:auth-screen-shown");
+    });
 }

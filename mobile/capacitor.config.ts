@@ -13,10 +13,16 @@ const config: CapacitorConfig = {
   bundledWebRuntime: false,
   server: {
     androidScheme: 'https',
+    allowNavigation: ['accounts.google.com', '*.google.com', 'google.com'],
     cleartext: isDevelopment,
     ...(isDevelopment && process.env.CAPACITOR_SERVER_URL ? { url: process.env.CAPACITOR_SERVER_URL } : {})
   },
   plugins: {
+    GoogleAuth: {
+      scopes: ['profile', 'email'],
+      serverClientId: '801509973157-xxxxxxxx.apps.googleusercontent.com',
+      forceCodeForRefreshToken: true
+    },
     SplashScreen: {
       launchShowDuration: 3000,
       launchAutoHide: false,
