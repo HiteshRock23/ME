@@ -276,6 +276,8 @@ LOGGING = {
 # Explicitly allow Capacitor Android WebView origin (https://localhost)
 # and Web deployment environments without using global wildcards.
 
+from corsheaders.defaults import default_headers
+
 CORS_ALLOWED_ORIGINS = config(
     "CORS_ALLOWED_ORIGINS",
     default="https://localhost,http://localhost:8000,http://127.0.0.1:8000,https://me.lyrprompt.cloud,http://10.0.2.2:8000",
@@ -284,11 +286,24 @@ CORS_ALLOWED_ORIGINS = config(
 
 CORS_ALLOW_CREDENTIALS = True
 
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    "x-environment",
+    "x-platform",
+    "x-app-version",
+    "x-build",
+    "x-request-id",
+]
+
+CORS_EXPOSE_HEADERS = [
+    "X-Request-ID",
+]
+
 CSRF_TRUSTED_ORIGINS = config(
     "CSRF_TRUSTED_ORIGINS",
     default="https://localhost,http://localhost:8000,http://127.0.0.1:8000,https://me.lyrprompt.cloud",
     cast=Csv()
 )
+
 
 
 

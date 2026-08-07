@@ -77,10 +77,14 @@ function detectEnvironment() {
 
 function resolveApiBase() {
     const platform = detectPlatform();
+    const environment = detectEnvironment();
 
-    // During development, Android emulator talks to the host machine
     if (platform === 'ANDROID' || platform === 'IOS') {
-        return APP_CONFIG.developmentBackend;
+        if (environment === 'development') {
+            return APP_CONFIG.developmentBackend;
+        }
+
+        return APP_CONFIG.productionBackend;
     }
 
     if (typeof window !== 'undefined' && window.location && window.location.origin) {
@@ -89,7 +93,6 @@ function resolveApiBase() {
 
     return APP_CONFIG.productionBackend;
 }
-
 export function isDevelopment() {
     return detectEnvironment() === 'development';
 }
