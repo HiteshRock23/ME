@@ -10,7 +10,6 @@ const config: CapacitorConfig = {
   appId: 'com.me.memory.app',
   appName: 'ME — Your AI Memory',
   webDir: 'www',
-  bundledWebRuntime: false,
   server: {
     androidScheme: 'https',
     allowNavigation: ['accounts.google.com', '*.google.com', 'google.com'],
@@ -20,6 +19,7 @@ const config: CapacitorConfig = {
   plugins: {
     GoogleAuth: {
       scopes: ['profile', 'email'],
+      clientId: '801509973157-k8sabl6gkamg3uuoh6ssl546e1hls6a6.apps.googleusercontent.com',
       serverClientId: '801509973157-gfvt981m9tl29hkvj4sue73mmu5ji018.apps.googleusercontent.com',
       forceCodeForRefreshToken: true
     },
