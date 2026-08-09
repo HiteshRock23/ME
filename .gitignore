@@ -10,6 +10,30 @@ venv/
 .env
 .supermemory/
 
+# Node / Mobile dependencies
+node_modules/
+mobile/node_modules/
+
+# Capacitor auto-generated files
+**/android/capacitor-cordova-android-plugins/
+**/android/app/src/main/assets/public/
+**/android/app/src/main/assets/capacitor.config.json
+**/android/app/src/main/assets/capacitor.plugins.json
+
+# Android build & cache
+.gradle/
+**/android/.gradle/
+**/android/build/
+**/android/app/build/
+**/android/.idea/
+**/android/local.properties
+**/android/captures/
+
+# Android signing keys & credentials
+mobile/android/keystore.properties
+*.keystore
+*.jks
+
 # Django
 db.sqlite3
 staticfiles/
@@ -25,5 +49,9 @@ media/
 .DS_Store
 Thumbs.db
 
-#client
+# Client
 client_secret.json
+
+# Builds & Downloads
+downloads/
+

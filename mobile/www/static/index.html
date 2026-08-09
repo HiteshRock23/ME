@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>ME - Never Forget Anything Again</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="ME remembers everything you save and lets you retrieve it instantly using natural language." />
+  
+  <meta name="theme-color" content="#FAF8F5" />
+  <link rel="manifest" href="/static/manifest.json" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="/static/css/style.css?v=7" />
+  <link rel="stylesheet" href="/static/css/dump.css?v=1" />
+
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VZYLZW2XCJ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-VZYLZW2XCJ');
+</script>
+<!-- Paste this right before your closing </head> tag -->
+<script type="text/javascript">
+  (function(e,c){if(!c.__SV){var l,h;window.mixpanel=c;c._i=[];c.init=function(q,r,f){function t(d,a){var g=a.split(".");2==g.length&&(d=d[g[0]],a=g[1]);d[a]=function(){d.push([a].concat(Array.prototype.slice.call(arguments,0)))}}var b=c;"undefined"!==typeof f?b=c[f]=[]:f="mixpanel";b.people=b.people||[];b.toString=function(d){var a="mixpanel";"mixpanel"!==f&&(a+="."+f);d||(a+=" (stub)");return a};b.people.toString=function(){return b.toString(1)+".people (stub)"};l="disable time_event track track_pageview track_links track_forms track_with_groups add_group set_group remove_group register register_once alias unregister identify name_tag set_config reset opt_in_tracking opt_out_tracking has_opted_in_tracking has_opted_out_tracking clear_opt_in_out_tracking start_batch_senders start_session_recording stop_session_recording people.set people.set_once people.unset people.increment people.append people.union people.track_charge people.clear_charges people.delete_user people.remove".split(" ");
+  for(h=0;h<l.length;h++)t(b,l[h]);var n="set set_once union unset remove delete".split(" ");b.get_group=function(){function d(p){a[p]=function(){b.push([g,[p].concat(Array.prototype.slice.call(arguments,0))])}}for(var a={},g=["get_group"].concat(Array.prototype.slice.call(arguments,0)),m=0;m<n.length;m++)d(n[m]);return a};c._i.push([q,r,f])};c.__SV=1.2;var k=e.createElement("script");k.type="text/javascript";k.async=!0;k.src="undefined"!==typeof MIXPANEL_CUSTOM_LIB_URL?MIXPANEL_CUSTOM_LIB_URL:"file:"===
+  e.location.protocol&&"//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js".match(/^\/\//)?"https://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js":"//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js";e=e.getElementsByTagName("script")[0];e.parentNode.insertBefore(k,e)}})(document,window.mixpanel||[])
+
+  mixpanel.init('b5728b93593bdc9c7644a375c98a5c36', {
+    autocapture: true,
+    record_sessions_percent: 100,
+  })
+
+</script>
+</head>
+<body>
+
+<!-- ============================================================
+     SCREEN 0: Landing Page (Premium Production)
+     ============================================================ -->
+<div id="landing-screen" class="landing-screen">
+  
+  <nav class="nav">
+    <div class="nav-inner">
+      <div class="nav-brand">
+        <div class="nav-logo" aria-hidden="true"><span>ME</span></div>
+        <span class="nav-wordmark">ME</span>
+      </div>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#security">Security</a>
+        <a href="#early-access">Early Access</a>
+      </div>
+      <div class="nav-actions">
+        <a href="/auth" data-route class="btn btn-primary" id="landing-cta-btn">Continue with Google</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="section container hero">
+    <h1 class="display-1">Never Forget<br>Anything Again.</h1>
+    <p class="hero-subtitle body-large">ME remembers everything you save and lets you retrieve it instantly using natural language. No folders, no tags, just memory.</p>
+    <div class="hero-actions">
+      <button class="btn btn-primary btn-large early-access-trigger" data-location="Hero">Join Early Access</button>
+    </div>
+  </header>
+
+  <!-- Interactive Product Demo (Mockup) -->
+  <section class="section container text-center" style="padding-top: 0;">
+    <div class="demo-container">
+      <div class="demo-message">
+        <div class="demo-avatar user">U</div>
+        <div class="demo-bubble">Who is my brother?</div>
+      </div>
+      <div class="demo-message">
+        <div class="demo-avatar ai">ME</div>
+        <div class="demo-bubble">
+          Your brother's name is Prajwal.
+          <div class="demo-source">
+            <div class="demo-source-title">Memory Source</div>
+            <div class="demo-source-text">"My brother name is Prajwal" (Saved 2 days ago)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Problem / Social Proof -->
+  <section class="statement-section">
+    <div class="container">
+      <h2 class="display-2" style="max-width: 800px; margin: 0 auto;">Your brain wasn't designed to remember everything.</h2>
+      <p class="body-large" style="margin-top: 16px;">Leave the storage to ME, keep your mind free for thinking.</p>
+    </div>
+  </section>
+
+  <!-- How It Works (Effortless Intelligence) -->
+  <section id="how-it-works" class="section container">
+    <div class="text-center">
+      <h2 class="display-3">Effortless Intelligence</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">1</div>
+        <h3 class="heading-1">Capture Anything</h3>
+        <p class="body-base">Drop links, type thoughts, or paste entire documents. ME takes it all.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">2</div>
+        <h3 class="heading-1">AI Processing</h3>
+        <p class="body-base">Our models analyze, extract entities, and understand context instantly.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">3</div>
+        <h3 class="heading-1">Instant Recall</h3>
+        <p class="body-base">Just ask naturally. ME connects the dots and gives you exact answers.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Security Section -->
+  <section id="security" class="security-section">
+    <div class="container">
+      <div class="text-center">
+        <h2 class="display-3">ME Security</h2>
+        <p class="body-large">Your memories belong to you. Private by default.</p>
+      </div>
+      <div class="security-grid">
+        <div class="security-card">
+          <h3 class="heading-2">Encrypted Storage</h3>
+          <p class="body-base">Everything is encrypted at rest and in transit.</p>
+        </div>
+        <div class="security-card">
+          <h3 class="heading-2">No Training on Data</h3>
+          <p class="body-base">We never use your personal memories to train public AI models.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Grid -->
+  <section id="features" class="section container">
+    <div class="text-center">
+      <h2 class="display-3">Guaranteed Features</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <h3 class="heading-2">Lightning Fast</h3>
+        <p class="body-base">Built for speed. Capture a thought in milliseconds.</p>
+      </div>
+      <div class="feature-card">
+        <h3 class="heading-2">Semantic Search</h3>
+        <p class="body-base">Find what you mean, not just the keywords you typed.</p>
+      </div>
+      <div class="feature-card">
+        <h3 class="heading-2">AI Summaries</h3>
+        <p class="body-base">Long articles summarized automatically for quick scanning.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison Table (Why ME) -->
+  <section class="section container">
+    <div class="text-center">
+      <h2 class="display-3">The Upgrade</h2>
+    </div>
+    <div class="comparison-container">
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Traditional Notes</th>
+            <th>ME</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Organization</td>
+            <td class="td-x">Manual folders & tags</td>
+            <td class="td-check">Automatic understanding</td>
+          </tr>
+          <tr>
+            <td>Search</td>
+            <td class="td-x">Exact keywords</td>
+            <td class="td-check">Semantic natural language</td>
+          </tr>
+          <tr>
+            <td>Recall</td>
+            <td class="td-x">Lost context</td>
+            <td class="td-check">Context preserved instantly</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Early Access -->
+  <section id="early-access" class="section container">
+    <div class="early-access-card">
+      <div class="text-center">
+        <span class="early-access-badge">FREE DURING EARLY ACCESS</span>
+        <h2 class="display-3" style="margin-top: var(--spacing-sm); margin-bottom: var(--spacing-sm);">Join ME Early</h2>
+        <p class="body-large early-access-description">
+          ME is currently free while we're building the future of personal memory.<br>
+          Join early, use every feature available today, and help shape what we build next through your feedback.
+        </p>
+      </div>
+
+      <div class="early-access-grid">
+        <div class="early-access-item">
+          <span class="early-access-item-icon">✓</span>
+          <span>Unlimited text memories</span>
+        </div>
+        <div class="early-access-item">
+          <span class="early-access-item-icon">✓</span>
+          <span>Unlimited semantic search</span>
+        </div>
+        <div class="early-access-item">
+          <span class="early-access-item-icon">✓</span>
+          <span>AI-powered summaries</span>
+        </div>
+        <div class="early-access-item">
+          <span class="early-access-item-icon">✓</span>
+          <span>Link Intelligence</span>
+        </div>
+        <div class="early-access-item">
+          <span class="early-access-item-icon">✓</span>
+          <span>Quick Dump</span>
+        </div>
+        <div class="early-access-item">
+          <span class="early-access-item-icon">✓</span>
+          <span>Save Link</span>
+        </div>
+        <div class="early-access-item">
+          <span class="early-access-item-icon">✓</span>
+          <span>Google Sign-In</span>
+        </div>
+        <div class="early-access-item">
+          <span class="early-access-item-icon">✓</span>
+          <span>All current features included</span>
+        </div>
+      </div>
+
+      <div class="early-access-cta-container">
+        <a href="/auth" data-route class="btn btn-primary btn-large" style="width: 100%; max-width: 320px; justify-content: center;">Start Free</a>
+        <p class="body-small" style="color: var(--text-secondary); margin-top: var(--spacing-xs);">No credit card required.</p>
+      </div>
+
+      <div class="early-access-notice">
+        <p class="body-small">
+          Premium features and advanced integrations will be introduced in the future as ME evolves.<br>
+          Everyone joining during Early Access will receive advance notice before any pricing changes.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section class="section container text-center" style="margin-top: var(--spacing-4xl); margin-bottom: var(--spacing-4xl);">
+    <h2 class="display-2" style="margin-bottom: var(--spacing-lg);">Your memory deserves an upgrade.</h2>
+    <a href="/auth" data-route class="btn btn-primary btn-large">Start Free</a>
+  </section>
+
+  <!-- Feedback Section -->
+  <section class="section feedback-section">
+    <div class="container">
+      <div class="feedback-card">
+        <h2 class="display-3">Building ME Together</h2>
+        <p class="body-large feedback-description">
+          Your feedback directly shapes what we build next. Tell us what's working, what's missing, and what would make ME indispensable for you.
+        </p>
+        <button class="btn btn-primary early-access-trigger" data-location="Feedback">Share Feedback</button>
+      </div>
+    </div>
+  </section>
+  <!-- Free Tools -->
+  <section id="free-tools" class="section container">
+    <div class="text-center" style="margin-bottom: var(--spacing-2xl);">
+      <h2 class="display-3">Free Tools</h2>
+      <p class="body-large" style="color: var(--text-secondary); max-width: 600px; margin: var(--spacing-sm) auto 0;">
+        Simple tools built around the philosophy of ME.<br>
+        Capture thoughts, ideas, and useful information instantly — no account required.
+      </p>
+    </div>
+    <div style="display: grid; gap: var(--spacing-lg); max-width: 800px; margin: 0 auto; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));">
+      <!-- Quick Dump -->
+      <div class="feature-card" style="display: flex; flex-direction: column; align-items: flex-start; text-align: left; padding: var(--spacing-2xl);">
+        <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: var(--spacing-md);">
+          <h3 class="heading-1" style="margin: 0; font-size: 1.5rem;">Quick Dump</h3>
+          <span style="background: var(--bg-tertiary); color: var(--text-secondary); padding: 4px 10px; border-radius: 100px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em; border: 1px solid rgba(0,0,0,0.05);">FREE</span>
+        </div>
+        <p class="body-base" style="color: var(--text-secondary); margin-bottom: var(--spacing-xl); line-height: 1.6; flex: 1;">
+          Got something on your mind?<br>
+          Dump it instantly.<br>
+          No account required.
+        </p>
+        <a href="/dump" data-route class="btn btn-primary" style="width: 100%; justify-content: center; height: 48px;">Try Quick Dump &rarr;</a>
+      </div>
+      
+      <!-- Save Link -->
+      <div class="feature-card" style="display: flex; flex-direction: column; align-items: flex-start; text-align: left; padding: var(--spacing-2xl);">
+        <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; margin-bottom: var(--spacing-md);">
+          <h3 class="heading-1" style="margin: 0; font-size: 1.5rem;">Save Link</h3>
+          <span style="background: var(--bg-tertiary); color: var(--text-secondary); padding: 4px 10px; border-radius: 100px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em; border: 1px solid rgba(0,0,0,0.05);">FREE</span>
+        </div>
+        <p class="body-base" style="color: var(--text-secondary); margin-bottom: var(--spacing-xl); line-height: 1.6; flex: 1;">
+          Paste any link and let ME read, summarize, and categorize it automatically.<br>
+          See the intelligence in action.
+        </p>
+        <a href="/save-link" data-route class="btn btn-primary" style="width: 100%; justify-content: center; height: 48px;">Try Save Link &rarr;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Android Developer Preview Download Section -->
+  <section id="android-download" class="section container" style="padding-bottom: 0;">
+    <div style="max-width: 760px; margin: 0 auto;">
+      <div class="early-access-card" style="background: var(--bg-inverse); border-color: rgba(255,255,255,0.08); text-align: center;">
+        <span class="early-access-badge" style="background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.7); border-color: rgba(255,255,255,0.12);">🤖 Developer Preview · v<span data-apk-version-label>1.0.0</span></span>
+        <h2 class="display-3" style="margin-top: var(--spacing-md); margin-bottom: var(--spacing-sm); color: #FFFFFF;">ME for Android</h2>
+        <p class="body-large" style="color: rgba(255,255,255,0.6); max-width: 500px; margin: 0 auto var(--spacing-2xl);">
+          The first public release of ME as a native Android application.<br>
+          Install directly on your device or join via Google Play Early Access.
+        </p>
+        <div style="display: flex; justify-content: center; flex-direction: column; align-items: center; gap: var(--spacing-sm);">
+          <a id="landing-download-apk-btn" href="#" class="btn btn-primary" style="background: #FFFFFF; color: #121212; height: 52px; padding: 0 var(--spacing-2xl); font-weight: 600;">
+            ↓ Download APK &nbsp;·&nbsp; v<span data-apk-version-label>1.0.0</span>
+          </a>
+          <p id="landing-android-hint" class="body-small hidden" style="color: rgba(255,255,255,0.5); margin-top: var(--spacing-xs);">
+            Visiting from desktop or iOS? Clicking above opens the Android download page.
+          </p>
+        </div>
+        <p class="body-small" style="color: rgba(255,255,255,0.35); margin-top: var(--spacing-xl);">Android 5.1+ · Sideload APK · Free forever during Developer Preview</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+      <div class="nav-brand" style="justify-content: center; margin-bottom: var(--spacing-md);">
+        <div class="nav-logo" aria-hidden="true"><span>ME</span></div>
+        <span class="nav-wordmark">ME</span>
+      </div>
+      <p class="body-small" style="margin-bottom: var(--spacing-md);">© 2026 ME Memory Systems. All rights reserved.</p>
+      <a href="https://maidensail.com/startup/me" rel="dofollow" class="maidensail-badge-link">
+        <img src="https://maidensail.com/badge/me.svg" alt="Featured on Maidensail" height="36" style="display: block;">
+      </a>
+    </div>
+  </footer>
+</div>
+
+<!-- ============================================================
+     SCREEN: Download Page (/download)
+     ============================================================ -->
+<div id="download-screen" class="download-screen hidden">
+  <nav class="nav" role="navigation" aria-label="Download page navigation">
+    <div class="nav-inner">
+      <a href="/" data-route class="nav-brand" style="text-decoration: none; color: var(--text-primary);">
+        <div class="nav-logo" aria-hidden="true"><span>ME</span></div>
+        <span class="nav-wordmark">ME</span>
+      </a>
+      <div class="nav-actions">
+        <a href="/" data-route class="btn btn-outline btn-small">← Back</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="download-hero container">
+    <span class="download-badge">🤖 Developer Preview</span>
+    <h1 class="display-2" style="margin-bottom: var(--spacing-sm);">ME for Android</h1>
+    <p class="body-large" style="color: var(--text-secondary); max-width: 520px; margin: 0 auto;">
+      The first public release of ME.<br>
+      Your AI-powered personal memory system, now native on Android.
+    </p>
+  </div>
+
+  <div class="container" style="padding-bottom: var(--spacing-4xl);">
+    <!-- Download Card -->
+    <div class="download-card">
+      <div class="download-card-header">
+        <div class="download-platform-icon" aria-hidden="true">🤖</div>
+        <div>
+          <div style="font-weight: 700; font-size: 1.1rem; color: var(--text-primary);">ME — Your AI Memory</div>
+          <div style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 2px;" id="dl-channel">Android Developer Preview</div>
+        </div>
+      </div>
+
+      <div class="download-meta-row"><span>Version</span><strong id="dl-version">1.0.0</strong></div>
+      <div class="download-meta-row"><span>Build</span><strong id="dl-build">1</strong></div>
+      <div class="download-meta-row"><span>Package</span><strong id="dl-package">com.me.memory.app</strong></div>
+      <div class="download-meta-row"><span>Minimum Android</span><strong id="dl-min-android">Android 5.1 (API 22)</strong></div>
+      <div class="download-meta-row"><span>Release Date</span><strong id="dl-released">August 2026</strong></div>
+      <div class="download-meta-row"><span>APK Size</span><strong id="dl-size">4.43 MB</strong></div>
+
+      <a href="#" id="download-apk-btn" class="download-primary-btn" aria-label="Download ME APK for Android" data-state="idle">
+        ↓ Download APK &nbsp;·&nbsp; v<span data-apk-version-label>1.0.0</span>
+      </a>
+
+      <!-- Post-download confirmation banner -->
+      <div id="download-confirmation" class="download-confirmation hidden">
+        <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 4px;">🎉 Your download has started!</div>
+        <div style="font-size: 0.875rem; color: var(--text-secondary);">
+          Check your browser downloads. Having trouble? <a href="#" id="download-retry-link" style="color: var(--accent); font-weight: 500;">Download again</a>
+        </div>
+      </div>
+
+      <div style="margin-top: var(--spacing-md);">
+        <a id="download-feedback-link" href="#" target="_blank" rel="noopener noreferrer" class="download-release-notes-link" data-feedback-link>💬 Send Feedback →</a>
+      </div>
+
+      <div class="download-install-steps">
+        <h3>Installation Instructions</h3>
+        <ol>
+          <li>Download the APK file to your Android device</li>
+          <li>Go to Settings → Security → Enable "Install unknown apps" for your browser or Files app</li>
+          <li>Open the downloaded APK file and tap Install</li>
+          <li>Launch ME and sign in with your Google account</li>
+        </ol>
+      </div>
+
+      <div style="margin-top: var(--spacing-lg);">
+        <div style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 4px;">SHA-256 Checksum (APK)</div>
+        <div class="download-sha-box" id="dl-sha256">bf867fde21c18063ed7c57d982298b9bab3e6effd572fa94940a0f9efd4ab7dd</div>
+      </div>
+    </div>
+
+    <!-- Known Issues -->
+    <div class="download-known-issues">
+      <h2>Known Issues</h2>
+      <div class="download-issue-item">
+        <span class="download-issue-tag">Minor</span>
+        <span>Google Sign-In may require tapping twice on first launch on some devices</span>
+      </div>
+      <div class="download-issue-item">
+        <span class="download-issue-tag">Minor</span>
+        <span>Keyboard occasionally overlaps the capture input on older Android versions</span>
+      </div>
+    </div>
+
+    <!-- Release History -->
+    <div class="download-known-issues" style="margin-top: var(--spacing-xl);">
+      <h2>Release History</h2>
+      <div id="download-history-list">
+        <!-- Rendered dynamically by download.js from manifest.json -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 1: Authentication Modal (Frictionless)
+     ============================================================ -->
+<div id="auth-screen" class="auth-screen hidden">
+  <a href="/" data-route class="auth-back-btn" style="position: absolute; top: var(--spacing-2xl); left: var(--spacing-2xl); color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 0.9375rem; transition: color var(--transition-base);">&larr; Back to Home</a>
+  
+  <div class="auth-card" style="text-align: center;">
+    <div class="nav-logo" style="margin: 0 auto 24px; width: 64px; height: 64px; font-size: 28px;" aria-hidden="true"><span>ME</span></div>
+    <h2 class="display-3" style="margin-bottom: var(--spacing-sm);">Welcome to ME</h2>
+    <p class="body-base" style="margin-bottom: var(--spacing-2xl); color: var(--text-secondary);">Continue with Google to start building your external memory.</p>
+    
+    <div class="auth-error" id="auth-error" role="alert"></div>
+
+    <div id="google-btn-container" class="google-btn-container" style="min-height: 44px; display: flex; justify-content: center; margin-bottom: var(--spacing-lg);"></div>
+    
+    <p class="body-small" style="color: var(--text-secondary);">Your memories are private, encrypted, and only accessible by you.</p>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 2: Quick Dump Screen
+     ============================================================ -->
+<div id="dump-screen" class="dump-screen hidden">
+  <div class="dump-container">
+    
+    <!-- Dump Input State -->
+    <div id="dump-input-view" class="dump-view">
+      <div class="dump-hero text-center">
+        <div class="nav-logo dump-logo" aria-hidden="true" tabindex="0" role="button" onclick="window.location.href='/'" onkeydown="if(event.key==='Enter')window.location.href='/'"><span>ME</span></div>
+        <h1 class="display-3 dump-title">Quick Dump</h1>
+        <p class="body-large dump-subtitle">
+          Unload whatever is on your mind.<br>
+          Ideas, reminders, links or random thoughts.<br>
+          No organization required.
+        </p>
+      </div>
+
+      <div class="dump-input-container">
+        <textarea id="dump-textarea" class="dump-textarea" placeholder="Start typing...&#10;&#10;Nothing is too small.&#10;&#10;An idea.&#10;A reminder.&#10;A problem.&#10;A link.&#10;&#10;Just get it out of your head." aria-label="Quick dump text input"></textarea>
+        <div id="dump-char-count" class="dump-char-count">0 characters</div>
+      </div>
+
+      <div class="dump-actions text-center">
+        <button id="dump-action-btn" class="btn btn-primary dump-btn" disabled>Dump</button>
+      </div>
+      
+      <p class="body-small dump-trust-text text-center">
+        🔒 Nothing is stored unless you choose to remember it.
+      </p>
+    </div>
+
+    <!-- Dump Confirmation State -->
+    <div id="dump-confirmation-view" class="dump-view hidden text-center">
+      <div class="dump-success-icon" aria-hidden="true">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #38A169;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+      </div>
+      <h2 class="display-2 dump-confirm-title">Nice.</h2>
+      <p class="body-large dump-confirm-subtitle">
+        Most ideas disappear in minutes.<br><br>
+        Don't let this one.
+      </p>
+      <div class="dump-confirm-actions">
+        <button id="dump-save-me-btn" class="btn btn-primary dump-save-btn">Save this forever</button>
+        <span style="font-size: 0.875rem; color: var(--text-secondary); margin-top: var(--spacing-xs);">Continue with ME</span>
+        <button id="dump-start-over-btn" class="btn btn-outline dump-start-over-btn" style="border:none; color: var(--text-secondary); margin-top: var(--spacing-md);">Start over</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 2.5: Save Link Screen (Public Tool)
+     ============================================================ -->
+<div id="save-link-screen" class="save-link-screen hidden">
+  <div class="save-link-container container text-center" style="max-width: 600px; padding: var(--spacing-4xl) var(--spacing-md); margin: 0 auto;">
+    
+    <div class="save-link-hero" style="margin-bottom: var(--spacing-3xl);">
+      <div class="nav-logo dump-logo" aria-hidden="true" tabindex="0" role="button" onclick="window.location.href='/'" style="margin-bottom: var(--spacing-lg);"><span>ME</span></div>
+      <h1 class="display-3">Save Link</h1>
+      <p class="body-large" style="color: var(--text-secondary); margin-top: var(--spacing-sm);">
+        Never lose a useful link again.<br>
+        Paste any article, video, repository or webpage.<br>
+        We'll understand it for you.
+      </p>
+    </div>
+
+    <!-- Example Links -->
+    <div id="save-link-examples" style="margin-bottom: var(--spacing-2xl); display: flex; gap: var(--spacing-sm); justify-content: center; flex-wrap: wrap;">
+      <button class="btn btn-outline btn-small save-link-example-btn" data-url="https://github.com/openai/openai-python" aria-label="Try with a GitHub Repository example">🐙 GitHub Repository</button>
+      <button class="btn btn-outline btn-small save-link-example-btn" data-url="https://www.youtube.com/watch?v=M576WJCfCNE" aria-label="Try with a YouTube Video example">📺 YouTube Video</button>
+      <button class="btn btn-outline btn-small save-link-example-btn" data-url="https://lilianweng.github.io/posts/2023-06-23-agent/" aria-label="Try with a Blog Article example">📝 Blog Article</button>
+    </div>
+
+    <!-- URL Input -->
+    <div class="save-link-input-container" style="margin-bottom: var(--spacing-xl);">
+      <input type="url" id="save-link-input" class="capture-textarea" style="height: 60px; min-height: 60px; font-size: 1.125rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 20px;" placeholder="https://..." required>
+    </div>
+
+    <div class="save-link-actions" style="margin-bottom: var(--spacing-4xl);">
+      <button id="save-link-analyze-btn" class="btn btn-primary btn-large" style="width: 100%;" disabled>Analyze Link</button>
+    </div>
+
+    <!-- Loading State -->
+    <div id="save-link-loading" class="hidden" style="text-align: left; background: var(--bg-secondary); padding: var(--spacing-xl); border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: var(--spacing-3xl);">
+      <h3 class="heading-2" style="margin-bottom: var(--spacing-lg);">Understanding your link...</h3>
+      <ul style="list-style: none; padding: 0; margin: 0; color: var(--text-secondary);" id="save-link-progress-list" aria-live="polite" aria-label="Analysis progress">
+        <li style="margin-bottom: var(--spacing-sm);" id="progress-detecting" aria-label="Step 1: Detecting Platform">⏳ Detecting Platform</li>
+        <li style="margin-bottom: var(--spacing-sm); opacity: 0.5;" id="progress-reading" aria-label="Step 2: Extracting Metadata">⏳ Extracting Metadata</li>
+        <li style="margin-bottom: var(--spacing-sm); opacity: 0.5;" id="progress-understanding" aria-label="Step 3: Generating Summary">⏳ Generating Summary</li>
+        <li style="opacity: 0.5;" id="progress-preparing" aria-label="Step 4: Preparing Preview">⏳ Preparing Preview</li>
+      </ul>
+    </div>
+
+    <!-- Rich Preview Result -->
+    <div id="save-link-result" class="hidden text-left" style="animation: fadeIn 0.5s ease;">
+      <div style="text-align: center; margin-bottom: var(--spacing-xl);">
+        <h2 class="display-3">✨ Your link is ready.</h2>
+        <p class="body-base" style="color: var(--text-secondary); margin-top: var(--spacing-xs);">We extracted the platform, summary, tags, and metadata.</p>
+      </div>
+
+      <!-- Preview Card -->
+      <div class="memory-card" style="margin-bottom: var(--spacing-2xl); pointer-events: none;">
+        <div class="memory-card-header">
+          <span class="memory-card-type-badge" id="preview-platform-badge">🌐 Website</span>
+        </div>
+        <div id="preview-thumbnail-container" class="hidden" style="margin-top: 12px;">
+          <img id="preview-thumbnail" src="" style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px;">
+        </div>
+        <div class="memory-card-body" style="margin-top: 12px;">
+          <h3 class="memory-card-title" id="preview-title"></h3>
+          <p class="memory-card-content" id="preview-summary" style="margin-top: 8px; color: var(--text-secondary);"></p>
+        </div>
+        <div id="preview-tags" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px;"></div>
+        <div class="memory-card-footer" style="margin-top: 12px; justify-content: space-between;">
+          <span class="memory-card-date" id="preview-site-name"></span>
+          <a href="#" id="preview-original-link" target="_blank" rel="noopener noreferrer" style="font-size: 0.85rem; color: var(--accent-primary); text-decoration: none; pointer-events: auto;">Open Original Link &rarr;</a>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div style="text-align: center;">
+        <button id="save-link-forever-btn" class="btn btn-primary btn-large" style="width: 100%; margin-bottom: var(--spacing-md);">Save this forever</button>
+        <button id="save-link-another-btn" class="btn btn-outline" style="width: 100%; border: none;">Analyze another link</button>
+        <p class="body-small" style="color: var(--text-secondary); margin-top: var(--spacing-lg);">Create a free ME account to remember this forever.</p>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+<!-- ============================================================
+     SCREEN 3: Main Application
+     ============================================================ -->
+<div id="app-screen" class="app-screen hidden">
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <div class="nav-brand">
+        <div class="nav-logo" aria-hidden="true"><span>ME</span></div>
+        <span class="nav-wordmark">ME</span>
+      </div>
+      <div class="nav-actions">
+        <button class="nav-feedback-btn" id="feedback-btn" aria-label="Send feedback">Feedback</button>
+        <button class="nav-btn-icon" id="refresh-btn" title="Refresh" aria-label="Refresh timeline">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 4v6h-6"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        </button>
+        <button class="nav-btn-icon" id="about-btn" title="About ME" aria-label="About ME" aria-haspopup="dialog">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </button>
+        <button class="nav-btn-icon danger" id="logout-btn" title="Sign out" aria-label="Sign out">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container app-main" id="app-main" role="main">
+    
+    <!-- Ask ME Zone -->
+    <section aria-label="Ask ME" class="ask-me-zone" id="ask-me-zone">
+      <h2 class="ask-me-title">Ask ME</h2>
+      <p class="ask-me-subtitle">Query your memories conversationally.</p>
+      
+      <div class="ask-input-group">
+        <input type="text" id="ask-input" class="ask-input" placeholder="Summarize yesterday's research...">
+        <button class="btn btn-primary" id="ask-btn">Ask ME →</button>
+      </div>
+      
+      <div id="ask-response-container" class="demo-container ask-response-container hidden">
+        <div id="ask-loading" class="hidden">
+          <div class="skeleton skeleton-title"></div>
+          <div class="skeleton skeleton-text"></div>
+          <div class="skeleton skeleton-text medium"></div>
+        </div>
+        
+        <div id="ask-answer-content" class="hidden">
+          <div id="ask-answer-text" class="body-large"></div>
+          
+          <div id="ask-sources-header" class="ask-sources-header">
+            <h3 class="heading-2">Referenced Memories (<span id="ask-sources-count"></span>)</h3>
+          </div>
+          <div id="ask-sources-grid" class="ask-sources-grid"></div>
+          
+          <button class="btn btn-outline" id="ask-clear-btn">Clear Answer</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Fast Capture Zone -->
+    <section aria-label="Fast Capture">
+      <div class="capture-zone" id="capture-zone">
+        <textarea
+          id="capture-input"
+          class="capture-textarea"
+          placeholder="Paste a thought, drop a link, or capture an idea..."
+          aria-label="Capture your thought"
+        ></textarea>
+        <input
+          type="text"
+          id="link-title-input"
+          class="capture-link-title hidden"
+          placeholder="Link Title (optional)"
+        />
+        <div class="capture-footer">
+          <div class="capture-footer-left">
+            <span class="label" id="char-count">0 / 5,000</span>
+            <button type="button" id="capture-pin-btn" class="pin-toggle-btn" aria-pressed="false" title="Pin memory to top of timeline">
+              <span class="pin-icon" aria-hidden="true">📌</span>
+              <span class="pin-btn-text">Pin memory</span>
+            </button>
+          </div>
+          <button class="btn btn-primary" id="capture-btn" disabled>Capture</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Search Results / Recent Memories Timeline -->
+    <section aria-label="Search results" id="search-results-section" class="search-results-section hidden">
+      <div class="section-header search-results-header">
+        <h2 class="heading-1">Search Results</h2>
+        <button class="btn btn-outline" id="clear-search-btn">Clear Search</button>
+      </div>
+      <div id="search-results-feed" role="feed"></div>
+    </section>
+
+    <!-- Pinned Memories Section -->
+    <section aria-label="Pinned Memories" id="pinned-captures-section" class="pinned-captures-section hidden">
+      <div class="section-header pinned-section-header">
+        <h2 class="heading-1">Pinned</h2>
+        <span id="pinned-feed-count" class="pinned-count-text">0 of 5 pinned</span>
+      </div>
+
+      <div id="pinned-memory-feed" class="memory-feed" role="feed" aria-label="Pinned memories"></div>
+
+      <div class="pinned-empty-state hidden" id="pinned-empty-state">
+        <h3 class="pinned-empty-title">Pinned</h3>
+        <p class="pinned-empty-desc">Pin important memories to keep them at the top.</p>
+      </div>
+    </section>
+
+    <section aria-label="Recent Memories" id="recent-captures-section" class="recent-captures-section">
+      <div class="section-header">
+        <h2 class="heading-1">Recent Memories</h2>
+        <span id="feed-count" class="count-badge" aria-label="Memory count">0</span>
+      </div>
+
+      <div id="memory-feed" role="feed" aria-label="Memory timeline"></div>
+
+      <div class="hidden" id="empty-state">
+        <div class="empty-state-emoji">✨</div>
+        <h3 class="heading-1">Your memory is clear</h3>
+        <p class="body-base">Start by capturing your first thought above.</p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Modals -->
+<div id="paywall-modal" class="modal-overlay hidden">
+  <div class="modal-card">
+    <h2 class="display-3 paywall-title">Unlock ME Pro</h2>
+    <ul class="pricing-list paywall-list">
+      <li>Unlimited everything</li>
+      <li>PDF support</li>
+      <li>Voice capture</li>
+    </ul>
+    <button class="btn btn-primary btn-large paywall-upgrade-btn">Upgrade to Pro</button>
+    <button class="btn btn-outline paywall-continue-btn" onclick="document.getElementById('paywall-modal').classList.add('hidden')">Continue with Free</button>
+  </div>
+</div>
+<!-- Memory Detail Slide-Over Drawer -->
+<div id="memory-drawer-backdrop" class="drawer-backdrop hidden"></div>
+<aside id="memory-detail-drawer" class="memory-drawer hidden" aria-label="Memory details" role="dialog" aria-modal="true">
+  <div class="drawer-header">
+    <div class="drawer-meta-wrap">
+      <span id="drawer-type-badge" class="memory-card-type-badge">📝 Note</span>
+      <span id="drawer-date" class="drawer-date"></span>
+    </div>
+    <div style="display: flex; align-items: center;">
+      <button id="drawer-header-share-btn" class="nav-btn-icon" title="Share" aria-label="Share memory" style="margin-right: 8px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      </button>
+      <button id="drawer-close-btn" class="drawer-close-btn" aria-label="Close detail view">&times;</button>
+    </div>
+  </div>
+
+  <div class="drawer-body">
+    <h2 id="drawer-title" class="display-3 drawer-title"></h2>
+    
+    <div id="drawer-thumbnail-container" class="drawer-section hidden" style="text-align: center; margin-bottom: 1rem;">
+      <img id="drawer-thumbnail-image" src="" alt="Thumbnail" style="max-width: 100%; border-radius: 8px; object-fit: cover; max-height: 200px;">
+    </div>
+    
+    <div id="drawer-summary-container" class="drawer-section hidden">
+      <h4 class="drawer-section-label">Summary</h4>
+      <p id="drawer-summary-text" class="body-base drawer-summary-text"></p>
+    </div>
+
+    <div id="drawer-tags-container" class="drawer-section hidden">
+      <h4 class="drawer-section-label">Tags</h4>
+      <div id="drawer-tags-grid" class="drawer-tags-grid" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+    </div>
+
+    <div id="drawer-metadata-container" class="drawer-section hidden">
+      <h4 class="drawer-section-label">Metadata</h4>
+      <ul id="drawer-metadata-list" class="drawer-metadata-list body-small" style="list-style: none; padding: 0; color: var(--text-secondary);"></ul>
+    </div>
+
+    <div class="drawer-section drawer-section-content">
+      <h4 class="drawer-section-label">Content</h4>
+      <div id="drawer-content-text" class="body-base drawer-content-text"></div>
+    </div>
+
+    <div id="drawer-link-container" class="drawer-section drawer-section-link hidden">
+      <h4 class="drawer-section-label">Source Link</h4>
+      <a id="drawer-link-url" href="#" target="_blank" rel="noopener noreferrer" class="memory-card-link-url"></a>
+    </div>
+
+    <div id="drawer-related-container" class="drawer-section drawer-related-container hidden">
+      <h4 class="drawer-section-label">Related Memories</h4>
+      <div id="drawer-related-grid" class="drawer-related-grid"></div>
+    </div>
+  </div>
+
+  <div class="drawer-footer">
+    <div class="drawer-footer-row">
+      <button id="drawer-copy-btn" class="btn btn-outline drawer-btn-half">Copy Content</button>
+      <button id="drawer-edit-btn" class="btn btn-outline drawer-btn-half">Edit Title</button>
+    </div>
+    <div class="drawer-footer-row" style="margin-top: 8px;">
+      <button id="drawer-share-btn" class="btn btn-outline drawer-btn-full" style="width: 100%;">🔗 Share</button>
+    </div>
+    <div class="drawer-footer-row" style="margin-top: 8px;">
+      <button id="drawer-pin-btn" class="btn btn-outline drawer-btn-full" style="width: 100%;">📌 Pin Memory</button>
+    </div>
+    <button id="drawer-delete-btn" class="btn btn-outline drawer-delete-btn" style="margin-top: 8px;">Delete Memory</button>
+  </div>
+</aside>
+
+<!-- Share Memory Modal / Bottom Sheet -->
+<div id="share-modal" class="modal-overlay hidden">
+  <div class="share-modal-card" role="dialog" aria-modal="true" aria-labelledby="share-modal-title">
+    <div class="share-modal-header" style="display: flex; justify-content: space-between; align-items: center;">
+      <h3 id="share-modal-title" class="heading-1" style="margin: 0;">Share Memory</h3>
+      <button id="share-modal-close-btn" class="drawer-close-btn" aria-label="Close share modal">&times;</button>
+    </div>
+    <p class="body-small text-secondary" style="margin-top: 6px; margin-bottom: 20px;">
+      Share this memory without exposing your personal library. Anyone with this link can view only this memory.
+    </p>
+
+    <!-- State A: Unshared -->
+    <div id="share-unshared-state" class="share-state-view">
+      <div class="share-option-box" style="background: var(--bg-tertiary, #F4F1EC); padding: 12px 16px; border-radius: 8px;">
+        <label class="share-option-label" style="display: flex; align-items: center; cursor: pointer; font-size: 14px;">
+          <input type="checkbox" checked disabled style="margin-right: 8px; accent-color: var(--text-primary, #000);">
+          <span>Anyone with the link can view</span>
+        </label>
+      </div>
+      <button id="create-share-link-btn" class="btn btn-primary btn-large" style="width: 100%; margin-top: 16px;">
+        Create Share Link
+      </button>
+    </div>
+
+    <!-- State B: Shared -->
+    <div id="share-shared-state" class="share-state-view hidden">
+      <div class="share-url-container" style="display: flex; gap: 8px; margin-bottom: 12px;">
+        <input type="text" id="share-url-input" readonly class="share-url-input" value="" style="flex: 1; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border-color, #E5E5E5); font-size: 13px; font-family: monospace; background: var(--bg-tertiary, #F9F8F6);">
+        <button id="copy-share-link-btn" class="btn btn-primary" style="white-space: nowrap;">Copy Link</button>
+      </div>
+      
+      <div class="share-actions-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+        <button id="native-share-btn" class="btn btn-outline" style="display: none;">Share…</button>
+        <button id="copy-markdown-btn" class="btn btn-outline">Copy as Markdown</button>
+        <button id="regenerate-share-link-btn" class="btn btn-outline" style="grid-column: span 2;">Regenerate Link</button>
+      </div>
+
+      <!-- Destructive Danger Zone visually separated -->
+      <div style="margin-top: 20px; border-top: 1px solid var(--border-color, #E5E5E5); padding-top: 16px;">
+        <button id="revoke-share-link-btn" class="btn btn-outline drawer-delete-btn" style="width: 100%;">Revoke Access</button>
+      </div>
+    </div>
+
+    <div style="margin-top: 16px; font-size: 12px; color: var(--text-secondary); text-align: center; line-height: 1.4;">
+      🔒 This shares only this memory. Your personal library always remains private.
+    </div>
+  </div>
+</div>
+
+<!-- Universal Quick Capture Screen (/quick-capture) -->
+<div id="quick-capture-screen" class="quick-capture-screen hidden" aria-labelledby="quick-capture-title" role="dialog" aria-modal="true">
+  <div class="quick-capture-card">
+    <header class="quick-capture-header">
+      <h2 id="quick-capture-title" class="display-3" style="margin: 0;">Save to ME</h2>
+      <button id="quick-capture-close-btn" class="drawer-close-btn" aria-label="Cancel capture">&times;</button>
+    </header>
+
+    <!-- State 1: Active Capture Form -->
+    <div id="quick-capture-form-view">
+      <!-- Preview Box -->
+      <div id="quick-capture-preview-box" class="quick-capture-preview-box">
+        <!-- Skeleton state -->
+        <div id="quick-capture-skeleton" class="skeleton-wrapper hidden">
+          <div class="skeleton skeleton-title" style="height: 18px; width: 70%; margin-bottom: 8px;"></div>
+          <div class="skeleton skeleton-text" style="height: 14px; width: 90%;"></div>
+        </div>
+
+        <!-- Content Preview -->
+        <div id="quick-capture-preview-content">
+          <div id="quick-capture-thumb-box" class="quick-capture-thumb-box hidden">
+            <img id="quick-capture-thumb-img" src="" alt="Preview thumbnail">
+          </div>
+          <div class="quick-capture-meta">
+            <h4 id="quick-capture-title-text" class="quick-capture-title-text"></h4>
+            <div id="quick-capture-domain-text" class="quick-capture-domain-text"></div>
+            <p id="quick-capture-body-text" class="quick-capture-body-text"></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls & Pin Toggle Pill -->
+      <div class="quick-capture-controls">
+        <button id="quick-capture-pin-btn" type="button" class="pin-toggle-pill" aria-pressed="false">
+          📌 Pin
+        </button>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="quick-capture-actions">
+        <button id="quick-capture-submit-btn" class="btn btn-primary btn-large" style="flex: 1;">Save to ME</button>
+        <button id="quick-capture-cancel-btn" class="btn btn-outline" style="width: auto;">Cancel</button>
+      </div>
+    </div>
+
+    <!-- State 2: Success View -->
+    <div id="quick-capture-success-view" class="quick-capture-status-view hidden">
+      <div class="status-icon success-icon">✓</div>
+      <h3 class="heading-1" style="margin-bottom: 6px;">Saved to ME</h3>
+      <p class="body-base text-secondary" style="margin-bottom: 24px;">Memory saved successfully.</p>
+      <div class="quick-capture-actions">
+        <button id="quick-capture-open-btn" class="btn btn-primary" style="flex: 1;">Open Memory</button>
+        <button id="quick-capture-done-btn" class="btn btn-outline" style="flex: 1;">Done</button>
+      </div>
+    </div>
+
+    <!-- State 3: Duplicate View -->
+    <div id="quick-capture-duplicate-view" class="quick-capture-status-view hidden">
+      <div class="status-icon duplicate-icon">💡</div>
+      <h3 class="heading-1" style="margin-bottom: 6px;">Already in ME</h3>
+      <p class="body-base text-secondary" style="margin-bottom: 24px;">You have already saved this link to your memory.</p>
+      <div class="quick-capture-actions">
+        <button id="quick-capture-open-dup-btn" class="btn btn-primary" style="flex: 1;">Open Memory</button>
+        <button id="quick-capture-done-dup-btn" class="btn btn-outline" style="flex: 1;">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Public Shared Memory Screen (/s/<token>) -->
+<div id="public-shared-screen" class="public-shared-screen hidden">
+  <header class="public-header" style="border-bottom: 1px solid var(--border-color, #E5E5E5); background: var(--bg-primary, #FAF8F5); padding: 16px 0;">
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+      <a href="/" data-route class="nav-brand" style="text-decoration: none; display: flex; align-items: center; gap: 8px;">
+        <div class="nav-logo" aria-hidden="true"><span>ME</span></div>
+        <span class="nav-wordmark">ME</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="container" style="max-width: 680px; padding-top: 40px; padding-bottom: 60px;">
+    <!-- Skeleton loader -->
+    <div id="public-skeleton" class="public-card" aria-hidden="true">
+      <div class="skeleton skeleton-title"></div>
+      <div class="skeleton skeleton-text medium" style="margin-top: 12px;"></div>
+      <div class="skeleton skeleton-text" style="margin-top: 8px;"></div>
+    </div>
+
+    <!-- Error / 404 state -->
+    <div id="public-error-container" class="public-card text-center hidden" style="padding: 48px 24px;">
+      <div style="font-size: 40px; margin-bottom: 12px;">🔒</div>
+      <h2 class="heading-1">Shared Memory Unavailable</h2>
+      <p class="body-base text-secondary" style="margin-top: 8px; line-height: 1.6;">
+        This shared memory is no longer available.<br>It may have been removed or the sharing link was revoked.
+      </p>
+      <div style="margin-top: 24px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+        <a href="/auth" data-route class="btn btn-primary">Continue with Google</a>
+        <a href="/" data-route class="btn btn-outline">Return to Home</a>
+      </div>
+    </div>
+
+    <!-- Shared Content state -->
+    <article id="public-content-container" class="public-card hidden">
+      <div class="public-memory-meta" style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+        <span id="public-memory-type-badge" class="memory-card-type-badge">📝 Note</span>
+        <time id="public-memory-date" class="public-date" style="font-size: 13px; color: var(--text-secondary);"></time>
+      </div>
+
+      <h1 id="public-memory-title" class="display-2 public-title" style="margin-bottom: 24px; word-break: break-word;"></h1>
+
+      <!-- AI Summary (First!) -->
+      <div id="public-summary-box" class="public-summary-box hidden" style="background: var(--bg-secondary, #F4F1EC); border-left: 3px solid var(--color-primary, #000); padding: 16px 20px; border-radius: 0 8px 8px 0; margin-bottom: 28px;">
+        <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 6px;">✨ AI Summary</div>
+        <p id="public-summary-text" class="body-large public-summary-text" style="margin: 0; line-height: 1.6;"></p>
+      </div>
+
+      <!-- Source Link if applicable -->
+      <div id="public-link-box" class="public-link-box hidden" style="margin-bottom: 24px;">
+        <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 6px;">Source Link</div>
+        <a id="public-source-link" href="#" target="_blank" rel="noopener noreferrer" class="memory-card-link-url" style="word-break: break-all;"></a>
+      </div>
+
+      <!-- Memory Content -->
+      <div class="public-content-section" style="margin-bottom: 40px;">
+        <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 8px;">Memory Content</div>
+        <div id="public-content-text" class="body-base public-content-text" style="white-space: pre-wrap; line-height: 1.7; font-size: 16px;"></div>
+      </div>
+
+      <!-- Shared with ME & Growth Loop CTA -->
+      <footer class="public-footer" style="border-top: 1px solid var(--border-color, #E5E5E5); padding-top: 32px; margin-top: 40px;">
+        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 24px;">
+          Shared with <strong style="color: var(--text-primary);">ME</strong>
+        </div>
+
+        <div class="public-cta-box" style="background: var(--bg-secondary, #F4F1EC); padding: 24px; border-radius: 12px; text-align: center;">
+          <h4 class="heading-2" style="margin-bottom: 6px;">Found this useful?</h4>
+          <p class="body-small text-secondary" style="margin-bottom: 16px;">Save ideas, links, and knowledge to your own personal ME memory system.</p>
+          <a href="/auth" data-route class="btn btn-primary" style="display: inline-block; padding: 10px 24px;">Continue with Google</a>
+        </div>
+      </footer>
+    </article>
+  </main>
+</div>
+
+<!-- Install Onboarding Modal -->
+<div id="install-onboarding-modal" class="modal-overlay hidden" style="z-index: 1000;">
+  <div class="install-onboarding-card" role="dialog" aria-modal="true" aria-labelledby="onboarding-title">
+    <h2 id="onboarding-title" class="display-3 onboarding-title">🎉 Welcome to ME</h2>
+    <p class="body-base onboarding-desc">Your AI memory is ready.<br><br>Install ME for instant access, faster loading, offline support, and a native app experience.</p>
+    <button id="onboarding-install-btn" class="btn btn-primary btn-large onboarding-primary-btn">Install ME</button>
+    <button id="onboarding-dismiss-btn" class="btn btn-outline onboarding-secondary-btn">Continue in Browser</button>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+<!-- About Panel -->
+<div id="about-panel" class="about-panel hidden" role="dialog" aria-modal="false" aria-label="About ME">
+  <button class="about-panel-close" id="about-panel-close" aria-label="Close about panel">&times;</button>
+  <div class="about-panel-title">Developer Preview</div>
+  <div class="about-panel-row"><span>Version</span><strong>1.0.0</strong></div>
+  <div class="about-panel-row"><span>Build</span><strong>1</strong></div>
+  <div class="about-panel-row"><span>Platform</span><strong id="about-platform">Web</strong></div>
+  <div class="about-panel-row"><span>Environment</span><strong>Production</strong></div>
+</div>
+
+<!-- Scripts -->
+<script type="module" src="/static/js/environment.js"></script>
+<script type="module" src="/static/js/network.js"></script>
+<script type="module" src="/static/js/startup.js"></script>
+<script type="module" src="/static/js/native.js"></script>
+<script type="module" src="/static/js/loading.js"></script>
+<script type="module" src="/static/js/toast.js"></script>
+<script type="module" src="/static/js/lifecycle.js"></script>
+<script type="module" src="/static/js/overlay-manager.js"></script>
+<script type="module" src="/static/js/capture-gateway.js"></script>
+<script type="module" src="/static/js/quick-capture-ui.js"></script>
+<script type="module" src="/static/js/config.js?v=3"></script>
+<script type="module" src="/static/js/google.js?v=3"></script>
+<script type="module" src="/static/js/dump.js?v=1"></script>
+<script type="module" src="/static/js/memory-prefill.js?v=1"></script>
+<script type="module" src="/static/js/app.js?v=5"></script>
+</body>
+</html>
