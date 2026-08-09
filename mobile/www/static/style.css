@@ -1,0 +1,19 @@
+
+
+/* Search */
+.nav-search {
+  margin-right: 16px;
+}
+.search-input {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: var(--surface-color);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  width: 250px;
+}
+.search-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}

@@ -10,6 +10,33 @@ venv/
 .env
 .supermemory/
 
+# Node / Mobile dependencies
+node_modules/
+mobile/node_modules/
+
+# Capacitor auto-generated files
+**/android/capacitor-cordova-android-plugins/
+**/android/app/src/main/assets/public/
+**/android/app/src/main/assets/capacitor.config.json
+**/android/app/src/main/assets/capacitor.plugins.json
+
+# Android build & cache
+.gradle/
+**/android/.gradle/
+**/android/build/
+**/android/app/build/
+**/android/app/release/
+**/android/.idea/
+**/android/local.properties
+**/android/captures/
+*.iml
+*.log
+
+# Android signing keys & credentials
+mobile/android/keystore.properties
+*.keystore
+*.jks
+
 # Django
 db.sqlite3
 staticfiles/
@@ -25,47 +52,11 @@ media/
 .DS_Store
 Thumbs.db
 
-#client
+# Client
 client_secret.json
 
-# ==========================
-# Mobile / Capacitor
-# ==========================
-
-# Node
-node_modules/
-mobile/node_modules/
-
-# Generated Capacitor Web Bundle
-mobile/www/
-
-# Android Build Outputs
-mobile/android/.gradle/
-mobile/android/build/
-mobile/android/app/release/
-mobile/android/app/build/
-mobile/android/app/src/main/assets/
-
-# Android Studio
-mobile/android/.idea/
-mobile/android/local.properties
-*.iml
-
-# Capacitor Generated Plugins
-mobile/android/capacitor-cordova-android-plugins/
-
-# Logs
-*.log
-
-# Android signing
-mobile/android/keystore.properties
-*.jks
-*.keystore
-
-# ==========================
-# Release Artifacts
-# ==========================
-# APK/AAB binaries are deployed directly to the VPS — not stored in git.
-# The downloads/ directory is tracked via .gitkeep; binaries are excluded.
+# Builds & Downloads
+downloads/
 downloads/*.apk
 downloads/*.aab
+
