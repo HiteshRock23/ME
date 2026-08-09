@@ -58,7 +58,8 @@ function setButtonState(btn, state, idleLabel) {
         [STATE.PREPARING]: 'Preparing download\u2026',
         [STATE.STARTED]:   '\u2713 Download started',
     };
-    btn.textContent = labels[state];
+    const iconHtml = '<img src="/static/icons/icon-192.png" alt="ME" style="width: 22px; height: 22px; border-radius: 5px; object-fit: cover; flex-shrink: 0; margin-right: 8px; vertical-align: middle;" />';
+    btn.innerHTML = iconHtml + '<span>' + labels[state] + '</span>';
     if (state === STATE.IDLE) {
         btn.removeAttribute('aria-disabled');
         btn.style.pointerEvents = '';

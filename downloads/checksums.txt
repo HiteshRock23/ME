@@ -1,5 +1,5 @@
 # SHA-256 Checksums for ME Android Release Artifacts
 # Generated: 2026-08-09
 
-618ceedd0914857ef2ebfc2306f02978d99603a6f3bafebffd78d55b9948d5a0  ME-1.0.0.apk
-618ceedd0914857ef2ebfc2306f02978d99603a6f3bafebffd78d55b9948d5a0  ME_1.0.0.apk
+7b44b560f66f93982258e0b7bec0bb0d68d0af1de5cd913672511ce5f896e45b  ME_1.0.0.apk
+7b44b560f66f93982258e0b7bec0bb0d68d0af1de5cd913672511ce5f896e45b  ME-1.0.0.apk
