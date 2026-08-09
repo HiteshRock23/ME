@@ -1787,6 +1787,24 @@ body.overlay-open {
     overscroll-behavior: contain;
 }
 
+.drawer-section-content {
+    margin-bottom: var(--spacing-md);
+}
+
+.drawer-content-text {
+    min-height: 180px;
+    max-height: 55vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: var(--spacing-md);
+    background: var(--bg-primary);
+    border: var(--border-subtle);
+    border-radius: var(--radius-md);
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
 .drawer-footer {
     flex-shrink: 0;
     padding: var(--spacing-md) var(--spacing-xl);
