@@ -594,10 +594,17 @@ export const ui = {
         const initialLen = textarea.value.length;
         textarea.setSelectionRange(initialLen, initialLen);
 
-        // Auto-grow textarea
+        // Auto-grow textarea with inner scrolling for long content
         const autoGrow = () => {
             textarea.style.height = 'auto';
-            textarea.style.height = Math.min(textarea.scrollHeight, window.innerHeight * 0.6) + 'px';
+            const maxHeight = Math.min(380, Math.floor(window.innerHeight * 0.45));
+            if (textarea.scrollHeight > maxHeight) {
+                textarea.style.height = maxHeight + 'px';
+                textarea.style.overflowY = 'auto';
+            } else {
+                textarea.style.height = Math.max(180, textarea.scrollHeight) + 'px';
+                textarea.style.overflowY = 'hidden';
+            }
         };
         autoGrow();
 

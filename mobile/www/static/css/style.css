@@ -1317,6 +1317,7 @@ ul { list-style: none; }
 .note-editor-textarea {
     width: 100%;
     min-height: 180px;
+    max-height: 45vh;
     border: none;
     outline: none;
     resize: none;
@@ -1327,7 +1328,9 @@ ul { list-style: none; }
     color: var(--text-primary);
     padding: 0;
     margin: 0;
-    overflow-y: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
 }
 
 .note-editor-meta {
@@ -1792,17 +1795,8 @@ body.overlay-open {
 }
 
 .drawer-content-text {
-    min-height: 180px;
-    max-height: 55vh;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-    padding: var(--spacing-md);
-    background: var(--bg-primary);
-    border: var(--border-subtle);
-    border-radius: var(--radius-md);
-    white-space: pre-wrap;
-    word-break: break-word;
+    background: transparent;
+    padding: 0;
 }
 
 .drawer-footer {
