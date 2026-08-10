@@ -1,7 +1,7 @@
 {
-  "version": "1.0.0",
-  "build": 1786385866,
-  "git_commit": "ffd639e",
-  "built_at": "2026-08-10T18:17:46.110Z",
+  "version": "1.0.1",
+  "build": 1786386967,
+  "git_commit": "6804ec3",
+  "built_at": "2026-08-10T18:36:07.131Z",
   "environment": "production"
 }

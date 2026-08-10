@@ -1,6 +1,6 @@
 {
   "name": "me-mobile-shell",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Native Android shell for ME — Your AI Memory powered by Capacitor",
   "private": true,
   "scripts": {

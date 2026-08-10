@@ -277,7 +277,7 @@ function trackDownloadPageView(version) {
 
 export function initDownload() {
     var apkUrl  = window.CONFIG && window.CONFIG.LATEST_ANDROID_APK_URL;
-    var version = '1.0.0'; // fallback until manifest loads
+    var version = '1.0.1'; // fallback until manifest loads
 
     wireFeedbackLinks();
     adaptLandingCTA(apkUrl, version);
