@@ -1,18 +1,19 @@
 {
   "latest": {
-    "version": "1.0.0",
-    "build": 1,
+    "version": "1.0.1",
+    "build": 2,
     "channel": "developer-preview",
-    "apk_filename": "ME_1.0.0.apk",
-    "apk_url": "/downloads/ME_1.0.0.apk",
-    "size_bytes": 4589746,
+    "apk_filename": "ME-1.0.1.apk",
+    "apk_url": "/downloads/ME-1.0.1.apk",
+    "size_bytes": 4594847,
     "size_display": "4.38 MB",
-    "sha256": "7b44b560f66f93982258e0b7bec0bb0d68d0af1de5cd913672511ce5f896e45b",
+    "sha256": "d1203a17620fbd11795b1b4811d445689ef237fc87ac93fbc26001c8b410466f",
     "min_android": "5.1",
     "min_sdk": 22,
     "package": "com.me.memory.app",
-    "released": "2026-08-09",
+    "released": "2026-08-10",
     "release_notes": [
+      "Android Share Target support — share text and URLs directly from any Android app",
       "Native Android application via Capacitor",
       "Native Google Sign-In",
       "AI-powered semantic memory search",
@@ -24,11 +25,23 @@
   },
   "history": [
     {
+      "version": "1.0.1",
+      "build": 2,
+      "channel": "developer-preview",
+      "apk_filename": "ME-1.0.1.apk",
+      "released": "2026-08-10",
+      "highlights": [
+        "Android Share Target support",
+        "Direct share integration from Chrome, Twitter/X, Keep",
+        "Quick Capture UI overlay"
+      ]
+    },
+    {
       "version": "1.0.0",
       "build": 1,
       "channel": "developer-preview",
       "apk_filename": "ME_1.0.0.apk",
-      "released": "2026-08-07",
+      "released": "2026-08-09",
       "highlights": [
         "Initial Developer Preview release",
         "Native Android App via Capacitor",
