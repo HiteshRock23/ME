@@ -71,6 +71,44 @@ export class CaptureGateway {
     }
 
     /**
+     * Create a CaptureSession from a normalized native share payload.
+     * @param {Object} payload { type, text, title, url, source, timestamp }
+     * @returns {CaptureSession}
+     */
+    static createFromSharePayload(payload) {
+        if (!payload) return null;
+
+        const sharedUrl = (payload.url || '').trim();
+        const sharedText = (payload.text || '').trim();
+        const sharedTitle = (payload.title || '').trim();
+
+        let finalUrl = sharedUrl;
+        if (!finalUrl && sharedText) {
+            const extracted = this.extractUrl(sharedText);
+            if (extracted) {
+                finalUrl = extracted;
+            }
+        }
+
+        if (finalUrl) {
+            return new CaptureSession({
+                rawContent: finalUrl,
+                title: sharedTitle,
+                type: 'link',
+                source: payload.source || 'ANDROID_SHARE'
+            });
+        }
+
+        const rawText = sharedText || sharedTitle;
+        return new CaptureSession({
+            rawContent: rawText,
+            title: sharedTitle,
+            type: 'text',
+            source: payload.source || 'ANDROID_SHARE'
+        });
+    }
+
+    /**
      * Fetch link intelligence preview asynchronously without blocking initial UI render.
      * @param {CaptureSession} session
      * @returns {Promise<CaptureSession>}

@@ -98,6 +98,9 @@ export const quickCaptureUI = {
         if (screen) screen.classList.add('hidden');
         overlayManager.close('quick-capture-screen');
         this._currentSession = null;
+        try {
+            localStorage.removeItem('me_pending_share_session');
+        } catch (_) {}
     },
 
     _renderFormState() {

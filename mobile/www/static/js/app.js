@@ -13,6 +13,7 @@ import { initPrefill } from './memory-prefill.js?v=1';
 import { initDownload } from './download.js?v=1';
 import './save-link.js';
 import { Native } from './native.js';
+import { ShareTargetHandler } from './share-target-handler.js';
 
 // --- Dev Cache Clearing & Auto-Login Backdoor ---
 const searchParams = new URLSearchParams(window.location.search);
@@ -635,6 +636,7 @@ function init() {
     initDump();
     initPrefill();
     initDownload();
+    ShareTargetHandler.init();
 
     analytics.initScrollTracking();
 
