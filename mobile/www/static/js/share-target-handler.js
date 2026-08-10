@@ -1,7 +1,7 @@
 /**
  * ME Share Target Handler
  * Manages native share intent events, cold-start checking, authentication guards,
- * deduplication, and post-auth pending share resumption.
+ * deduplication, and post-auth / foreground-resume pending share recovery.
  */
 
 import { ShareTarget } from './native/share-target.js';
@@ -9,6 +9,7 @@ import { CaptureGateway } from './capture-gateway.js';
 import { quickCaptureUI } from './quick-capture-ui.js';
 import { auth } from './auth.js';
 import { router } from './router.js';
+import { Lifecycle } from './lifecycle.js';
 
 const PENDING_SHARE_KEY = 'me_pending_share_session';
 const SHARE_EXPIRATION_MS = 30 * 60 * 1000; // 30 minutes
@@ -18,32 +19,62 @@ let _lastProcessedTimestamp = 0;
 
 export const ShareTargetHandler = {
     init() {
-        // 1. Listen for background/foreground share events from native layer
+        // 1. Live push listener for warm/foreground share events from native layer
         ShareTarget.addListener((payload) => {
+            console.log('[ShareTargetHandler] Live onShareReceived event:', payload);
             this.handleSharePayload(payload);
         });
 
-        // 2. Process cold-start shares when app signal app-ready fires
+        // 2. Process shares on cold start when app signal app-ready fires
         window.addEventListener('app-ready', async () => {
-            await this.processColdStartShare();
+            console.log('[ShareTargetHandler] app-ready fired. Checking pending share...');
+            await this.processPendingShare();
             this.checkAndResumePendingShare();
         }, { once: true });
 
-        // 3. Check for pending share whenever user enters dashboard
+        // 3. Resume / Foreground recovery path: poll pending share whenever app returns to foreground
+        Lifecycle.onResume(async () => {
+            console.log('[ShareTargetHandler] App resumed to foreground. Checking pending share...');
+            await this.processPendingShare();
+            this.checkAndResumePendingShare();
+        });
+
+        if (typeof document !== 'undefined') {
+            document.addEventListener('visibilitychange', async () => {
+                if (document.visibilityState === 'visible') {
+                    await this.processPendingShare();
+                    this.checkAndResumePendingShare();
+                }
+            });
+        }
+
+        // 4. Check for pending share whenever user enters dashboard
         window.addEventListener('me:dashboard-enter', () => {
             this.checkAndResumePendingShare();
         });
     },
 
-    async processColdStartShare() {
+    /**
+     * Safely query native plugin for any pending unconsumed share.
+     * Idempotent: Can be called safely on cold-start, activity resume, or visibility change.
+     */
+    async processPendingShare() {
         try {
             const payload = await ShareTarget.getPendingShare();
             if (payload) {
+                console.log('[ShareTargetHandler] Fetched pending share payload:', payload);
                 await this.handleSharePayload(payload);
             }
         } catch (e) {
-            console.warn('[ShareTargetHandler] Error reading cold start pending share:', e);
+            console.warn('[ShareTargetHandler] Error reading pending share:', e);
         }
+    },
+
+    /**
+     * Backward-compatible alias for processPendingShare.
+     */
+    async processColdStartShare() {
+        return this.processPendingShare();
     },
 
     async handleSharePayload(payload) {
@@ -54,8 +85,9 @@ export const ShareTargetHandler = {
         const timestamp = payload.timestamp || Date.now();
         const signature = `${payload.title || ''}::${payload.text || ''}::${payload.url || ''}::${timestamp}`;
 
-        // Deduplication check
+        // Deduplication check: guarantee single processing per share event
         if (signature === _lastProcessedShareSignature || (timestamp && timestamp === _lastProcessedTimestamp)) {
+            console.log('[ShareTargetHandler] Duplicate share signature ignored:', signature);
             return;
         }
         _lastProcessedShareSignature = signature;
@@ -66,10 +98,12 @@ export const ShareTargetHandler = {
 
         if (auth.isAuthenticated()) {
             // User authenticated -> open quick capture directly
+            console.log('[ShareTargetHandler] Opening QuickCaptureUI for session:', session);
             this.clearPendingStorage();
             quickCaptureUI.open(session);
         } else {
             // User unauthenticated -> preserve in localStorage with timestamp guard
+            console.log('[ShareTargetHandler] User unauthenticated. Saving pending share to storage.');
             this.savePendingShare(payload);
             router.navigate('/auth');
         }
