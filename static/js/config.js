@@ -9,7 +9,7 @@ export const CONFIG = {
     EARLY_ACCESS_FORM_URL: "https://docs.google.com/forms/d/e/1FAIpQLSfwYygBbrkdoEmdkfZR8U5XplwUdxuv1nVUbRV6f-uQrY0jWA/viewform?usp=dialog",
 
     /** Hosted Android release APK — Developer Preview v1.0.0. Relative path works on both localhost and production VPS. */
-    LATEST_ANDROID_APK_URL: "/downloads/ME-1.0.1.apk?v=1.0.1",
+    LATEST_ANDROID_APK_URL: "/downloads/ME-1.0.2.apk?v=1.0.2",
 
     /** Release manifest — JSON file describing the latest release and history. Relative path works on both localhost and production VPS. */
     RELEASE_MANIFEST_URL: "/downloads/manifest.json",

@@ -5,10 +5,8 @@
  */
 
 import { isNative } from './environment.js';
-import { ShareTarget } from './native/share-target.js';
 
 export const Native = {
-    shareTarget: ShareTarget,
     async share({ title, text, url }) {
         if (typeof window !== 'undefined' && window.Capacitor?.Plugins?.Share) {
             try {

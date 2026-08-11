@@ -37,7 +37,6 @@ export const auth = {
         localStorage.removeItem(AUTH_KEYS.REFRESH);
         sessionStorage.removeItem(AUTH_KEYS.ACCESS);
         sessionStorage.removeItem(AUTH_KEYS.REFRESH);
-        localStorage.removeItem('me_pending_share_session');
     },
 
     isAuthenticated() {
