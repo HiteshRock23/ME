@@ -25,20 +25,20 @@ function isAndroid() {
 
 function getPlatform() {
     const ua = navigator.userAgent;
-    if (/android/i.test(ua))              return 'Android';
-    if (/iphone|ipad|ipod/i.test(ua))    return 'iOS';
-    if (/macintosh|mac os x/i.test(ua))  return 'macOS';
-    if (/windows/i.test(ua))             return 'Windows';
-    if (/linux/i.test(ua))               return 'Linux';
+    if (/android/i.test(ua)) return 'Android';
+    if (/iphone|ipad|ipod/i.test(ua)) return 'iOS';
+    if (/macintosh|mac os x/i.test(ua)) return 'macOS';
+    if (/windows/i.test(ua)) return 'Windows';
+    if (/linux/i.test(ua)) return 'Linux';
     return 'Other';
 }
 
 function getBrowser() {
     const ua = navigator.userAgent;
-    if (ua.includes('Edg'))                                return 'Edge';
+    if (ua.includes('Edg')) return 'Edge';
     if (ua.includes('Chrome') && !ua.includes('Chromium')) return 'Chrome';
-    if (ua.includes('Firefox'))                            return 'Firefox';
-    if (ua.includes('Safari') && !ua.includes('Chrome'))   return 'Safari';
+    if (ua.includes('Firefox')) return 'Firefox';
+    if (ua.includes('Safari') && !ua.includes('Chrome')) return 'Safari';
     return 'Other';
 }
 
@@ -54,9 +54,9 @@ function setButtonState(btn, state, idleLabel) {
     if (!btn) return;
     btn.dataset.state = state;
     const labels = {
-        [STATE.IDLE]:      idleLabel || 'Download APK',
+        [STATE.IDLE]: idleLabel || 'Download APK',
         [STATE.PREPARING]: 'Preparing download\u2026',
-        [STATE.STARTED]:   '\u2713 Download started',
+        [STATE.STARTED]: '\u2713 Download started',
     };
     const iconHtml = '<img src="/static/icons/icon-192.png" alt="ME" style="width: 22px; height: 22px; border-radius: 5px; object-fit: cover; flex-shrink: 0; margin-right: 8px; vertical-align: middle;" />';
     btn.innerHTML = iconHtml + '<span>' + labels[state] + '</span>';
@@ -106,12 +106,12 @@ function populateDownloadPage(latest) {
     const { version, build, channel, size_display, sha256, released, min_android, min_sdk } = latest;
     const pkg = latest['package'];
 
-    setEl('dl-version',     version);
-    setEl('dl-build',       build);
-    setEl('dl-channel',     channel === 'developer-preview' ? 'Developer Preview' : channel);
-    setEl('dl-size',        size_display);
-    setEl('dl-sha256',      sha256);
-    setEl('dl-package',     pkg);
+    setEl('dl-version', version);
+    setEl('dl-build', build);
+    setEl('dl-channel', channel === 'developer-preview' ? 'Developer Preview' : channel);
+    setEl('dl-size', size_display);
+    setEl('dl-sha256', sha256);
+    setEl('dl-package', pkg);
     setEl('dl-min-android', min_android ? 'Android ' + min_android + ' (API ' + min_sdk + ')' : null);
 
     if (released) {
@@ -132,8 +132,8 @@ function populateDownloadPage(latest) {
 function renderReleaseHistory(history) {
     const container = document.getElementById('download-history-list');
     if (!container || !history || !history.length) return;
-    container.innerHTML = history.map(function(release) {
-        const highlights = (release.highlights || []).map(function(h) {
+    container.innerHTML = history.map(function (release) {
+        const highlights = (release.highlights || []).map(function (h) {
             return '<li>' + h + '</li>';
         }).join('');
         return '<div class="download-history-item">' +
@@ -155,32 +155,32 @@ function handleDownloadClick(btn, apkUrl, version, source) {
     _downloadInProgress = true;
 
     const idleLabel = '\u2193 Download APK  \u00b7  v' + version;
-    const platform  = getPlatform();
-    const browser   = getBrowser();
+    const platform = getPlatform();
+    const browser = getBrowser();
 
     analytics.capture('APK Download Button Clicked', {
-        version:    version,
-        source:     source,
-        platform:   platform,
-        browser:    browser,
+        version: version,
+        source: source,
+        platform: platform,
+        browser: browser,
         is_android: isAndroid(),
     });
 
     setButtonState(btn, STATE.PREPARING, idleLabel);
 
     analytics.capture('APK Download Started', {
-        version:      version,
+        version: version,
         apk_filename: apkUrl.split('/').pop(),
-        source:       source,
-        platform:     platform,
-        browser:      browser,
+        source: source,
+        platform: platform,
+        browser: browser,
     });
 
     // Trigger download immediately within user gesture thread
     // window.location.href triggers native attachment download without navigating page
     window.location.href = apkUrl;
 
-    setTimeout(function() {
+    setTimeout(function () {
         setButtonState(btn, STATE.STARTED, idleLabel);
 
         // Show post-download confirmation banner
@@ -217,7 +217,7 @@ function adaptLandingCTA(apkUrl, version) {
         downloadBtn.parentNode.replaceChild(newBtn, downloadBtn);
     }
 
-    newBtn.addEventListener('click', function(e) {
+    newBtn.addEventListener('click', function (e) {
         e.preventDefault();
         handleDownloadClick(newBtn, apkUrl, version, 'landing');
     });
@@ -238,7 +238,7 @@ function initDownloadPageButton(apkUrl, version) {
     // Remove any previous listener to avoid double-firing on manifest re-init
     var newBtn = btn.cloneNode(true);
     btn.parentNode.replaceChild(newBtn, btn);
-    newBtn.addEventListener('click', function(e) {
+    newBtn.addEventListener('click', function (e) {
         e.preventDefault();
         handleDownloadClick(newBtn, apkUrl, version, 'download_page');
     });
@@ -251,7 +251,7 @@ function initDownloadPageButton(apkUrl, version) {
 function wireFeedbackLinks() {
     var feedbackUrl = window.CONFIG && window.CONFIG.EARLY_ACCESS_FORM_URL;
     if (!feedbackUrl) return;
-    document.querySelectorAll('[data-feedback-link]').forEach(function(el) {
+    document.querySelectorAll('[data-feedback-link]').forEach(function (el) {
         el.href = feedbackUrl;
     });
     var dlFeedback = document.getElementById('download-feedback-link');
@@ -264,10 +264,10 @@ function wireFeedbackLinks() {
 
 function trackDownloadPageView(version) {
     analytics.capture('Download Page Viewed', {
-        version:  version,
+        version: version,
         platform: getPlatform(),
-        browser:  getBrowser(),
-        source:   'download_screen',
+        browser: getBrowser(),
+        source: 'download_screen',
     });
 }
 
@@ -276,20 +276,20 @@ function trackDownloadPageView(version) {
 // ---------------------------------------------------------------------------
 
 export function initDownload() {
-    var apkUrl  = window.CONFIG && window.CONFIG.LATEST_ANDROID_APK_URL;
-    var version = '1.0.2'; // fallback until manifest loads
+    var apkUrl = window.CONFIG && window.CONFIG.LATEST_ANDROID_APK_URL;
+    var version = '1.0.3'; // fallback until manifest loads
 
     wireFeedbackLinks();
     adaptLandingCTA(apkUrl, version);
     initDownloadPageButton(apkUrl, version);
 
     // Analytics: fire when download screen is entered via router
-    window.addEventListener('me:download-page-viewed', function() {
+    window.addEventListener('me:download-page-viewed', function () {
         trackDownloadPageView(version);
     });
 
     // Load manifest and hydrate download page
-    fetchManifest().then(function(manifest) {
+    fetchManifest().then(function (manifest) {
         if (!manifest || !manifest.latest) return;
         version = manifest.latest.version || version;
 

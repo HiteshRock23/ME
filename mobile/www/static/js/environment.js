@@ -150,7 +150,6 @@ function discoverCapabilities() {
 
 export const FeatureFlags = {
     voiceCapture: false,
-    nativeShareTarget: false,
     revenueCat: false,
     askMev2: false,
     experimentalSearch: false
