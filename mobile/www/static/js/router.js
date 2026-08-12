@@ -92,7 +92,7 @@ export const router = {
 
         // Check for pending quick capture after login
         const pendingQuery = sessionStorage.getItem('pending_quick_capture');
-        if (isLoggedIn && pendingQuery && path !== '/quick-capture' && path !== '/share-target') {
+        if (isLoggedIn && pendingQuery && path !== '/quick-capture') {
             this.navigate('/quick-capture');
             return;
         }
@@ -109,8 +109,8 @@ export const router = {
             return;
         }
 
-        // --- Quick Capture & Share Target ---
-        if (path === '/quick-capture' || path === '/share-target') {
+        // --- Quick Capture ---
+        if (path === '/quick-capture') {
             memoryController.close();
 
             const searchParams = new URLSearchParams(window.location.search);
