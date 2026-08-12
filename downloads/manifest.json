@@ -1,10 +1,10 @@
 {
   "latest": {
-    "version": "1.0.3",
+    "version": "1.0.2",
     "build": 4,
     "channel": "developer-preview",
-    "apk_filename": "ME-1.0.3.apk",
-    "apk_url": "/downloads/ME-1.0.3.apk",
+    "apk_filename": "ME-1.0.2.apk",
+    "apk_url": "/downloads/ME-1.0.2.apk",
     "size_bytes": 4595666,
     "size_display": "4.38 MB",
     "sha256": "4c78ecfb6254084095f051532916fa6a53913bdb2acf00ad5b649140810dd0e2",
