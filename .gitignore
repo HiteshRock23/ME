@@ -60,3 +60,6 @@ downloads/
 downloads/*.apk
 downloads/*.aab
 
+# Scratchpad
+scratch/
+
