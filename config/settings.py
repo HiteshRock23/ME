@@ -206,7 +206,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # =============================================================================
 # SUPERMEMORY CONFIGURATION (Memory Engine)
 # =============================================================================
-SUPERMEMORY_URL = config("SUPERMEMORY_URL", default="http://195.35.6.26:6767")
+SUPERMEMORY_URL = config("SUPERMEMORY_URL", default="http://localhost:6767")
 SUPERMEMORY_API_KEY = config("SUPERMEMORY_API_KEY", default="")
 SUPERMEMORY_TIMEOUT = config("SUPERMEMORY_TIMEOUT", default=10, cast=int)
 
