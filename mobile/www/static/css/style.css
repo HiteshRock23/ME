@@ -760,26 +760,129 @@ ul { list-style: none; }
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
     border-bottom: var(--border-subtle);
-    margin-bottom: var(--spacing-md);
+    margin-bottom: 0;
+    gap: var(--spacing-xs);
+    flex-shrink: 0;
+    min-width: 0;
+}
+
+.drawer-action-bar {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-shrink: 0;
+}
+
+.drawer-icon-btn {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    display: grid;
+    place-items: center;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    border-radius: var(--radius-sm, 6px);
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.drawer-icon-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.drawer-icon-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text-primary);
+}
+
+.drawer-icon-btn:focus-visible {
+    outline: 2px solid var(--text-primary, #000);
+    outline-offset: 1px;
+}
+
+.drawer-icon-btn:active {
+    background: rgba(0, 0, 0, 0.09);
+    transform: scale(0.96);
+}
+
+.drawer-icon-btn.is-pinned {
+    color: var(--text-primary, #000);
+    background: rgba(0, 0, 0, 0.06);
+}
+
+.drawer-icon-btn.is-pinned svg {
+    fill: currentColor;
 }
 
 .drawer-close-btn {
-    background: transparent;
-    border: none;
-    font-size: 1.75rem;
-    line-height: 1;
     color: var(--text-secondary);
-    cursor: pointer;
-    padding: 4px 8px;
-    border-radius: var(--radius-sm);
-    transition: color var(--transition-base), background var(--transition-base);
 }
 
-.drawer-close-btn:hover {
+/* Drawer More Actions Menu */
+.drawer-more-wrap {
+    position: relative;
+    display: inline-block;
+}
+
+.drawer-more-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    min-width: 160px;
+    background: var(--bg-primary, #FFFFFF);
+    border: var(--border-subtle, 1px solid rgba(0, 0, 0, 0.12));
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+    padding: 4px;
+    z-index: 600;
+    display: flex;
+    flex-direction: column;
+}
+
+.drawer-more-menu.hidden {
+    display: none !important;
+}
+
+.drawer-more-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 12px;
+    border: none;
+    background: transparent;
+    font-size: 0.875rem;
+    font-weight: 500;
     color: var(--text-primary);
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s ease;
+}
+
+.drawer-more-item:hover {
     background: rgba(0, 0, 0, 0.05);
+}
+
+.drawer-more-item-danger {
+    color: #E53E3E !important;
+}
+
+.drawer-more-item-danger:hover {
+    background: rgba(229, 62, 62, 0.08) !important;
+}
+
+/* Progressive disclosure for header action buttons on narrow mobile viewports (<= 420px) */
+@media (max-width: 420px) {
+    .drawer-btn-secondary {
+        display: none !important;
+    }
 }
 
 .memory-reference-card {
@@ -1246,34 +1349,7 @@ ul { list-style: none; }
     gap: var(--spacing-xs);
 }
 
-.drawer-footer {
-    padding-top: var(--spacing-md);
-    border-top: var(--border-subtle);
-    margin-top: var(--spacing-xl);
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
-}
-
-.drawer-footer-row {
-    display: flex;
-    gap: var(--spacing-xs);
-    width: 100%;
-}
-
-.drawer-btn-half {
-    flex: 1;
-}
-
-.drawer-delete-btn {
-    width: 100%;
-    color: #E53E3E !important;
-    border-color: #E53E3E !important;
-}
-
-.drawer-delete-btn:hover {
-    background: rgba(229, 62, 62, 0.08) !important;
-}
+/* Obsolete footer styles removed — actions integrated into header action bar */
 
 /* Mobile-Specific Drawer layout */
 @media (max-width: 767px) {
@@ -1799,15 +1875,7 @@ body.overlay-open {
     padding: 0;
 }
 
-.drawer-footer {
-    flex-shrink: 0;
-    padding: var(--spacing-md) var(--spacing-xl);
-    border-top: var(--border-subtle);
-    margin-top: 0;
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-xs);
-}
+
 
 /* ==========================================================================
    About Panel & Feedback

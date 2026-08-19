@@ -739,94 +739,206 @@ export const ui = {
             linkContainer.classList.add('hidden');
         }
 
-        // --- Action buttons ---
-        const copyBtn = document.getElementById('drawer-copy-btn');
-        if (copyBtn) {
-            copyBtn.onclick = () => {
-                navigator.clipboard.writeText(textarea.value || rawContent);
-                const orig = copyBtn.textContent;
-                copyBtn.textContent = 'Copied!';
-                setTimeout(() => { copyBtn.textContent = orig; }, 2000);
-            };
-        }
+        // --- Action buttons & Header Action Bar ---
+        this._currentViewerMemory = memory;
+        this.initDrawerHeaderActions();
 
-        const editBtn = document.getElementById('drawer-edit-btn');
-        if (editBtn) {
-            editBtn.onclick = async () => {
-                const currentTitle = memory.link_title || memory.ai_title || memory.title || '';
-                const newTitle = prompt('Enter a new title for this memory:', currentTitle);
-                if (newTitle === null) return;
-                try {
-                    await api.updateMemoryTitle(memory.id, newTitle.trim());
-                    document.getElementById('drawer-title').textContent = newTitle.trim() || titleText;
-                    
-                    analytics.capture('Memory Edited', {
-                        memory_id: memory.id,
-                        memory_type: memory.memory_type || 'note',
-                        field: 'title'
-                    });
+        const isCurrentlyPinned = Boolean(memory.is_pinned || memory.pinned_at != null);
 
-                    window.dispatchEvent(new CustomEvent('me:invalidate-memory', { detail: { id: memory.id } }));
-                } catch (err) {
-                    alert(err.message);
-                }
-            };
-        }
-
-        const headerShareBtn = document.getElementById('drawer-header-share-btn');
-        if (headerShareBtn) {
-            headerShareBtn.onclick = (e) => this.openShareModal(memory, e.currentTarget);
-        }
-
-        const footerShareBtn = document.getElementById('drawer-share-btn');
-        if (footerShareBtn) {
-            footerShareBtn.onclick = (e) => this.openShareModal(memory, e.currentTarget);
-        }
-
+        // Update Pin state in Header icon button
         const pinBtn = document.getElementById('drawer-pin-btn');
         if (pinBtn) {
-            const isCurrentlyPinned = memory.is_pinned || memory.pinned_at != null;
-            pinBtn.textContent = isCurrentlyPinned ? '📌 Unpin Memory' : '📌 Pin Memory';
-            pinBtn.onclick = () => {
-                window.dispatchEvent(new CustomEvent('me:toggle-pin', {
-                    detail: { id: memory.id, isPinned: isCurrentlyPinned }
-                }));
-            };
+            if (isCurrentlyPinned) {
+                pinBtn.classList.add('is-pinned');
+                pinBtn.setAttribute('title', 'Unpin memory');
+                pinBtn.setAttribute('aria-label', 'Unpin memory');
+            } else {
+                pinBtn.classList.remove('is-pinned');
+                pinBtn.setAttribute('title', 'Pin memory');
+                pinBtn.setAttribute('aria-label', 'Pin memory');
+            }
         }
 
-        const deleteBtn = document.getElementById('drawer-delete-btn');
-        if (deleteBtn) {
-            deleteBtn.onclick = async () => {
-                if (!confirm('Are you sure you want to delete this memory?')) return;
-                deleteBtn.disabled = true;
-                deleteBtn.textContent = 'Deleting...';
-                try {
-                    await api.deleteMemory(memory.id);
-                    
-                    analytics.capture('Memory Deleted', {
-                        memory_id: memory.id,
-                        memory_type: memory.memory_type || 'note'
-                    });
-                    if (memory.memory_type === 'link') {
-                        analytics.capture('Link Deleted', {
-                            memory_id: memory.id
-                        });
-                    }
+        // Synchronize Pin state in More Menu item text
+        const morePinText = document.getElementById('drawer-more-pin-text');
+        if (morePinText) {
+            morePinText.textContent = isCurrentlyPinned ? 'Unpin Memory' : 'Pin Memory';
+        }
 
-                    window.dispatchEvent(new CustomEvent('me:invalidate-memory', { detail: { id: memory.id } }));
-                    window.dispatchEvent(new CustomEvent('me:navigate', { detail: { path: '/dashboard' } }));
-                    window.dispatchEvent(new CustomEvent('me:memory-mutated', { detail: { id: memory.id, deleted: true } }));
-                } catch (err) {
-                    deleteBtn.disabled = false;
-                    deleteBtn.textContent = 'Delete Memory';
-                    alert(err.message);
-                }
-            };
+        const moreMenu = document.getElementById('drawer-more-menu');
+        if (moreMenu) {
+            moreMenu.classList.add('hidden');
         }
 
         // Clear related grid while controller fetches them
         document.getElementById('drawer-related-container').classList.add('hidden');
         document.getElementById('drawer-related-grid').innerHTML = '';
+    },
+
+    // Single source of truth action handlers
+    handleCopyMemory() {
+        const activeMemory = this._currentViewerMemory;
+        if (!activeMemory) return;
+        const textarea = document.getElementById('note-editor-textarea');
+        const textToCopy = textarea ? textarea.value : (activeMemory.raw_content || activeMemory.preview || '');
+        navigator.clipboard.writeText(textToCopy);
+        if (typeof this.showToast === 'function') {
+            this.showToast('Content copied to clipboard');
+        }
+        const moreMenu = document.getElementById('drawer-more-menu');
+        if (moreMenu) moreMenu.classList.add('hidden');
+    },
+
+    handleEditTitle() {
+        const activeMemory = this._currentViewerMemory;
+        if (!activeMemory) return;
+        const moreMenu = document.getElementById('drawer-more-menu');
+        if (moreMenu) moreMenu.classList.add('hidden');
+
+        const currentTitle = activeMemory.link_title || activeMemory.ai_title || activeMemory.title || '';
+        const newTitle = prompt('Enter a new title for this memory:', currentTitle);
+        if (newTitle === null) return;
+        const trimmed = newTitle.trim();
+        (async () => {
+            try {
+                await api.updateMemoryTitle(activeMemory.id, trimmed);
+                const isLink = activeMemory.memory_type === 'link';
+                const defaultTitle = isLink ? 'Link Saved' : 'New Memory';
+                document.getElementById('drawer-title').textContent = trimmed || defaultTitle;
+                
+                analytics.capture('Memory Edited', {
+                    memory_id: activeMemory.id,
+                    memory_type: activeMemory.memory_type || 'note',
+                    field: 'title'
+                });
+
+                window.dispatchEvent(new CustomEvent('me:invalidate-memory', { detail: { id: activeMemory.id } }));
+            } catch (err) {
+                alert(err.message);
+            }
+        })();
+    },
+
+    handleShareMemory(e) {
+        const moreMenu = document.getElementById('drawer-more-menu');
+        if (moreMenu) moreMenu.classList.add('hidden');
+        if (this._currentViewerMemory) {
+            this.openShareModal(this._currentViewerMemory, e ? e.currentTarget : null);
+        }
+    },
+
+    handleTogglePin() {
+        const activeMemory = this._currentViewerMemory;
+        if (!activeMemory) return;
+        const moreMenu = document.getElementById('drawer-more-menu');
+        if (moreMenu) moreMenu.classList.add('hidden');
+
+        const isCurrentlyPinned = Boolean(activeMemory.is_pinned || activeMemory.pinned_at != null);
+        window.dispatchEvent(new CustomEvent('me:toggle-pin', {
+            detail: { id: activeMemory.id, isPinned: isCurrentlyPinned }
+        }));
+    },
+
+    handleDeleteMemory() {
+        const activeMemory = this._currentViewerMemory;
+        if (!activeMemory) return;
+        const moreMenu = document.getElementById('drawer-more-menu');
+        if (moreMenu) moreMenu.classList.add('hidden');
+
+        if (!confirm('Are you sure you want to delete this memory?')) return;
+        (async () => {
+            try {
+                await api.deleteMemory(activeMemory.id);
+                
+                analytics.capture('Memory Deleted', {
+                    memory_id: activeMemory.id,
+                    memory_type: activeMemory.memory_type || 'note'
+                });
+                if (activeMemory.memory_type === 'link') {
+                    analytics.capture('Link Deleted', {
+                        memory_id: activeMemory.id
+                    });
+                }
+
+                window.dispatchEvent(new CustomEvent('me:invalidate-memory', { detail: { id: activeMemory.id } }));
+                window.dispatchEvent(new CustomEvent('me:navigate', { detail: { path: '/dashboard' } }));
+                window.dispatchEvent(new CustomEvent('me:memory-mutated', { detail: { id: activeMemory.id, deleted: true } }));
+            } catch (err) {
+                alert(err.message);
+            }
+        })();
+    },
+
+    _currentViewerMemory: null,
+    _drawerHeaderActionsInitialized: false,
+
+    /**
+     * Initialize event handlers for header action bar controls once.
+     * Maps both Header icon buttons and More Menu items to single-source handlers.
+     */
+    initDrawerHeaderActions() {
+        if (this._drawerHeaderActionsInitialized) return;
+        this._drawerHeaderActionsInitialized = true;
+
+        // Copy (Header & More Menu)
+        const copyBtn = document.getElementById('drawer-copy-btn');
+        if (copyBtn) copyBtn.addEventListener('click', () => this.handleCopyMemory());
+        const moreCopyBtn = document.getElementById('drawer-more-copy-btn');
+        if (moreCopyBtn) moreCopyBtn.addEventListener('click', () => this.handleCopyMemory());
+
+        // Edit Title (Header & More Menu)
+        const editBtn = document.getElementById('drawer-edit-btn');
+        if (editBtn) editBtn.addEventListener('click', () => this.handleEditTitle());
+        const moreEditBtn = document.getElementById('drawer-more-edit-btn');
+        if (moreEditBtn) moreEditBtn.addEventListener('click', () => this.handleEditTitle());
+
+        // Share (Header)
+        const shareBtn = document.getElementById('drawer-share-btn');
+        if (shareBtn) shareBtn.addEventListener('click', (e) => this.handleShareMemory(e));
+
+        // Pin / Unpin (Header & More Menu)
+        const pinBtn = document.getElementById('drawer-pin-btn');
+        if (pinBtn) pinBtn.addEventListener('click', () => this.handleTogglePin());
+        const morePinBtn = document.getElementById('drawer-more-pin-btn');
+        if (morePinBtn) morePinBtn.addEventListener('click', () => this.handleTogglePin());
+
+        // More Menu Dropdown Toggle
+        const moreBtn = document.getElementById('drawer-more-btn');
+        if (moreBtn) {
+            moreBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const moreMenu = document.getElementById('drawer-more-menu');
+                if (moreMenu) {
+                    moreMenu.classList.toggle('hidden');
+                }
+            });
+        }
+
+        // Delete (More Menu)
+        const deleteBtn = document.getElementById('drawer-delete-btn');
+        if (deleteBtn) deleteBtn.addEventListener('click', () => this.handleDeleteMemory());
+
+        // Close More Menu on click outside
+        document.addEventListener('click', (e) => {
+            const moreWrap = document.getElementById('drawer-more-wrap');
+            const moreMenu = document.getElementById('drawer-more-menu');
+            if (moreMenu && !moreMenu.classList.contains('hidden')) {
+                if (moreWrap && !moreWrap.contains(e.target)) {
+                    moreMenu.classList.add('hidden');
+                }
+            }
+        });
+
+        // Close More Menu on Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const moreMenu = document.getElementById('drawer-more-menu');
+                if (moreMenu && !moreMenu.classList.contains('hidden')) {
+                    moreMenu.classList.add('hidden');
+                    e.stopPropagation();
+                }
+            }
+        });
     },
 
     // -------------------------------------------------------------------------
@@ -1147,6 +1259,9 @@ export const ui = {
         const backdrop = document.getElementById('memory-drawer-backdrop');
         const drawer = document.getElementById('memory-detail-drawer');
         if (!drawer) return;
+
+        const moreMenu = document.getElementById('drawer-more-menu');
+        if (moreMenu) moreMenu.classList.add('hidden');
 
         this._isEditorDirty = false;
         drawer.classList.add('hidden-slide');
