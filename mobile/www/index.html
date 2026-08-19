@@ -689,7 +689,7 @@
           <div class="capture-footer-left">
             <span class="label" id="char-count">0 / 5,000</span>
             <button type="button" id="capture-pin-btn" class="pin-toggle-btn" aria-pressed="false" title="Pin memory to top of timeline">
-              <span class="pin-icon" aria-hidden="true">📌</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="pin-icon" aria-hidden="true" style="margin-right: 4px;"><line x1="12" y1="17" x2="12" y2="22"></line><path d="M5 17h14l-1.5-6H6.5L5 17z"></path><path d="M9 11V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v7"></path></svg>
               <span class="pin-btn-text">Pin memory</span>
             </button>
           </div>
@@ -722,18 +722,24 @@
       </div>
     </section>
 
-    <section aria-label="Recent Memories" id="recent-captures-section" class="recent-captures-section">
-      <div class="section-header">
-        <h2 class="heading-1">Recent Memories</h2>
-        <span id="feed-count" class="count-badge" aria-label="Memory count">0</span>
+    <section aria-label="Memories" id="recent-captures-section" class="recent-captures-section">
+      <div class="surface-header">
+        <div class="surface-title-group">
+          <h2 class="surface-title">Memories</h2>
+          <span id="feed-count" class="surface-count">0</span>
+        </div>
+        <nav class="surface-nav-tabs" role="tablist" aria-label="Memory view filters">
+          <button type="button" role="tab" class="surface-tab active" data-filter="all" id="tab-filter-all" aria-selected="true">All</button>
+          <button type="button" role="tab" class="surface-tab" data-filter="notes" id="tab-filter-notes" aria-selected="false">Notes</button>
+          <button type="button" role="tab" class="surface-tab" data-filter="links" id="tab-filter-links" aria-selected="false">Links</button>
+        </nav>
       </div>
 
-      <div id="memory-feed" role="feed" aria-label="Memory timeline"></div>
+      <div id="memory-feed" class="memory-feed" role="feed" aria-label="Memory timeline"></div>
 
-      <div class="hidden" id="empty-state">
-        <div class="empty-state-emoji">✨</div>
-        <h3 class="heading-1">Your memory is clear</h3>
-        <p class="body-base">Start by capturing your first thought above.</p>
+      <div class="hidden" id="empty-state" style="text-align: center; padding: var(--spacing-3xl) var(--spacing-md);">
+        <h3 class="heading-1">Your memory surface is clear</h3>
+        <p class="body-base" style="color: var(--text-secondary); margin-top: 8px;">Start by capturing your first thought above.</p>
       </div>
     </section>
 

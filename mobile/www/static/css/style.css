@@ -1142,32 +1142,169 @@ ul { list-style: none; }
     margin-bottom: var(--spacing-md);
 }
 
-/* Redesigned Memory Cards (Premium, Clean) */
+/* ==========================================================================
+   Memory Surface Information Architecture & Header Tabs
+   ========================================================================== */
+.surface-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-xs);
+    border-bottom: 1px solid rgba(18, 18, 18, 0.06);
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+}
+
+.surface-title-group {
+    display: flex;
+    align-items: baseline;
+    gap: var(--spacing-xs);
+}
+
+.surface-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+    margin: 0;
+}
+
+.surface-count {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    opacity: 0.75;
+    font-weight: 500;
+}
+
+.surface-nav-tabs {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+}
+
+.surface-tab {
+    background: transparent;
+    border: none;
+    padding: 4px 0;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    position: relative;
+    transition: color 0.15s ease;
+    line-height: 1.4;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.surface-tab:hover {
+    color: var(--text-primary);
+}
+
+.surface-tab.active {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.surface-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--text-primary);
+    border-radius: 1px;
+}
+
+/* ==========================================================================
+   Memory Surface Column-Distributed Layout (Flex Stacks)
+   ========================================================================== */
+.memory-surface-container {
+    display: flex;
+    width: 100%;
+    gap: 18px;
+    align-items: flex-start;
+}
+
+.memory-surface-column {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+    .memory-surface-container,
+    .memory-surface-column {
+        gap: 16px;
+    }
+}
+
+@media (max-width: 639px) {
+    .memory-surface-container {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .memory-surface-column {
+        width: 100%;
+        gap: 12px;
+    }
+}
+
+/* Redesigned Memory Cards (Premium, Clean, Editorial) */
 .memory-card {
     background: var(--bg-secondary);
-    border: var(--border-subtle);
+    border: 1px solid rgba(18, 18, 18, 0.08);
     border-radius: var(--radius-md); /* 12px */
     padding: var(--spacing-md); /* 16px */
-    margin-bottom: var(--spacing-sm); /* 12px */
+    margin-bottom: 0;
     cursor: pointer;
-    transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1), 
-                box-shadow 150ms cubic-bezier(0.16, 1, 0.3, 1), 
-                border-color 150ms cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: var(--shadow-soft);
+    transition: transform 180ms ease, 
+                box-shadow 180ms ease, 
+                border-color 180ms ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
     user-select: none;
-    display: block;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
     position: relative;
     overflow: hidden;
 }
 
+.memory-card-image-wrap {
+    width: calc(100% + 32px);
+    margin: -16px -16px 12px -16px;
+    border-radius: 12px 12px 0 0;
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+    background: var(--bg-tertiary, #F4F1EC);
+}
+
+.memory-card-thumbnail {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.25s ease;
+}
+
+.memory-card:hover .memory-card-thumbnail {
+    transform: scale(1.02);
+}
+
 .memory-card:hover {
-    border-color: rgba(18, 18, 18, 0.15);
-    box-shadow: var(--shadow-elevated);
+    border-color: rgba(18, 18, 18, 0.16);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transform: translateY(-1px);
 }
 
 .memory-card:active {
-    transform: scale(0.98);
-    box-shadow: var(--shadow-soft);
+    transform: scale(0.99);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
 .memory-card-content-wrapper {
@@ -1196,10 +1333,8 @@ ul { list-style: none; }
 
 .memory-card-type-badge {
     font-size: var(--font-size-caption);
-    font-weight: 600;
-    text-transform: uppercase;
-    color: var(--accent);
-    letter-spacing: 0.05em;
+    font-weight: 500;
+    color: var(--text-secondary);
 }
 
 .memory-card-time {
@@ -1219,8 +1354,8 @@ ul { list-style: none; }
 .memory-card-summary {
     font-size: var(--font-size-body);
     color: var(--text-primary);
-    font-weight: 500;
-    line-height: 1.4;
+    font-weight: 400;
+    line-height: 1.45;
     overflow-wrap: break-word;
     word-break: break-word;
     display: -webkit-box;
@@ -1232,7 +1367,7 @@ ul { list-style: none; }
 .memory-card-content {
     font-size: var(--font-size-body);
     color: var(--text-secondary);
-    line-height: 1.4;
+    line-height: 1.45;
     overflow-wrap: break-word;
     word-break: break-word;
     display: -webkit-box;
@@ -1244,7 +1379,7 @@ ul { list-style: none; }
 .memory-card-link-text {
     font-size: var(--font-size-caption);
     color: var(--text-secondary);
-    opacity: 0.8;
+    opacity: 0.75;
     word-break: break-all;
     display: -webkit-box;
     -webkit-line-clamp: 1;
@@ -1252,24 +1387,10 @@ ul { list-style: none; }
     overflow: hidden;
 }
 
-.memory-card-arrow {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-secondary);
-    opacity: 0.4;
-    transition: opacity var(--transition-base);
-}
-
-.memory-card:hover .memory-card-arrow {
-    opacity: 0.8;
-}
-
 @media (max-width: 767px) {
     .memory-card {
-        padding: var(--spacing-sm) var(--spacing-md);
-        margin-bottom: var(--spacing-xs);
+        padding: var(--spacing-md);
+        margin-bottom: 0;
     }
 }
 

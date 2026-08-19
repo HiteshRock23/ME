@@ -204,7 +204,126 @@ export const ui = {
             </div>`;
     },
 
+    _currentSurfaceFilter: 'all',
+    _cachedMemories: [],
+    _onDeleteClick: null,
+    _onEditTitleClick: null,
+    _surfaceTabsInitialized: false,
+
+    /**
+     * Reuse single source of truth memory_type from backend ContentClassifier.
+     */
+    classifyMemory(memory) {
+        if (!memory) return 'note';
+        return memory.memory_type === 'link' ? 'link' : 'note';
+    },
+
+    initSurfaceTabs() {
+        if (this._surfaceTabsInitialized) return;
+        this._surfaceTabsInitialized = true;
+
+        const nav = document.querySelector('.surface-nav-tabs');
+        if (!nav) return;
+
+        nav.addEventListener('click', (e) => {
+            const tab = e.target.closest('.surface-tab');
+            if (!tab) return;
+
+            const filter = tab.dataset.filter;
+            if (!filter || filter === this._currentSurfaceFilter) return;
+
+            this._currentSurfaceFilter = filter;
+
+            // Update active tab states
+            nav.querySelectorAll('.surface-tab').forEach(t => {
+                const isActive = t === tab;
+                t.classList.toggle('active', isActive);
+                t.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            });
+
+            // Re-render timeline with new filter using cached memories
+            if (this._cachedMemories) {
+                this.renderTimeline(this._cachedMemories, this._onDeleteClick, this._onEditTitleClick);
+            }
+        });
+    },
+
+    getColumnCount() {
+        const width = window.innerWidth;
+        if (width < 640) return 1;
+        if (width < 1024) return 2;
+        return 3;
+    },
+
+    _lastColumnCount: null,
+    _resizeDebounceTimer: null,
+    _resizeHandlerInitialized: false,
+
+    initResizeHandler() {
+        if (this._resizeHandlerInitialized) return;
+        this._resizeHandlerInitialized = true;
+        this._lastColumnCount = this.getColumnCount();
+
+        window.addEventListener('resize', () => {
+            if (this._resizeDebounceTimer) clearTimeout(this._resizeDebounceTimer);
+            this._resizeDebounceTimer = setTimeout(() => {
+                const currentCols = this.getColumnCount();
+                if (currentCols !== this._lastColumnCount) {
+                    this._lastColumnCount = currentCols;
+                    if (this._cachedMemories && this._cachedMemories.length > 0) {
+                        this.renderTimeline(this._cachedMemories, this._onDeleteClick, this._onEditTitleClick);
+                    }
+                }
+            }, 150);
+        });
+    },
+
+    renderFeedCards(container, memories, onDeleteClick, onEditTitleClick) {
+        if (!container) return;
+        container.innerHTML = '';
+        if (!memories || memories.length === 0) return;
+
+        const columnCount = this.getColumnCount();
+
+        const surfaceContainer = document.createElement('div');
+        surfaceContainer.className = 'memory-surface-container';
+
+        if (columnCount === 1) {
+            // Mobile: 1 column, render memories directly in order (0, 1, 2, 3...)
+            const colEl = document.createElement('div');
+            colEl.className = 'memory-surface-column';
+            memories.forEach(memory => {
+                const card = this.createMemoryCard(memory, onDeleteClick, onEditTitleClick);
+                colEl.appendChild(card);
+            });
+            surfaceContainer.appendChild(colEl);
+        } else {
+            // Desktop/Tablet: columnCount > 1, create column containers & distribute round-robin
+            const cols = [];
+            for (let i = 0; i < columnCount; i++) {
+                const colEl = document.createElement('div');
+                colEl.className = 'memory-surface-column';
+                cols.push(colEl);
+                surfaceContainer.appendChild(colEl);
+            }
+
+            memories.forEach((memory, idx) => {
+                const colIdx = idx % columnCount;
+                const card = this.createMemoryCard(memory, onDeleteClick, onEditTitleClick);
+                cols[colIdx].appendChild(card);
+            });
+        }
+
+        container.appendChild(surfaceContainer);
+    },
+
     renderTimeline(memories, onDeleteClick, onEditTitleClick) {
+        this.initSurfaceTabs();
+        this.initResizeHandler();
+        if (memories) this._cachedMemories = memories;
+        if (onDeleteClick) this._onDeleteClick = onDeleteClick;
+        if (onEditTitleClick) this._onEditTitleClick = onEditTitleClick;
+
         const pinnedSection = document.getElementById('pinned-captures-section');
         const pinnedFeed = document.getElementById('pinned-memory-feed');
         const pinnedEmptyState = document.getElementById('pinned-empty-state');
@@ -220,10 +339,12 @@ export const ui = {
         if (!memories || memories.length === 0) {
             if (recentEmptyState) recentEmptyState.classList.remove('hidden');
             if (recentContainer) recentContainer.classList.add('hidden');
-            if (feedCount) feedCount.textContent = '[0]';
+            if (feedCount) feedCount.textContent = '0';
             if (pinnedSection) pinnedSection.classList.add('hidden');
             return;
         }
+
+        const activeFilter = this._currentSurfaceFilter || 'all';
 
         const pinnedMemories = memories
             .filter(m => m.is_pinned || m.pinned_at != null)
@@ -231,6 +352,13 @@ export const ui = {
 
         const recentMemories = memories
             .filter(m => !m.is_pinned && m.pinned_at == null);
+
+        // Filter recent memories based on active view tab (All, Notes, Links)
+        const filteredRecentMemories = recentMemories.filter(memory => {
+            if (activeFilter === 'all') return true;
+            const type = this.classifyMemory(memory);
+            return type === (activeFilter === 'links' ? 'link' : 'note');
+        });
 
         // Render Pinned Section
         if (pinnedSection) {
@@ -241,28 +369,26 @@ export const ui = {
                 if (pinnedEmptyState) pinnedEmptyState.classList.remove('hidden');
             } else {
                 if (pinnedEmptyState) pinnedEmptyState.classList.add('hidden');
-                pinnedMemories.forEach(memory => {
-                    const card = this.createMemoryCard(memory, onDeleteClick, onEditTitleClick);
-                    pinnedFeed.appendChild(card);
-                });
+                this.renderFeedCards(pinnedFeed, pinnedMemories, onDeleteClick, onEditTitleClick);
             }
         }
 
-        // Render Recent Memories
-        if (recentMemories.length === 0 && pinnedMemories.length > 0) {
+        // Render Filtered Recent Memories
+        if (filteredRecentMemories.length === 0 && pinnedMemories.length > 0 && activeFilter === 'all') {
             // All memories are pinned
             if (recentEmptyState) recentEmptyState.classList.add('hidden');
             if (recentContainer) recentContainer.classList.remove('hidden');
-            if (feedCount) feedCount.textContent = '[0]';
+            if (feedCount) feedCount.textContent = '0';
+        } else if (filteredRecentMemories.length === 0) {
+            if (recentEmptyState) recentEmptyState.classList.remove('hidden');
+            if (recentContainer) recentContainer.classList.add('hidden');
+            if (feedCount) feedCount.textContent = '0';
         } else {
             if (recentEmptyState) recentEmptyState.classList.add('hidden');
             if (recentContainer) recentContainer.classList.remove('hidden');
-            if (feedCount) feedCount.textContent = `[${recentMemories.length.toString()}]`;
+            if (feedCount) feedCount.textContent = filteredRecentMemories.length.toString();
 
-            recentMemories.forEach(memory => {
-                const card = this.createMemoryCard(memory, onDeleteClick, onEditTitleClick);
-                recentContainer.appendChild(card);
-            });
+            this.renderFeedCards(recentContainer, filteredRecentMemories, onDeleteClick, onEditTitleClick);
         }
     },
 
@@ -304,10 +430,7 @@ export const ui = {
             return;
         }
 
-        results.forEach(memory => {
-            const card = this.createMemoryCard(memory, onDeleteClick, onEditTitleClick);
-            feed.appendChild(card);
-        });
+        this.renderFeedCards(feed, results, onDeleteClick, onEditTitleClick);
     },
 
     clearSearch() {
@@ -331,8 +454,9 @@ export const ui = {
         article.dataset.tags      = JSON.stringify(memory.tags || []);
         article.dataset.pinned    = (memory.is_pinned || memory.pinned_at != null) ? 'true' : 'false';
 
-        const isLink = memory.memory_type === 'link';
-        const typeLabel = isLink ? 'LINK' : 'NOTE';
+        const memoryClassification = this.classifyMemory(memory);
+        const isLink = memoryClassification === 'link';
+        const typeLabel = isLink ? 'Link' : 'Note';
         const isPinned = memory.is_pinned || memory.pinned_at != null;
 
         // Title Rendering Priority: User Title -> Enriched Title -> Temporary Title
@@ -348,7 +472,17 @@ export const ui = {
         const dateObj = new Date(memory.created_at || Date.now());
         const dateString = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
 
-        // Card Preview Priority: Enriched Summary -> Original Content / Link URL
+        // Media Thumbnail Wrap
+        let mediaHtml = '';
+        if (memory.thumbnail_url && memory.thumbnail_url.trim() !== '') {
+            mediaHtml = `
+                <div class="memory-card-image-wrap">
+                    <img src="${this.escapeHTML(memory.thumbnail_url)}" alt="" class="memory-card-thumbnail" loading="lazy" />
+                </div>
+            `;
+        }
+
+        // Summary / Context Preview
         let summaryHtml = '';
         if (memory.ai_summary && memory.ai_summary.trim() !== '' && memory.ai_summary !== memory.url) {
             summaryHtml = `<p class="memory-card-summary">${this.escapeHTML(memory.ai_summary)}</p>`;
@@ -373,22 +507,22 @@ export const ui = {
             `;
         }
 
+        const pinSvg = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="17" x2="12" y2="22"></line><path d="M5 17h14l-1.5-6H6.5L5 17z"></path><path d="M9 11V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v7"></path></svg>`;
+
         article.innerHTML = `
+            ${mediaHtml}
             <div class="memory-card-content-wrapper">
                 <div class="memory-card-main">
                     <div class="memory-card-top-row">
                         <h3 class="memory-card-title">${this.escapeHTML(titleText)}</h3>
-                        ${isPinned ? '<span class="memory-card-pin-badge" title="Pinned memory" aria-label="Pinned">📌</span>' : ''}
+                        ${isPinned ? `<span class="memory-card-pin-badge" title="Pinned memory" aria-label="Pinned">${pinSvg}</span>` : ''}
                     </div>
                     ${bodyHtml}
                     <div class="memory-card-meta-row">
                         <time datetime="${memory.created_at}">${dateString}</time>
-                        <span class="meta-separator">•</span>
+                        <span class="meta-separator">·</span>
                         <span class="meta-type-tag">${typeLabel}</span>
                     </div>
-                </div>
-                <div class="memory-card-arrow" aria-hidden="true">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                 </div>
             </div>
         `;
