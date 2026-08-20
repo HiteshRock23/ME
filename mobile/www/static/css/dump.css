@@ -1,6 +1,7 @@
 /* static/css/dump.css */
 
 .dump-screen {
+    width: 100%;
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -25,8 +26,8 @@
 }
 
 .dump-container {
-    width: 100%;
-    max-width: 680px;
+    width: min(100%, 680px);
+    margin-inline: auto;
     background: var(--bg-secondary);
     border-radius: 24px; /* Larger border radius */
     padding: var(--spacing-4xl); /* Increased padding */

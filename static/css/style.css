@@ -113,6 +113,19 @@ ul { list-style: none; }
 
 .hidden { display: none !important; }
 
+.landing-screen {
+    width: 100%;
+    margin-inline: auto;
+}
+
+.save-link-screen {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .container {
     width: 100%;
     max-width: var(--container-width);

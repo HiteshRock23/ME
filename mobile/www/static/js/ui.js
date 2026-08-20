@@ -92,7 +92,7 @@ export const ui = {
             if (el) {
                 if (id === screenId) {
                     el.classList.remove('hidden');
-                    el.style.display = 'block';
+                    el.style.display = '';
                     el.style.opacity = '1';
                     el.style.transform = 'none';
                     el.style.visibility = 'visible';
