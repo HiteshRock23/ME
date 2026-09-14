@@ -108,7 +108,7 @@ class AskService:
         serialized_references = [mem.to_dict() for mem in referenced_memories]
 
         from django.conf import settings
-        provider_name = getattr(settings, "LLM_PROVIDER", "nvidia").lower()
+        provider_name = getattr(settings, "LLM_PROVIDER", "google").lower().strip()
 
         return {
             "question": clean_question,

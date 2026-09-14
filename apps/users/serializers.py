@@ -1,7 +1,13 @@
+from typing import TYPE_CHECKING
+
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-User = get_user_model()
+if TYPE_CHECKING:
+    from apps.users.models import User
+else:
+    User = get_user_model()
+
 
 
 class RegisterSerializer(serializers.ModelSerializer):

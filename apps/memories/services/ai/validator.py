@@ -63,15 +63,18 @@ class ResponseValidator:
     def validate_answer(response_text: str) -> Dict[str, str]:
         """
         Validates the Ask ME response.
-        Expects: {"answer": "..."} (and optionally "confidence", but only "answer" is strictly required by the business logic)
+        Expects: {"answer": "..."} or raw text fallback.
         """
-        data = ResponseValidator._parse_json(response_text)
-        
-        answer = data.get("answer")
-        
-        if not isinstance(answer, str):
-            raise ResponseValidatorError("Ask ME JSON must contain 'answer' as a string.")
-            
-        return {
-            "answer": answer.strip()
-        }
+        try:
+            data = ResponseValidator._parse_json(response_text)
+            answer = data.get("answer")
+            if isinstance(answer, str) and answer.strip():
+                return {"answer": answer.strip()}
+        except ResponseValidatorError:
+            pass
+
+        if isinstance(response_text, str) and response_text.strip():
+            return {"answer": response_text.strip()}
+
+        raise ResponseValidatorError("Ask ME response is empty.")
+

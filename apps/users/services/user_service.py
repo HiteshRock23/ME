@@ -1,6 +1,12 @@
+from typing import TYPE_CHECKING
+
 from django.contrib.auth import get_user_model
 
-User = get_user_model()
+if TYPE_CHECKING:
+    from apps.users.models import User
+else:
+    User = get_user_model()
+
 
 
 def create_user(

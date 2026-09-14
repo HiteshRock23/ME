@@ -215,7 +215,7 @@ SUPERMEMORY_TIMEOUT = config("SUPERMEMORY_TIMEOUT", default=10, cast=int)
 # AI CONFIGURATION
 # =============================================================================
 AI_API = config('AI_API', default='')
-AI_MODEL = config('AI_MODEL', default='meta/llama-3.1-8b-instruct')
+AI_MODEL = config('AI_MODEL', default='nvidia/Kumo Relational')
 LLM_PROVIDER = config('LLM_PROVIDER', default='mock')
 
 # =============================================================================
